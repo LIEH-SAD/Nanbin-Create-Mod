@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nanbin:block/crt_fence_7", "y": 180, "uvlock": true },
+    "facing=east":  { "model": "nanbin:block/crt_fence_7", "y": 270, "uvlock": true },
+    "facing=south": { "model": "nanbin:block/crt_fence_7", "y": 0, "uvlock": true },
+    "facing=west":  { "model": "nanbin:block/crt_fence_7", "y": 90, "uvlock": true }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "liehnanbin",
+  "version": "2.2+mtr4",
+  "name": "Nanbin",
+    "description": "This software uses HarmonyOS Sans fonts.Copyright © 2021 Huawei Device Co., Ltd.",
+  "authors": [
+    "LIEH-SAD"
+  ],
+  "contact": {
+    "homepage": "https://lieh-sad.github.io/nanbin",
+    "sources": "https://github.com/LIEH-SAD"
+  },
+  "license": "MIT",
+  "icon": "assets/nanbin/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.Nanbin.nanbin"
+    ],
+    "client": [
+      "com.client.nanbinClient"
+    ]
+  },
+  "mixins": [
+    "nanbin.mixins.json",
+    {
+      "config": "nanbin.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api": "*",
+    "minecraft": "1.20.x",
+    "mtr":  "*",
+    "filters": "*"
+   },
+  "suggests": {
+    "another-mod": "*"
+  }
+  }
+
