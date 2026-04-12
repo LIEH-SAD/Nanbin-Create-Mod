@@ -1,0 +1,25 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "mtr:block/black",
+		"1": "mtr:block/psd_glass_diagonal_top_2",
+		"2": "mtr:block/psd_glass_diagonal_top_back_2",
+		"particle": "mtr:block/black"
+	},
+	"elements": [
+		{
+			"from": [1, 0, 0],
+			"to": [4, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [1, 0, 0]},
+			"faces": {
+				"north": {"uv": [3, 0, 0, 16], "texture": "#0", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"south": {"uv": [0, 0, 3, 16], "texture": "#0", "cullface": "south"},
+				"west": {"uv": [16, 0, 0, 16], "texture": "#2", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 3], "rotation": 270, "texture": "#0", "cullface": "up"}
+			}
+		}
+	]
+}

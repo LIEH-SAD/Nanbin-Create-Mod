@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "nanbin",
+  "version": "Beta2.3+mtr3",
+  "name": "Nanbin",
+  "description": "",
+  "authors": ["LIEH-SAD"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/nanbin/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.client.nanbinClient"
+    ],
+    "main": [
+      "com.Nanbin.nanbin"
+    ]
+  },
+  "mixins": [
+    "nanbin.mixins.json",
+    {
+      "config": "nanbin.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "1.19.x",
+    "java": ">=21",
+    "mtr": "*"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:trash",
+      "count": 8
+    }
+  ],
+  "result": {
+    "item": "nanbin:emetic",
+    "count": 1
+  }
+}
