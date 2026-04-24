@@ -14,13 +14,13 @@ public class BlockCeilingLight extends HorizontalFacingBlock {
     //先声明光源
     public static final BooleanProperty LIT = Properties.LIT;
 
-    private static final VoxelShape CELING_NORTH = Block.createCuboidShape(0, 4, 0, 16, 16, 16);
+    private static final VoxelShape CELING_NORTH = Block.createCuboidShape(0, 14, 0, 16, 16, 16);
 
-    private static final VoxelShape CELING_EAST = Block.createCuboidShape(0, 4, 0, 16, 16, 16);
+    private static final VoxelShape CELING_EAST = Block.createCuboidShape(0, 14, 0, 16, 16, 16);
 
-    private static final VoxelShape CELING_SOUTH =Block.createCuboidShape(0, 4, 0, 16, 16, 16);
+    private static final VoxelShape CELING_SOUTH =Block.createCuboidShape(0, 14, 0, 16, 16, 16);
 
-    private static final VoxelShape CELING_WEST = Block.createCuboidShape(0, 4, 0, 16, 16, 16);
+    private static final VoxelShape CELING_WEST = Block.createCuboidShape(0, 14, 0, 16, 16, 16);
 
     public BlockCeilingLight(AbstractBlock.Settings settings) {
         super(settings.luminance(state -> 15));

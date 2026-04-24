@@ -10,7 +10,6 @@ import com.Nanbin.Registry.RegBlock.TallFence.*;
 import mtr.block.BlockPlatform;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
-import net.minecraft.block.GlazedTerracottaBlock;
 import net.minecraft.block.Material;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.item.BlockItem;
@@ -18,7 +17,8 @@ import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
+import static com.Nanbin.nanbin.LOGGER;
+
 
 public class Blocks {
     public static final Block CRT_LOGO = new BlockCRTLogo(FabricBlockSettings.of(Material.GLASS).hardness(16.0f));

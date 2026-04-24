@@ -6,10 +6,12 @@ import com.Nanbin.Items.Items;
 import com.Nanbin.ItemsGroup.ItemsGroup;
 import com.Nanbin.Registry.NanbinSoundEvents;
 import net.fabricmc.api.ModInitializer;
-
-import static com.mojang.text2speech.Narrator.LOGGER;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class nanbin implements ModInitializer {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger("Nanbin Create Mod");
 
     @Override
     public void onInitialize() {

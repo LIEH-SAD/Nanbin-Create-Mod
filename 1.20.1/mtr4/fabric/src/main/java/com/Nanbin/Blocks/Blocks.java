@@ -2,15 +2,14 @@
 package com.Nanbin.Blocks;
 
 import com.Nanbin.ItemsGroup.ItemsGroup;
-import com.Nanbin.Registry.Init;
 import com.Nanbin.Registry.RegBlock.*;
+import com.Nanbin.Registry.RegBlock.TallFence.*;
 import net.minecraft.block.AbstractBlock;
 import org.mtr.mapping.holder.Block;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.SlabBlockExtension;
 import org.mtr.mapping.registry.BlockRegistryObject;
-import org.mtr.mod.CreativeModeTabs;
 import org.mtr.mod.block.BlockGlassFence;
 import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.block.BlockStationColor;
@@ -35,6 +34,16 @@ public class Blocks {
     public final static BlockRegistryObject CRT_LIFT_TIPS;
     public final static BlockRegistryObject BEHAVIORALBLOCK;
     public final static BlockRegistryObject BEHAVIORALBLOCK_;
+    public final static BlockRegistryObject LOGO;
+    public final static BlockRegistryObject CEILING;
+    public final static BlockRegistryObject CEILING_LIGHT;
+    //public final static BlockRegistryObject PSD_TOP;
+    public final static BlockRegistryObject BLUEFENCE;
+    public final static BlockRegistryObject BLUEFENCE_TOP;
+    public final static BlockRegistryObject GREENFENCE;
+    public final static BlockRegistryObject GREENFENCE_TOP;
+    public final static BlockRegistryObject METALFENCE;
+    public final static BlockRegistryObject METALFENCE_TOP;
     public final static BlockRegistryObject NANBIN_WHITE_BLOCK;
     public final static BlockRegistryObject NANBIN_RED_BLOCK;
     public final static BlockRegistryObject NANBIN_YELLOW_BLOCK;
@@ -90,12 +99,22 @@ public class Blocks {
         CRT_TICKET_2_EXIT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_barrier_exit_2"), () -> new Block(new BlockCrtTicket(false)), ItemsGroup.CRT);
         CRT_OLD_WALL1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_old_wall_1"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, ItemsGroup.CRT);
         CRT_OLD_WALL2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_old_wall_2"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CRT);
-        CRT_LIFT_TIPS = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_lift_tips"), () -> new Block(new BlockMTRLogo(AbstractBlock.Settings.create().nonOpaque())), ItemsGroup.USING_RAILWAY_BUILD);
+        CRT_LIFT_TIPS = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_lift_tips"), () -> new Block(new BlockMTRLogo(AbstractBlock.Settings.create().nonOpaque())), ItemsGroup.CRT);
         CRT_FENCE1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_1"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
         CRT_FENCE8 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_8"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
         CRT_FENCE9 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_9"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
         BEHAVIORALBLOCK = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "behavioral_block"), () -> new Block(new BlockBehavioral(AbstractBlock.Settings.create())), ItemsGroup.USING_RAILWAY_BUILD);
         BEHAVIORALBLOCK_ = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "behavioral_block_90"), () -> new Block(new BlockBehavioralVertical(AbstractBlock.Settings.create())), ItemsGroup.USING_RAILWAY_BUILD);
+        LOGO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "logo"), () -> new Block(new BlockMTRLogo(AbstractBlock.Settings.create())),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        CEILING = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling"), () -> new Block(new BlockCeiling(AbstractBlock.Settings.create())),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        CEILING_LIGHT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling_light"), () -> new Block(new BlockCeilingLight(AbstractBlock.Settings.create())),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        //PSD_TOP = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "psd_top"), () -> new Block(new BlockPSDTop()), ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        BLUEFENCE = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "bluefence"), () -> new Block(new BlockBlueFence(AbstractBlock.Settings.create().nonOpaque())),ItemsGroup.CITY_BUILDING_BLOCKS);
+        BLUEFENCE_TOP = REGISTRY.registerBlock(new Identifier(MOD_ID, "bluefence_top"), () -> new Block(new BlockBlueFenceTop(AbstractBlock.Settings.create().nonOpaque())));
+        GREENFENCE = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "greenfence"), () -> new Block(new BlockGreenFence(AbstractBlock.Settings.create().nonOpaque())),ItemsGroup.CITY_BUILDING_BLOCKS);
+        GREENFENCE_TOP = REGISTRY.registerBlock(new Identifier(MOD_ID, "greenfence_top"), () -> new Block(new BlockGreenFenceTop(AbstractBlock.Settings.create().nonOpaque())));
+        METALFENCE = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "metalfence"), () -> new Block(new BlockMetalFence(AbstractBlock.Settings.create().nonOpaque())),ItemsGroup.CITY_BUILDING_BLOCKS);
+        METALFENCE_TOP = REGISTRY.registerBlock(new Identifier(MOD_ID, "metalfence_top"), () -> new Block(new BlockMetalFenceTop(AbstractBlock.Settings.create().nonOpaque())));
         NANBIN_WHITE_BLOCK = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "white_block"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
         NANBIN_RED_BLOCK = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "red_block"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
         NANBIN_YELLOW_BLOCK = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "yellow_block"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
@@ -143,6 +162,5 @@ public class Blocks {
         YELLOW_TACTILE_BAVING_CONNECT_HALF = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "yellow_tactile_paving_connect_half"), () -> new Block(new SlabBlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
     }
 
-    public static void init() {
-        }
+    public static void init() {}
     }

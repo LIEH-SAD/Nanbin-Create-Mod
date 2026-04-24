@@ -7,7 +7,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
+import static com.Nanbin.nanbin.LOGGER;
 
 public class ItemsGroup {
     public static ItemGroup CITY_BUILDING_BLOCKS = FabricItemGroupBuilder.build(

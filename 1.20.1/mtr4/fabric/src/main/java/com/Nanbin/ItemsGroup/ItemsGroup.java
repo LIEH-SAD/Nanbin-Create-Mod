@@ -19,7 +19,7 @@ public class ItemsGroup {
 
     static {
         CITY_BUILDING_BLOCKS = REGISTRY.createCreativeModeTabHolder(new Identifier(MOD_ID, "city_building_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.LIGHT_GREEN_BLOCK.get().data)));
-        USING_STATION_BUILDING_BLOCKS = REGISTRY.createCreativeModeTabHolder(new Identifier(MOD_ID, "using_station_building_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.LIGHT_PINK_BLOCK.get().data)));
+        USING_STATION_BUILDING_BLOCKS = REGISTRY.createCreativeModeTabHolder(new Identifier(MOD_ID, "using_station_building_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.LOGO.get().data)));
         USING_RAILWAY_BUILD = REGISTRY.createCreativeModeTabHolder(new Identifier(MOD_ID, "using_railway_build"), () -> new ItemStack(new ItemConvertible(Items.RAIL_CONNECTOR_300_ONE_WAY.get().data)));
         CRT = REGISTRY.createCreativeModeTabHolder(new Identifier(MOD_ID, "crt_building_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.CRT_LOGO.get().data)));
     }

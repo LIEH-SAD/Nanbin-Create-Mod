@@ -17,7 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
+import static com.Nanbin.nanbin.LOGGER;
 
 public class PlatformDoors {
     public static final Block PLATFORM_DOOR = new DoorBlock(FabricBlockSettings.copyOf(Blocks.IRON_DOOR).nonOpaque()) {

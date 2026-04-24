@@ -6,7 +6,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
+import static com.Nanbin.nanbin.LOGGER;
 
 public class Items {
     public static final Item TRASH = new Item(new Item.Settings().group(ItemGroup.MISC));
