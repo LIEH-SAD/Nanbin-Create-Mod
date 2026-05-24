@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "nanbin",
+  "version": "Bate2.2+NeoMTR1.21.1",
+  "name": "NeoNanbin",
+  "description": "NeoNanbin is a Mod powerd by Nanbin Create Mod to adapt NeoMTR",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/nanbin/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.client.nanbinClient"
+    ],
+    "main": [
+      "com.nanbin"
+    ]
+  },
+  "mixins": [
+    "nanbin.mixins.json",
+    {
+      "config": "nanbin.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}",
+    "mtr": "*"
+  }
+}

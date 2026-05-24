@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nanbin:block/crt_logo", "uvlock": true },
+    "facing=east":  { "model": "nanbin:block/crt_logo", "y":  90, "uvlock": true },
+    "facing=south": { "model": "nanbin:block/crt_logo", "y": 180, "uvlock": true },
+    "facing=west":  { "model": "nanbin:block/crt_logo", "y": 270, "uvlock": true }
+  }
+}

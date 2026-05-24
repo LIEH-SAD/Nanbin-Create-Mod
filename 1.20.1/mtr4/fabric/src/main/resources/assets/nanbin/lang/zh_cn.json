@@ -1,4 +1,13 @@
 {
+  "FiltersGroup.nanbin.crt_fence": "CRT 栏杆方块",
+  "FiltersGroup.nanbin.crt_building_blocks": "CRT 建设方块",
+  "FiltersGroup.nanbin.crt_tickets": "CRT 闸机方块",
+  "FiltersGroup.nanbin.crt_overhead_lines": "CRT 接触网",
+  "FiltersGroup.nanbin.crt_door": "CRT门方块",
+  "FiltersGroup.nanbin.common_building_blocks": "普通建设方块",
+  "FiltersGroup.nanbin.road_blocks": "道路方块",
+  "FiltersGroup.nanbin.fence_blocks": "栅栏方块",
+
   "itemGroup.nanbin.city_building_blocks": "城市建筑方块",
   "itemGroup.nanbin.using_railway_build": "通用铁路建设",
   "itemGroup.nanbin.crt_building_blocks": "重庆轨道交通建筑方块",
@@ -9,11 +18,12 @@
   "block.nanbin.drain_cover": "方形井盖（可叠加）",
 
   "block.nanbin.logo": "MTR墙贴标志",
-  "block.nanbin.platform_door": "站台末端驾驶室门",
+  "block.nanbin.ordinary_psd_cab_door": "普通高架端门",
   "block.nanbin.platform_door.tooltip": "只能使用驾驶钥匙打开",
   "block.nanbin.psd_top": "屏蔽门吊板",
-  "block.nanbin.ceiling": "天花板（无灯）",
-  "block.nanbin.ceiling_light": "天花板（带灯）",
+  "block.nanbin.ceiling": "天花板",
+  "block.nanbin.ceiling_overhead": "天花板（架空）",
+  "block.nanbin.ceiling_light": "天花板灯",
 
   "block.nanbin.crt_old_wall_1": "（样式一）CRT老车站墙砖",
   "block.nanbin.crt_old_wall_1.tooltip": "素材来源于三号线重庆北站南广场",
@@ -24,6 +34,7 @@
   "block.nanbin.crt_barrier_exit_1": "CRT出站闸机(璧山站)",
   "block.nanbin.crt_barrier_entrance_2": "CRT入站闸机(大礼堂站)",
   "block.nanbin.crt_barrier_exit_2": "CRT出站闸机(大礼堂站)",
+  "block.nanbin.crt_ticket_machine_1": "壁铜线自助票务机",
 
   "block.nanbin.crt_fence_1": "CRT栏杆（水平）",
   "block.nanbin.crt_fence_2": "CRT栏杆（右上起点）",
@@ -35,10 +46,13 @@
   "block.nanbin.crt_fence_8": "CRT栏杆（水平末端右）",
   "block.nanbin.crt_fence_9": "CRT栏杆（水平末端左）",
   "block.nanbin.crt_fence_10": "CRT栏杆（90）",
-  "block.nanbin.crt_lift_tips": "乘梯须知",
+  "block.nanbin.crt_lift_tips": "乘梯须知1",
+  "block.nanbin.crt_lift_tips_3": "乘梯须知3",
+  "block.nanbin.crt_apg_cab_door_old": "高架端门",
+  "block.nanbin.crt_apg_cab_fence_old": "高架端栏",
+  "block.nanbin.crt_apg_cab_door_new": "新高架端门",
 
   "block.nanbin.crt_logo": "重庆轨道交通标志",
-  "block.nanbin.crt_logo.tooltip": "鬼司棒棒糖",
 
   "block.nanbin.chengdu_metro_logo": "成都地铁标志",
   "block.nanbin.chengdu_metro_logo.tooltip": "来成都，你只能算个萝莉",
@@ -106,5 +120,14 @@
   "block.nanbin.short_soundproofnet": "半高隔音网",
   "block.nanbin.soundproofnet_up": "地铁隔音网（顶部）",
   "block.nanbin.behavioral_block": "行径方块",
-  "block.nanbin.behavioral_block_90": "行径方块 (90°)"
+  "block.nanbin.behavioral_block_90": "行径方块 (90°)",
+
+  "tips.fence_no_space": "无法在4格以下放置围栏",
+  "tips.fence_too_high": "无法在此处放置围栏，会超出世界高度限制",
+  "tips.cabdoor.open": "端门已开启",
+  "tips.cabdoor.close": "端门已关闭",
+  "tips.cabdoor.has.low": "权限不足以开启端门",
+  "tips.cabdoor.has.nokey": "使用钥匙以开启端门",
+
+  "pids.crt_1": "重庆轨道交通乘客咨询屏概念版"
 }

@@ -1,5 +1,7 @@
 package com.Nanbin.Registry.RegBlock;
 
+import com.Nanbin.Blocks.BlockEntityTypes;
+import jakarta.annotation.Nonnull;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
@@ -11,6 +13,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
+import org.mtr.mapping.mapper.BlockEntityExtension;
+import org.mtr.mod.block.BlockStationNameWallBase;
+import org.mtr.mod.block.BlockStationNameWallWhite;
 
 public class BlockCRTLogo extends HorizontalFacingBlock {
 

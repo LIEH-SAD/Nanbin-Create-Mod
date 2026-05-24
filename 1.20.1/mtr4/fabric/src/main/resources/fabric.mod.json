@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "liehnanbin",
-  "version": "2.4+mtr4",
+  "version": "2.5+mtr4",
   "name": "Nanbin",
     "description": "This software uses HarmonyOS Sans fonts.Copyright © 2021 Huawei Device Co., Ltd.",
   "authors": [
@@ -19,7 +19,7 @@
       "com.Nanbin.nanbin"
     ],
     "client": [
-      "com.client.nanbinClient"
+      "com.Nanbin.client.nanbinClient"
     ]
   },
   "mixins": [

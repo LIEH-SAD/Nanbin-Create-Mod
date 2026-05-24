@@ -1,6 +1,5 @@
 package com.Nanbin.Items;
 
-import com.Nanbin.ItemsGroup.ItemsGroup;
 import com.Nanbin.Registry.RegItem.ItemPhone;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.Item;
@@ -8,7 +7,7 @@ import org.mtr.mapping.registry.ItemRegistryObject;
 import org.mtr.mod.CreativeModeTabs;
 import org.mtr.mod.Init;
 
-import static com.Nanbin.Registry.Init.MOD_ID;
+import static com.Nanbin.Init.MOD_ID;
 
 
 public class Items {

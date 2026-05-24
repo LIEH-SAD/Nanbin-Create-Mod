@@ -9,7 +9,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.World; // 新增导入
+import net.minecraft.world.World;
 
 public class BlockMetalFenceTop extends Block {
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;

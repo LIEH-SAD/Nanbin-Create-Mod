@@ -1,0 +1,26 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "nanbin:block/metal",
+		"1": "nanbin:block/cab_door_apg_bottom",
+		"5": "nanbin:block/air",
+		"particle": "nanbin:block/metal"
+	},
+	"elements": [
+		{
+			"from": [2, 0, 0],
+			"to": [4, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [2, 0, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 2, 16], "texture": "#0"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"south": {"uv": [0, 0, 2, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"up": {"uv": [0, 0, 2, 16], "texture": "#5"},
+				"down": {"uv": [0, 0, 2, 16], "texture": "#0"}
+			}
+		}
+	]
+}

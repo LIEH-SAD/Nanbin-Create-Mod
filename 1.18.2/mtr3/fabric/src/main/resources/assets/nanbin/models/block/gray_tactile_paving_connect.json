@@ -1,0 +1,7 @@
+{
+  "parent": "nanbin:block/tactile_paving_connect",
+  "textures": {
+    "main": "nanbin:block/dark_gray",
+    "side": "nanbin:block/gray"
+  }
+}

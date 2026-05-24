@@ -1,0 +1,10 @@
+{
+	"crt_ticket": {
+		"sounds": [
+			{
+				"name": "nanbin:crt_ticket",
+				"pitch": 1
+			}
+		]
+	}
+}

@@ -1,0 +1,24 @@
+{
+  "format_version": "1.18.2",
+  "parent": "block/block",
+  "textures": {
+    "particle": "nanbin:block/grey"
+  },
+  "elements": [
+    {
+      "from": [-16, 3, 0],
+      "to": [0, 13, 0.8],
+      "model": "nanbin:block/signboard_left"
+    },
+    {
+      "from": [0, 3, 0],
+      "to": [16, 13, 0.8],
+      "model": "nanbin:block/signboard_bottle"
+    },
+    {
+      "from": [16, 3, 0],
+      "to": [32, 13, 0.8],
+      "model": "nanbin:block/signboard_right"
+    }
+  ]
+}

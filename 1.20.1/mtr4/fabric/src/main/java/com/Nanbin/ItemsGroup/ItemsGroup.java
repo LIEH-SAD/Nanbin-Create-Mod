@@ -8,8 +8,8 @@ import org.mtr.mapping.holder.ItemStack;
 import org.mtr.mapping.registry.CreativeModeTabHolder;
 import org.mtr.mod.Items;
 
-import static com.Nanbin.Registry.Init.MOD_ID;
-import static com.Nanbin.Registry.Init.REGISTRY;
+import static com.Nanbin.Init.MOD_ID;
+import static com.Nanbin.Init.REGISTRY;
 
 public class ItemsGroup {
     public static final CreativeModeTabHolder CITY_BUILDING_BLOCKS;

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "nanbin",
+  "version": "2.5+mtr3",
+  "name": "Nanbin",
+  "description": "你的创意，需要表达",
+  "authors": ["LIEH-SAD"],
+  "contact": {
+  "homepage": "https://lieh-sad.github.io/nanbin/"
+},
+  "license": "MIT",
+  "icon": "assets/nanbin/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.Nanbin.client.nanbinClient"
+    ],
+    "main": [
+      "com.Nanbin.nanbin"
+    ]
+  },
+  "mixins": [
+    "nanbin.mixins.json",
+    {
+      "config": "nanbin.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "fabric-api": "*",
+    "minecraft": "1.18.x",
+    "java": ">=17",
+    "mtr": "*"
+  }
+}

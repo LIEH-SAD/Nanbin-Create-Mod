@@ -37,6 +37,9 @@ repositories {
         name = "Modrinth"
         url = "https://api.modrinth.com/maven"
     }
+    maven {
+        url = "https://maven.ziyuesinicization.site/releases/"
+    }
 }
 
 dependencies {
@@ -44,9 +47,9 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "maven.modrinth:minecraft-transit-railway:FABRIC-1.19.2-3.2.2-hotfix-1"
+    modApi("ziyue.filters:filters-fabric:1.0.0+1.19.2") {exclude(group: "net.fabricmc")}
 }
 
 processResources {

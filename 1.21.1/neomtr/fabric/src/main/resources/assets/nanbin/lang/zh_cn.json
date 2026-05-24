@@ -1,0 +1,82 @@
+{
+  "itemGroup.nanbin.city_building_blocks": "城市建筑方块",
+  "itemGroup.nanbin.using_railway_build": "通用铁路建设",
+  "itemGroup.nanbin.crt_building_blocks": "重庆轨道交通建筑方块",
+  "itemGroup.nanbin.chengdu_metro_building_blocks": "成都地铁建筑方块",
+  "itemGroup.nanbin.using_station_building_blocks": "通用车站建设",
+
+  "block.nanbin.table_light": "台灯",
+
+  "block.nanbin.logo": "MTR墙贴标志",
+  "block.nanbin.door": "站台末端驾驶室门",
+  "block.nanbin.door.tooltip": "只能使用驾驶钥匙打开",
+  "block.nanbin.apgdoor": "屏蔽门吊板",
+  "block.nanbin.celing": "天花板（无灯）",
+  "block.nanbin.celing_light": "天花板（带灯）",
+
+  "block.nanbin.crt_old_wall_1": "（样式一）CRT老车站墙砖",
+  "block.nanbin.crt_old_wall_1.tooltip": "素材来源于三号线重庆北站南广场",
+  "block.nanbin.crt_old_wall_2": "（样式二）CRT老车站墙砖",
+  "block.nanbin.crt_old_wall_2.tooltip": "素材来源于三号线重庆北站南广场",
+  "block.nanbin.crt_platform": "CRT站台方块",
+
+  "block.nanbin.crt_fence_1": "CRT栏杆（水平）",
+  "block.nanbin.crt_fence_2": "CRT栏杆（右上起点）",
+  "block.nanbin.crt_fence_3": "CRT栏杆（楼梯右上）",
+  "block.nanbin.crt_fence_4": "CRT栏杆（右上终点）",
+  "block.nanbin.crt_fence_5": "CRT栏杆（左上起点）",
+  "block.nanbin.crt_fence_6": "CRT栏杆（楼梯左上）",
+  "block.nanbin.crt_fence_7": "CRT栏杆（左上终点）",
+  "block.nanbin.crt_fence_8": "CRT栏杆（水平末端右）",
+  "block.nanbin.crt_fence_9": "CRT栏杆（水平末端左）",
+  "block.nanbin.crt_fence_10": "CRT栏杆（90）",
+
+  "block.nanbin.crt_logo": "重庆轨道交通标志",
+  "block.nanbin.crt_logo.tooltip": "鬼司棒棒糖",
+
+  "block.nanbin.chengdu_metro_logo": "成都地铁标志",
+  "block.nanbin.chengdu_metro_logo.tooltip": "来成都，你只能算个萝莉",
+
+  "item.nanbin.trash": "平平无奇的垃圾",
+  "item.nanbin.trash.tooltip": "平平无奇的垃圾，可能有点用？",
+
+  "item.nanbin.emetic": "催吐剂",
+  "item.nanbin.emetic.tooltip": "可以催吐的神秘配方，使用后饱食度清零",
+
+
+
+  "block.nanbin.white_block": "白色方块",
+  "block.nanbin.red_block": "红色方块",
+  "block.nanbin.yellow_block": "黄色方块",
+  "block.nanbin.green_block": "绿色方块",
+  "block.nanbin.blue_block": "蓝色方块",
+  "block.nanbin.purple_block": "紫色方块",
+  "block.nanbin.pink_block": "粉色方块",
+  "block.nanbin.black_marble": "黑色大理石",
+  "block.nanbin.white_marble": "白色大理石",
+  "block.nanbin.cement": "水泥",
+
+  "block.nanbin.light_red_block": "淡红色方块",
+  "block.nanbin.light_yellow_block": "淡黄色方块",
+  "block.nanbin.light_green_block": "淡绿色方块",
+  "block.nanbin.light_blue_block": "淡蓝色方块",
+  "block.nanbin.light_purple_block": "淡紫色方块",
+  "block.nanbin.light_pink_block": "淡粉色方块",
+  "block.nanbin.crt_red_wall_block": "红色墙砖方块",
+  "block.nanbin.crt_yellow_wall_block": "黄色墙砖方块",
+  "block.nanbin.crt_green_wall_block": "绿色墙砖方块",
+  "block.nanbin.crt_blue_wall_block": "蓝色墙砖方块",
+  "block.nanbin.crt_purple_wall_block": "紫色墙砖方块",
+  "block.nanbin.crt_pink_wall_block": "粉色墙砖方块",
+  "block.nanbin.crt_gradient_red_wall_block": "红色渐变墙砖方块",
+  "block.nanbin.crt_gradient_yellow_wall_block": "黄色渐变墙砖方块",
+  "block.nanbin.crt_gradient_green_wall_block": "绿色渐变墙砖方块",
+  "block.nanbin.crt_gradient_blue_wall_block": "蓝色渐变墙砖方块",
+  "block.nanbin.crt_gradient_purple_wall_block": "紫色渐变墙砖方块",
+  "block.nanbin.crt_gradient_pink_wall_block": "粉色渐变墙砖方块",
+
+  "block.nanbin.soundproofnet": "地铁隔音网",
+  "block.nanbin.soundproofnet_up": "地铁隔音网（顶部）",
+  "block.nanbin.behavioral_block": "行径方块",
+  "block.nanbin.behavioral_block_90": "行径方块 (90°)"
+}

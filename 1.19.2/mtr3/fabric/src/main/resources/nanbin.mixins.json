@@ -10,5 +10,5 @@
   "overwrites": {
     "requireAnnotations": true
   },
-  "package": ""
+  "package": "com.Nanbin.mixin"
 }
