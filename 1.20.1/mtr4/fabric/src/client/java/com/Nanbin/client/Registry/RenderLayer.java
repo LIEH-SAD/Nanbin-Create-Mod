@@ -24,7 +24,11 @@ public class RenderLayer {
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.METALFENCE_TOP.get().data, net.minecraft.client.render.RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.ORDINARY_PSD_CAB_DOOR.get().data, net.minecraft.client.render.RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_APG_CAB_DOOR_OLD.get().data, net.minecraft.client.render.RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_APG_CAB_FENCE_OLD.get().data, net.minecraft.client.render.RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_APG_CAB_FENCE_OLD_CONNECT.get().data, net.minecraft.client.render.RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_APG_CAB_DOOR_NEW.get().data, net.minecraft.client.render.RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_PSD_CAB_DOOR.get().data, net.minecraft.client.render.RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(Blocks.SOUNDPROOFNET_GLASS.get().data, net.minecraft.client.render.RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(Blocks.SOUNDPROOFNET_GLASS_2.get().data, net.minecraft.client.render.RenderLayer.getCutout());
     }
 }

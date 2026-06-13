@@ -1,0 +1,36 @@
+{
+	"variants": {
+		"facing=north,half=lower": {
+			"model": "nanbin:block/crt_cab_door_apg_old/fence_apg_bottom",
+			"y": 90
+		},
+		"facing=east,half=lower": {
+			"model": "nanbin:block/crt_cab_door_apg_old/fence_apg_bottom",
+			"y": 180
+		},
+		"facing=south,half=lower": {
+			"model": "nanbin:block/crt_cab_door_apg_old/fence_apg_bottom",
+			"y": 270
+		},
+		"facing=west,half=lower": {
+			"model": "nanbin:block/crt_cab_door_apg_old/fence_apg_bottom",
+			"y": 0
+		},
+		"facing=north,half=upper": {
+			"model": "nanbin:block/crt_cab_door_apg_old/fence_apg_top",
+			"y": 90
+		},
+		"facing=east,half=upper": {
+			"model": "nanbin:block/crt_cab_door_apg_old/fence_apg_top",
+			"y": 180
+		},
+		"facing=south,half=upper": {
+			"model": "nanbin:block/crt_cab_door_apg_old/fence_apg_top",
+			"y": 270
+		},
+		"facing=west,half=upper": {
+			"model": "nanbin:block/crt_cab_door_apg_old/fence_apg_top",
+			"y": 0
+		}
+	}
+}

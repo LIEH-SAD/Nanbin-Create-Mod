@@ -1,20 +1,23 @@
 {
   "schemaVersion": 1,
-  "id": "liehnanbin",
-  "version": "2.5+mtr4",
-  "name": "Nanbin",
-    "description": "This software uses HarmonyOS Sans fonts.Copyright © 2021 Huawei Device Co., Ltd.",
+  "id": "lieh-nanbin",
+  "version": "3.0+mtr4",
+  "name": "Nanbin Create Mod",
+    "description": "MTR ? START!!!",
   "authors": [
     "LIEH-SAD"
   ],
   "contact": {
     "homepage": "https://lieh-sad.github.io/nanbin",
-    "sources": "https://github.com/LIEH-SAD"
+    "sources": "https://github.com/LIEH-SAD/Nanbin-Create-Mod"
   },
   "license": "MIT",
   "icon": "assets/nanbin/icon.png",
   "environment": "*",
   "entrypoints": {
+    "modmenu": [
+      "com.Nanbin.client.ModmenuConfig"
+    ],
     "main": [
       "com.Nanbin.nanbin"
     ],
@@ -37,7 +40,8 @@
     "filters": "*"
    },
   "suggests": {
-    "another-mod": "*"
+    "architectury": "9.2.14",
+    "jsblock": "2.2.0+1.20.1"
   }
   }
 

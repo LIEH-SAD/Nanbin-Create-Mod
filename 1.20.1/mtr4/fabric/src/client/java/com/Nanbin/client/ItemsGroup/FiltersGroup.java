@@ -42,11 +42,13 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_TICKET_MACHINE_1.get().data.asItem());
 
         //CRT_OVERHEAD_LINES = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_overhead_lines"), () -> new ItemStack(Blocks.CRT_LOGO.get().data))
-        //        .addItems();
+                //.addItems(Blocks.CRT_RIGID_CATENARY_1.get().data.asItem());
 
         CRT_DOOR = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_door"), () -> new ItemStack(Blocks.CRT_APG_CAB_DOOR_NEW.get().data))
                 //.addItems(Blocks.CRT_PSD_CAB_DOOR.get().data.asItem())
                 .addItems(Blocks.CRT_APG_CAB_DOOR_OLD.get().data.asItem())
+                .addItems(Blocks.CRT_APG_CAB_FENCE_OLD.get().data.asItem())
+                .addItems(Blocks.CRT_APG_CAB_FENCE_OLD_CONNECT.get().data.asItem())
                 .addItems(Blocks.CRT_APG_CAB_DOOR_NEW.get().data.asItem());
 
         COMMON_BUILDING_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS.creativeModeTab, Text.translatable("FiltersGroup.nanbin.common_building_blocks"), () -> new ItemStack(Blocks.NANBIN_BLUE_BLOCK.get().data))

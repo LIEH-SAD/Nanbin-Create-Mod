@@ -44,6 +44,7 @@ public final class Init {
         LOGGER.info("Nanbin Create Mod has successfully registered in {} ms.", duration);
     }
 
+    //接下来我们来写一些简单的调用
     public static Position blockPosToPosition(BlockPos blockPos) {
         return new Position(blockPos.getX(), blockPos.getY(), blockPos.getZ());
     }
@@ -51,4 +52,5 @@ public final class Init {
     public static BlockPos positionToBlockPos(Position position) {
         return new BlockPos((int) position.getX(), (int) position.getY(), (int) position.getZ());
     }
+
 }

@@ -1,8 +1,8 @@
 {
   "variants": {
-    "facing=north": { "model": "nanbin:block/behavioral_block", "y": 180, "uvlock": true },
-    "facing=east":  { "model": "nanbin:block/behavioral_block", "y": 270, "uvlock": true },
-    "facing=south": { "model": "nanbin:block/behavioral_block", "y": 0, "uvlock": true },
-    "facing=west":  { "model": "nanbin:block/behavioral_block", "y": 90, "uvlock": true }
+    "facing=north": { "model": "nanbin:block/behavioral_block", "y": 0, "uvlock": true },
+    "facing=east":  { "model": "nanbin:block/behavioral_block", "y": 90, "uvlock": true },
+    "facing=south": { "model": "nanbin:block/behavioral_block", "y": 180, "uvlock": true },
+    "facing=west":  { "model": "nanbin:block/behavioral_block", "y": 270, "uvlock": true }
   }
 }

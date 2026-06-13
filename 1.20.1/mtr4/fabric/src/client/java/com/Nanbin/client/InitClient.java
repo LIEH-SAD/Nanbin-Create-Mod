@@ -1,6 +1,7 @@
 package com.Nanbin.client;
 
 import com.Nanbin.client.ItemsGroup.FiltersGroup;
+import com.Nanbin.client.ItemsGroup.FiltersMenu;
 import com.Nanbin.client.Registry.RenderLayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,7 @@ public final class InitClient {
         Map<String, Runnable> initSteps = new LinkedHashMap<>();
 
         initSteps.put("FiltersGroup", FiltersGroup::init);
+        initSteps.put("FiltersMenu", FiltersMenu::init);
         initSteps.put("RenderLayer", RenderLayer::init);
 
         int currentStep = 6;

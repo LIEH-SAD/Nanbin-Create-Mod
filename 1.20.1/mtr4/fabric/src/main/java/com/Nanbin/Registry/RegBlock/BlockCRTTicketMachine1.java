@@ -1,13 +1,13 @@
 package com.Nanbin.Registry.RegBlock;
 
-import java.util.List;
-
 import com.Nanbin.Registry.RegMean.TicketMachineHelper;
-import jakarta.annotation.Nonnull;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.block.BlockDirectionalDoubleBlockBase;
 import org.mtr.mod.block.IBlock;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class BlockCRTTicketMachine1 extends BlockDirectionalDoubleBlockBase {
     public BlockCRTTicketMachine1(BlockSettings blockSettings) {

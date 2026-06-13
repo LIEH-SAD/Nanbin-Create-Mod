@@ -27,6 +27,11 @@ repositories {
     maven {
         url = "https://maven.ziyuesinicization.site/releases/"
     }
+    // Fabric 官方仓库（必须保留）
+    maven { url 'https://maven.fabricmc.net/' }
+
+    maven { url 'https://maven.aliyun.com/repository/public/' }
+    maven { url 'https://maven.aliyun.com/repository/central/' }
     mavenCentral()
 }
 
@@ -37,9 +42,10 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "maven.modrinth:minecraft-transit-railway:FABRIC-4.0.0+1.20.1"
+    modApi "maven.modrinth:architectury-api:9.2.14+fabric"
     modImplementation "com.terraformersmc:modmenu:7.2.2"
     modApi("ziyue.filters:filters-fabric:1.0.0+1.20.1") {exclude(group: "net.fabricmc")}
-    compileOnly 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
 loom {

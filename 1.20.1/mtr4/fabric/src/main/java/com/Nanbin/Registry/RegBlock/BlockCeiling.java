@@ -1,51 +1,31 @@
 package com.Nanbin.Registry.RegBlock;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.DirectionHelper;
+import org.mtr.mapping.tool.HolderBase;
+import org.mtr.mod.block.IBlock;
 
-public class BlockCeiling extends HorizontalFacingBlock {
+import javax.annotation.Nonnull;
+import java.util.List;
 
-    private static final VoxelShape CEILING_SHAPE = Block.createCuboidShape(0, 0, 0, 16, 5, 16);
+public class BlockCeiling extends BlockExtension implements DirectionHelper {
 
-    public BlockCeiling(Settings settings) {
-        super(settings);
-        setDefaultState(getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.NORTH));
+    public BlockCeiling(BlockSettings blockSettings) {
+        super(blockSettings);
     }
 
-    @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(Properties.HORIZONTAL_FACING);
+    public org.mtr.mapping.holder.BlockState getPlacementState2(ItemPlacementContext ctx) {
+        return this.getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data);
     }
 
-    @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        Direction playerFacing = ctx.getHorizontalPlayerFacing();
-        return this.getDefaultState().with(Properties.HORIZONTAL_FACING, playerFacing.getOpposite());
+    @Nonnull
+    public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+        return IBlock.getVoxelShapeByDirection(0, 0, 0, 16, 5, 16, IBlock.getStatePropertySafe(state, FACING));
     }
 
-    @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext ctx) {
-        Direction dir = state.get(Properties.HORIZONTAL_FACING);
-        return switch (dir) {
-            case NORTH -> CEILING_SHAPE;
-            case SOUTH -> CEILING_SHAPE;
-            case EAST -> CEILING_SHAPE;
-            case WEST -> CEILING_SHAPE;
-            default -> CEILING_SHAPE;
-        };
-    }
-
-    @Override
-    public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext ctx) {
-        return this.getOutlineShape(state, world, pos, ctx);
+    public void addBlockProperties(List<HolderBase<?>> properties) {
+        super.addBlockProperties(properties);
+        properties.add(FACING);
     }
 }

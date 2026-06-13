@@ -1,4 +1,16 @@
 {
+  "Menu.nanbin.about": "关于",
+  "Menu.nanbin.sam": "§o[MTR设置]   展示报站信息",
+  "Menu.nanbin.uta": "§o[MTR设置]   使用TTS放送报站信息",
+  "Menu.nanbin.htp": "§o[MTR设置]   隐藏车辆半透明部分",
+  "Menu.nanbin.lang": "§o[MTR设置]   文字显示",
+  "Menu.nanbin.dtr": "§o[MTR设置]   动态提升帧率",
+  "Menu.nanbin.tom": "§o[MTR设置]   列车震荡",
+  "Menu.nanbin.3drail": "§o[MTR设置]   3D立体轨道",
+  "Menu.nanbin.font": "§o[MTR设置]   使用自定义字体",
+  "Menu.nanbin.dss": "§o[MTR设置]   禁用着色器阴影",
+  "Menu.nanbin.support": "§f在 §5爱发电 §f上赞助 §2南滨创意 §f模组",
+
   "FiltersGroup.nanbin.crt_fence": "CRT 栏杆方块",
   "FiltersGroup.nanbin.crt_building_blocks": "CRT 建设方块",
   "FiltersGroup.nanbin.crt_tickets": "CRT 闸机方块",
@@ -50,12 +62,12 @@
   "block.nanbin.crt_lift_tips_3": "乘梯须知3",
   "block.nanbin.crt_apg_cab_door_old": "高架端门",
   "block.nanbin.crt_apg_cab_fence_old": "高架端栏",
+  "block.nanbin.crt_apg_cab_fence_old_connect": "连接处的高架端栏",
   "block.nanbin.crt_apg_cab_door_new": "新高架端门",
 
   "block.nanbin.crt_logo": "重庆轨道交通标志",
 
   "block.nanbin.chengdu_metro_logo": "成都地铁标志",
-  "block.nanbin.chengdu_metro_logo.tooltip": "来成都，你只能算个萝莉",
 
   "item.nanbin.trash": "平平无奇的垃圾",
   "item.nanbin.trash.tooltip": "平平无奇的垃圾，可能有点用？",
@@ -116,9 +128,13 @@
   "block.nanbin.crt_gradient_purple_wall_block": "紫色渐变墙砖方块",
   "block.nanbin.crt_gradient_pink_wall_block": "粉色渐变墙砖方块",
 
-  "block.nanbin.soundproofnet": "地铁隔音网",
-  "block.nanbin.short_soundproofnet": "半高隔音网",
-  "block.nanbin.soundproofnet_up": "地铁隔音网（顶部）",
+  "block.nanbin.soundproofnet": "地铁隔音网（底部）",
+  "block.nanbin.soundproofnet_glass": "地铁隔音网（玻璃）",
+  "block.nanbin.soundproofnet_glass_2": "地铁隔音网（玻璃）",
+  "block.nanbin.soundproofnet_top": "地铁隔音网（顶部）",
+  "block.nanbin.soundproofnet_top_2": "地铁隔音网（顶部）",
+  "block.nanbin.soundproofnet_base": "地铁隔音网（中间）",
+  "block.nanbin.soundproofnet_up": "地铁隔音网（连接）",
   "block.nanbin.behavioral_block": "行径方块",
   "block.nanbin.behavioral_block_90": "行径方块 (90°)",
 

@@ -1,27 +1,7 @@
 package com.Nanbin.Registry.RegBlock;
 
-import java.util.List;
-
 import com.Nanbin.Registry.SoundEvents;
-import jakarta.annotation.Nonnull;
-import org.mtr.mapping.holder.Block;
-import org.mtr.mapping.holder.BlockPos;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.holder.BlockView;
-import org.mtr.mapping.holder.Direction;
-import org.mtr.mapping.holder.Entity;
-import org.mtr.mapping.holder.EnumProperty;
-import org.mtr.mapping.holder.ItemPlacementContext;
-import org.mtr.mapping.holder.PlayerEntity;
-import org.mtr.mapping.holder.Property;
-import org.mtr.mapping.holder.Random;
-import org.mtr.mapping.holder.ServerWorld;
-import org.mtr.mapping.holder.ShapeContext;
-import org.mtr.mapping.holder.SoundEvent;
-import org.mtr.mapping.holder.Vector3d;
-import org.mtr.mapping.holder.VoxelShape;
-import org.mtr.mapping.holder.VoxelShapes;
-import org.mtr.mapping.holder.World;
+import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
@@ -29,6 +9,9 @@ import org.mtr.mod.Blocks;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.data.TicketSystem;
 import org.mtr.mod.data.TicketSystem.EnumTicketBarrierOpen;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class BlockCRTTicketBarrier2 extends BlockExtension implements DirectionHelper {
     private final boolean isEntrance;

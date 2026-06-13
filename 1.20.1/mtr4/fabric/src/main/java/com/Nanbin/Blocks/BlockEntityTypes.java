@@ -1,6 +1,6 @@
 package com.Nanbin.Blocks;
 
-import org.mtr.mapping.holder.*;
+import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.registry.BlockEntityTypeRegistryObject;
 import org.mtr.mod.block.BlockStationNameWallWhite;
 

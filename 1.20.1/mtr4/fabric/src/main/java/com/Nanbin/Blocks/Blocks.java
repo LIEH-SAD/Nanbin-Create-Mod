@@ -6,6 +6,9 @@ import com.Nanbin.Registry.RegBlock.*;
 import com.Nanbin.Registry.RegBlock.CabDoor.BlockCRTCabFence;
 import com.Nanbin.Registry.RegBlock.CabDoor.BlockCRTCabFenceConnect;
 import com.Nanbin.Registry.RegBlock.CabDoor.BlockOrdinaryPSDCabDoor;
+import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetBase;
+import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetMiddle;
+import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetTop;
 import com.Nanbin.Registry.RegBlock.TallFence.*;
 import net.minecraft.block.AbstractBlock;
 import org.mtr.mapping.holder.Block;
@@ -13,8 +16,6 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.SlabBlockExtension;
 import org.mtr.mapping.registry.BlockRegistryObject;
-import org.mtr.mod.block.BlockGlassFence;
-import org.mtr.mod.block.BlockPlatform;
 import org.mtr.mod.block.BlockStationColor;
 import org.mtr.mod.item.ItemBlockEnchanted;
 
@@ -44,6 +45,13 @@ public class Blocks {
     public final static BlockRegistryObject CRT_APG_CAB_DOOR_NEW;
     public final static BlockRegistryObject BEHAVIORALBLOCK;
     public final static BlockRegistryObject BEHAVIORALBLOCK_;
+    public final static BlockRegistryObject SOUNDPROOFNET_TOP;
+    public final static BlockRegistryObject SOUNDPROOFNET_TOP_2;
+    public final static BlockRegistryObject SOUNDPROOFNET_GLASS;
+    public final static BlockRegistryObject SOUNDPROOFNET_GLASS_2;
+    public final static BlockRegistryObject SOUNDPROOFNET_BASE;
+    public final static BlockRegistryObject SOUNDPROOFNET;
+    public final static BlockRegistryObject SOUNDPROOFNET_UP;
     public final static BlockRegistryObject LOGO;
     public final static BlockRegistryObject CEILING;
     public final static BlockRegistryObject CEILING_OVERHEAD;
@@ -101,10 +109,11 @@ public class Blocks {
     public final static BlockRegistryObject YELLOW_TACTILE_BAVING_HALF;
     public final static BlockRegistryObject YELLOW_TACTILE_BAVING_CONNECT;
     public final static BlockRegistryObject YELLOW_TACTILE_BAVING_CONNECT_HALF;
+    public final static BlockRegistryObject CRT_RIGID_CATENARY_1;
 
     static {
-        CRT_LOGO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_logo"), () -> new Block(new BlockCRTLogo(AbstractBlock.Settings.create())),ItemsGroup.CRT);
-        CRT_PLATFORM = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_platform"), () -> new Block(new BlockPlatform(createDefaultBlockSettings(false), true)), ItemsGroup.CRT);
+        CRT_LOGO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_logo"), () -> new Block(new BlockCRTLogo(createDefaultBlockSettings(false, (blockState) -> 10))),ItemsGroup.CRT);
+        CRT_PLATFORM = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_platform"), () -> new Block(new BlockCRTPlatform(createDefaultBlockSettings(false), true)), ItemsGroup.CRT);
         CRT_TICKET_1_ENTER = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_barrier_entrance_1"), () -> new Block(new BlockCRTTicketBarrier1(true)), ItemsGroup.CRT);
         CRT_TICKET_1_EXIT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_barrier_exit_1"), () -> new Block(new BlockCRTTicketBarrier1(false)), ItemsGroup.CRT);
         CRT_TICKET_2_ENTER = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_barrier_entrance_2"), () -> new Block(new BlockCRTTicketBarrier2(true)), ItemsGroup.CRT);
@@ -112,8 +121,8 @@ public class Blocks {
         CRT_TICKET_MACHINE_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_ticket_machine_1"), () -> new Block(new BlockCRTTicketMachine1(createDefaultBlockSettings(true, (blockState) -> 5))), ItemsGroup.CRT);
         CRT_OLD_WALL1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_old_wall_1"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, ItemsGroup.CRT);
         CRT_OLD_WALL2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_old_wall_2"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CRT);
-        CRT_LIFT_TIPS = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_lift_tips"), () -> new Block(new BlockMTRLogo(AbstractBlock.Settings.create().nonOpaque())), ItemsGroup.CRT);
-        CRT_LIFT_TIPS_3 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_lift_tips_3"), () -> new Block(new BlockMTRLogo(AbstractBlock.Settings.create().nonOpaque())), ItemsGroup.CRT);
+        CRT_LIFT_TIPS = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_lift_tips"), () -> new Block(new BlockPaperShapes(createDefaultBlockSettings(false))), ItemsGroup.CRT);
+        CRT_LIFT_TIPS_3 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_lift_tips_3"), () -> new Block(new BlockPaperShapes(createDefaultBlockSettings(false))), ItemsGroup.CRT);
         CRT_FENCE1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_1"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
         CRT_FENCE8 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_8"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
         CRT_FENCE9 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_9"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
@@ -122,14 +131,21 @@ public class Blocks {
         CRT_APG_CAB_FENCE_OLD = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_apg_cab_fence_old"), () -> new Block(new BlockCRTCabFence()),ItemsGroup.CRT);
         CRT_APG_CAB_FENCE_OLD_CONNECT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_apg_cab_fence_old_connect"), () -> new Block(new BlockCRTCabFenceConnect()),ItemsGroup.CRT);
         CRT_APG_CAB_DOOR_NEW = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_apg_cab_door_new"), () -> new Block(new BlockOrdinaryPSDCabDoor(AbstractBlock.Settings.create())),ItemsGroup.CRT);
-        BEHAVIORALBLOCK = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "behavioral_block"), () -> new Block(new BlockBehavioral(AbstractBlock.Settings.create())), ItemsGroup.USING_RAILWAY_BUILD);
-        BEHAVIORALBLOCK_ = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "behavioral_block_90"), () -> new Block(new BlockBehavioralVertical(AbstractBlock.Settings.create())), ItemsGroup.USING_RAILWAY_BUILD);
-        LOGO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "logo"), () -> new Block(new BlockMTRLogo(AbstractBlock.Settings.create())),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
-        CEILING = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling"), () -> new Block(new BlockCeiling(AbstractBlock.Settings.create())),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
-        CEILING_OVERHEAD = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling_overhead"), () -> new Block(new BlockCeiling(AbstractBlock.Settings.create())),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
-        CEILING_LIGHT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling_light"), () -> new Block(new BlockCeilingLight(AbstractBlock.Settings.create())),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        BEHAVIORALBLOCK = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "behavioral_block"), () -> new Block(new BlockBehavioral(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
+        BEHAVIORALBLOCK_ = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "behavioral_block_90"), () -> new Block(new BlockBehavioralVertical(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
+        SOUNDPROOFNET_TOP = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "soundproofnet_top"), () -> new Block(new BlockSoundproofNetTop(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
+        SOUNDPROOFNET_TOP_2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "soundproofnet_top_2"), () -> new Block(new BlockSoundproofNetTop(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
+        SOUNDPROOFNET_GLASS = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "soundproofnet_glass"), () -> new Block(new BlockSoundproofNetBase(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
+        SOUNDPROOFNET_GLASS_2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "soundproofnet_glass_2"), () -> new Block(new BlockSoundproofNetBase(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
+        SOUNDPROOFNET_BASE = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "soundproofnet_base"), () -> new Block(new BlockSoundproofNetBase(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
+        SOUNDPROOFNET = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "soundproofnet"), () -> new Block(new BlockSoundproofNetBase(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
+        SOUNDPROOFNET_UP = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "soundproofnet_up"), () -> new Block(new BlockSoundproofNetMiddle(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
+        LOGO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "logo"), () -> new Block(new BlockPaperShapes(createDefaultBlockSettings(false, (blockState) -> 10))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        CEILING = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling"), () -> new Block(new BlockCeiling(createDefaultBlockSettings(false))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        CEILING_OVERHEAD = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling_overhead"), () -> new Block(new BlockCeiling(createDefaultBlockSettings(false))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        CEILING_LIGHT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling_light"), () -> new Block(new BlockCeilingLight(createDefaultBlockSettings(false, (blockState) -> 13))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
         ORDINARY_PSD_CAB_DOOR = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ordinary_psd_cab_door"), () -> new Block(new BlockOrdinaryPSDCabDoor(AbstractBlock.Settings.create())),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
-        PSD_TOP = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "psd_top"), () -> new Block(new BlockPSDTOP(AbstractBlock.Settings.create())), ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        PSD_TOP = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "psd_top"), () -> new Block(new BlockPSDTOP(createDefaultBlockSettings(false))), ItemsGroup.USING_STATION_BUILDING_BLOCKS);
         BLUEFENCE = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "bluefence"), () -> new Block(new BlockBlueFence(AbstractBlock.Settings.create().nonOpaque())),ItemsGroup.CITY_BUILDING_BLOCKS);
         BLUEFENCE_TOP = REGISTRY.registerBlock(new Identifier(MOD_ID, "bluefence_top"), () -> new Block(new BlockBlueFenceTop(AbstractBlock.Settings.create().nonOpaque())));
         GREENFENCE = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "greenfence"), () -> new Block(new BlockGreenFence(AbstractBlock.Settings.create().nonOpaque())),ItemsGroup.CITY_BUILDING_BLOCKS);
@@ -181,6 +197,7 @@ public class Blocks {
         YELLOW_TACTILE_BAVING_HALF = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "yellow_tactile_paving_half"), () -> new Block(new BlockFacingSlabBlock(AbstractBlock.Settings.create())) , ItemsGroup.CITY_BUILDING_BLOCKS);
         YELLOW_TACTILE_BAVING_CONNECT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "yellow_tactile_paving_connect"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
         YELLOW_TACTILE_BAVING_CONNECT_HALF = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "yellow_tactile_paving_connect_half"), () -> new Block(new SlabBlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
+        CRT_RIGID_CATENARY_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_rigid_catenary_1"), () -> new Block(new BlockCRTRigidCatenary1(createDefaultBlockSettings(false))), ItemsGroup.CRT);
     }
 
 
