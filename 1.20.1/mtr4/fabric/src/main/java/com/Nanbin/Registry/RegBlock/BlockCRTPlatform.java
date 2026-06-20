@@ -30,7 +30,9 @@ public class BlockCRTPlatform extends BlockExtension implements PlatformHelper {
     public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         if (this.isIndented) {
             Direction facing = IBlock.getStatePropertySafe(state, FACING);
-            return VoxelShapes.union(IBlock.getVoxelShapeByDirection((double)0.0F, (double)0.0F, (double)6.0F, (double)16.0F, (double)13.0F, (double)16.0F, facing), Block.createCuboidShape((double)0.0F, (double)13.0F, (double)0.0F, (double)16.0F, (double)16.0F, (double)16.0F));
+            return VoxelShapes.union(
+                    IBlock.getVoxelShapeByDirection((double)0.0F, (double)0.0F, (double)6.0F, (double)16.0F, (double)13.0F, (double)16.0F, facing),
+                    Block.createCuboidShape((double)0.0F, (double)12.0F, (double)0.0F, (double)16.0F, (double)16.0F, (double)16.0F));
         } else {
             return super.getOutlineShape2(state, world, pos, context);
         }

@@ -2,7 +2,7 @@ package com.Nanbin.client;
 
 import com.Nanbin.client.ItemsGroup.FiltersGroup;
 import com.Nanbin.client.ItemsGroup.FiltersMenu;
-import com.Nanbin.client.Registry.RenderLayer;
+import com.Nanbin.client.Registry.RenderLayerReg;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mtr.core.data.Position;
@@ -16,26 +16,18 @@ public final class InitClient {
 
     public static void init() {
         long startTime = System.currentTimeMillis();
-        Map<String, Runnable> initSteps = new LinkedHashMap<>();
+        Map<String, Runnable> ClientinitSteps = new LinkedHashMap<>();
 
-        initSteps.put("FiltersGroup", FiltersGroup::init);
-        initSteps.put("FiltersMenu", FiltersMenu::init);
-        initSteps.put("RenderLayer", RenderLayer::init);
+        ClientinitSteps.put("FiltersGroup", FiltersGroup::init);
+        ClientinitSteps.put("FiltersMenu", FiltersMenu::init);
+        ClientinitSteps.put("RenderLayer", RenderLayerReg::init);
 
-        int currentStep = 6;
+        int currentStep = 1;
 
-        for (Map.Entry<String, Runnable> step : initSteps.entrySet()) {
-            LOGGER.info("Nanbin Create Mod is registering , Please wait... {} ({}/{})", step.getKey(), currentStep, initSteps.size()+5);
+        for (Map.Entry<String, Runnable> step : ClientinitSteps.entrySet()) {
+            LOGGER.info("Nanbin Create Mod is registering , Please wait... {} ({}/{})", step.getKey(), currentStep, ClientinitSteps.size());
             step.getValue().run();
             currentStep++;
         }
-    }
-
-    public static Position blockPosToPosition(BlockPos blockPos) {
-        return new Position(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-    }
-
-    public static BlockPos positionToBlockPos(Position position) {
-        return new BlockPos((int) position.getX(), (int) position.getY(), (int) position.getZ());
     }
 }

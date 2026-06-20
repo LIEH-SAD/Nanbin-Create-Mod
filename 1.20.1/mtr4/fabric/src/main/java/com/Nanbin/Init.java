@@ -11,6 +11,7 @@ import org.mtr.core.data.Position;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.registry.Registry;
+import org.mtr.mod.InitClient;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,7 +35,7 @@ public final class Init {
         int currentStep = 1;
 
         for (Map.Entry<String, Runnable> step : initSteps.entrySet()) {
-            LOGGER.info("Nanbin Create Mod is registering , Please wait... {} ({}/{})", step.getKey(), currentStep, initSteps.size()+2);
+            LOGGER.info("Nanbin Create Mod is registering , Please wait... {} ({}/{})", step.getKey(), currentStep, initSteps.size());
             step.getValue().run();
             currentStep++;
         }

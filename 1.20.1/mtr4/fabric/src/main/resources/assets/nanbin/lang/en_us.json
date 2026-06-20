@@ -63,6 +63,7 @@
   "block.nanbin.crt_apg_cab_fence_old": "Elevated Cab Fence",
   "block.nanbin.crt_apg_cab_fence_old_connect": "Elevated Cab Fence (Junction)",
   "block.nanbin.crt_apg_cab_door_new": "New Elevated Cab Door",
+  "tooltip.block.cab_door": "Please use the Creative Key or Advanced Key!",
 
   "block.nanbin.crt_logo": "Chongqing Rail Transit Logo",
   "block.nanbin.chengdu_metro_logo": "Chengdu Metro Logo",

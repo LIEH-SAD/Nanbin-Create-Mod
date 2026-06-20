@@ -1,122 +1,130 @@
 {
   "variants": {
-    "facing=east,half=lower,hinge=left,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom"
-    },
-    "facing=east,half=lower,hinge=left,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
-      "y": 90
-    },
-    "facing=east,half=lower,hinge=right,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom"
-    },
-    "facing=east,half=lower,hinge=right,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
-      "y": 270
-    },
-    "facing=east,half=upper,hinge=left,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top"
-    },
-    "facing=east,half=upper,hinge=left,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
-      "y": 90
-    },
-    "facing=east,half=upper,hinge=right,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top"
-    },
-    "facing=east,half=upper,hinge=right,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
-      "y": 270
-    },
-    "facing=north,half=lower,hinge=left,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
-      "y": 270
-    },
-    "facing=north,half=lower,hinge=left,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open"
-    },
-    "facing=north,half=lower,hinge=right,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
-      "y": 270
-    },
-    "facing=north,half=lower,hinge=right,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
-      "y": 180
-    },
-    "facing=north,half=upper,hinge=left,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
-      "y": 270
-    },
-    "facing=north,half=upper,hinge=left,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open"
-    },
-    "facing=north,half=upper,hinge=right,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
-      "y": 270
-    },
-    "facing=north,half=upper,hinge=right,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
-      "y": 180
-    },
-    "facing=south,half=lower,hinge=left,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
-      "y": 90
-    },
-    "facing=south,half=lower,hinge=left,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
-      "y": 180
-    },
-    "facing=south,half=lower,hinge=right,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
-      "y": 90
-    },
-    "facing=south,half=lower,hinge=right,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open"
-    },
-    "facing=south,half=upper,hinge=left,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
-      "y": 90
-    },
-    "facing=south,half=upper,hinge=left,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
-      "y": 180
-    },
-    "facing=south,half=upper,hinge=right,open=false": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
-      "y": 90
-    },
-    "facing=south,half=upper,hinge=right,open=true": {
-      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open"
-    },
     "facing=west,half=lower,hinge=left,open=false": {
       "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
-      "y": 180
+      "y": 0
     },
     "facing=west,half=lower,hinge=left,open=true": {
       "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
-      "y": 270
+      "y": 90
     },
     "facing=west,half=lower,hinge=right,open=false": {
       "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
-      "y": 180
+      "y": 0
     },
     "facing=west,half=lower,hinge=right,open=true": {
       "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
-      "y": 90
+      "y": 270
     },
     "facing=west,half=upper,hinge=left,open=false": {
       "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
-      "y": 180
+      "y": 0
     },
     "facing=west,half=upper,hinge=left,open=true": {
       "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
-      "y": 270
+      "y": 90
     },
     "facing=west,half=upper,hinge=right,open=false": {
       "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
-      "y": 180
+      "y": 0
     },
     "facing=west,half=upper,hinge=right,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
+      "y": 270
+    },
+    "facing=south,half=lower,hinge=left,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
+      "y": 270
+    },
+    "facing=south,half=lower,hinge=left,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
+      "y": 0
+    },
+    "facing=south,half=lower,hinge=right,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
+      "y": 270
+    },
+    "facing=south,half=lower,hinge=right,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
+      "y": 180
+    },
+    "facing=south,half=upper,hinge=left,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
+      "y": 270
+    },
+    "facing=south,half=upper,hinge=left,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
+      "y": 0
+    },
+    "facing=south,half=upper,hinge=right,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
+      "y": 270
+    },
+    "facing=south,half=upper,hinge=right,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
+      "y": 180
+    },
+    "facing=north,half=lower,hinge=left,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
+      "y": 90
+    },
+    "facing=north,half=lower,hinge=left,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
+      "y": 180
+    },
+    "facing=north,half=lower,hinge=right,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
+      "y": 90
+    },
+    "facing=north,half=lower,hinge=right,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
+      "y": 0
+    },
+    "facing=north,half=upper,hinge=left,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
+      "y": 90
+    },
+    "facing=north,half=upper,hinge=left,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
+      "y": 180
+    },
+    "facing=north,half=upper,hinge=right,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
+      "y": 90
+    },
+    "facing=north,half=upper,hinge=right,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
+      "y": 0
+    },
+    "facing=east,half=lower,hinge=left,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
+      "y": 180
+    },
+    "facing=east,half=lower,hinge=left,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
+      "y": 270
+    },
+    "facing=east,half=lower,hinge=right,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom",
+      "y": 180
+    },
+    "facing=east,half=lower,hinge=right,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_bottom_open",
+      "y": 90
+    },
+    "facing=east,half=upper,hinge=left,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
+      "y": 180
+    },
+    "facing=east,half=upper,hinge=left,open=true": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
+      "y": 270
+    },
+    "facing=east,half=upper,hinge=right,open=false": {
+      "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top",
+      "y": 180
+    },
+    "facing=east,half=upper,hinge=right,open=true": {
       "model": "nanbin:block/crt_cab_door_apg_new/cab_door_apg_top_open",
       "y": 90
     }

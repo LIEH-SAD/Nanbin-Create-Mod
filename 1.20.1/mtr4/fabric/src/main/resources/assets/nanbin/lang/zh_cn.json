@@ -48,6 +48,7 @@
   "block.nanbin.crt_barrier_exit_2": "CRT出站闸机(大礼堂站)",
   "block.nanbin.crt_ticket_machine_1": "壁铜线自助票务机",
 
+  "block.nanbin.crt_temp_fence_1": "CRT临时栏杆",
   "block.nanbin.crt_fence_1": "CRT栏杆（水平）",
   "block.nanbin.crt_fence_2": "CRT栏杆（右上起点）",
   "block.nanbin.crt_fence_3": "CRT栏杆（楼梯右上）",
@@ -64,6 +65,7 @@
   "block.nanbin.crt_apg_cab_fence_old": "高架端栏",
   "block.nanbin.crt_apg_cab_fence_old_connect": "连接处的高架端栏",
   "block.nanbin.crt_apg_cab_door_new": "新高架端门",
+
 
   "block.nanbin.crt_logo": "重庆轨道交通标志",
 
@@ -144,6 +146,9 @@
   "tips.cabdoor.close": "端门已关闭",
   "tips.cabdoor.has.low": "权限不足以开启端门",
   "tips.cabdoor.has.nokey": "使用钥匙以开启端门",
+
+  "tooltip.block.nanbin.crt_temp_fence_1": "临时栏杆...也许吧",
+  "tooltip.block.nanbin.cab_door": "请使用高级驾驶钥匙或创造模式钥匙以开门",
 
   "pids.crt_1": "重庆轨道交通乘客咨询屏概念版"
 }

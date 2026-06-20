@@ -24,7 +24,9 @@ public final class FiltersGroup {
         CRT_FENCE = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_fence"), () -> new ItemStack(Blocks.CRT_FENCE1.get().data))
                 .addItems(Blocks.CRT_FENCE1.get().data.asItem())
                 .addItems(Blocks.CRT_FENCE8.get().data.asItem())
-                .addItems(Blocks.CRT_FENCE9.get().data.asItem());
+                .addItems(Blocks.CRT_FENCE9.get().data.asItem())
+                .addItems(Blocks.CRT_FENCE_LIFT_TIPS_1.get().data.asItem())
+                .addItems(Blocks.CRT_TEMP_FENCE_1.get().data.asItem());
 
         CRT_BUILDING_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_building_blocks"), () -> new ItemStack(Blocks.CRT_LOGO.get().data))
                 .addItems(Blocks.CRT_LOGO.get().data.asItem())
@@ -79,6 +81,8 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_GRADIENT_PINK_WALL_BLOCK.get().data.asItem())
                 .addItems(Blocks.BLACK_MARBLE.get().data.asItem())
                 .addItems(Blocks.WHITE_MARBLE.get().data.asItem())
+                .addItems(Blocks.TERRAZZO.get().data.asItem())
+                .addItems(Blocks.BLACK_TERRAZZO.get().data.asItem())
                 .addItems(Blocks.CEMENT.get().data.asItem());
 
         ROAD_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS.creativeModeTab, Text.translatable("FiltersGroup.nanbin.road_blocks"), () -> new ItemStack(Blocks.YELLOW_TACTILE_BAVING.get().data))

@@ -5,6 +5,7 @@ import com.Nanbin.ItemsGroup.ItemsGroup;
 import com.Nanbin.Registry.RegBlock.*;
 import com.Nanbin.Registry.RegBlock.CabDoor.BlockCRTCabFence;
 import com.Nanbin.Registry.RegBlock.CabDoor.BlockCRTCabFenceConnect;
+import com.Nanbin.Registry.RegBlock.CabDoor.BlockOrdinaryAPGCabDoor;
 import com.Nanbin.Registry.RegBlock.CabDoor.BlockOrdinaryPSDCabDoor;
 import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetBase;
 import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetMiddle;
@@ -92,6 +93,8 @@ public class Blocks {
     public final static BlockRegistryObject BLACK_MARBLE;
     public final static BlockRegistryObject WHITE_MARBLE;
     public final static BlockRegistryObject CEMENT;
+    public final static BlockRegistryObject TERRAZZO;
+    public final static BlockRegistryObject BLACK_TERRAZZO;
     public final static BlockRegistryObject PAVEMENT_1;
     public final static BlockRegistryObject PAVEMENT_1_HALF;
     public final static BlockRegistryObject PAVEMENT_2;
@@ -110,6 +113,8 @@ public class Blocks {
     public final static BlockRegistryObject YELLOW_TACTILE_BAVING_CONNECT;
     public final static BlockRegistryObject YELLOW_TACTILE_BAVING_CONNECT_HALF;
     public final static BlockRegistryObject CRT_RIGID_CATENARY_1;
+    public final static BlockRegistryObject CRT_TEMP_FENCE_1;
+    public final static BlockRegistryObject CRT_FENCE_LIFT_TIPS_1;
 
     static {
         CRT_LOGO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_logo"), () -> new Block(new BlockCRTLogo(createDefaultBlockSettings(false, (blockState) -> 10))),ItemsGroup.CRT);
@@ -130,7 +135,7 @@ public class Blocks {
         CRT_APG_CAB_DOOR_OLD = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_apg_cab_door_old"), () -> new Block(new BlockOrdinaryPSDCabDoor(AbstractBlock.Settings.create())),ItemsGroup.CRT);
         CRT_APG_CAB_FENCE_OLD = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_apg_cab_fence_old"), () -> new Block(new BlockCRTCabFence()),ItemsGroup.CRT);
         CRT_APG_CAB_FENCE_OLD_CONNECT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_apg_cab_fence_old_connect"), () -> new Block(new BlockCRTCabFenceConnect()),ItemsGroup.CRT);
-        CRT_APG_CAB_DOOR_NEW = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_apg_cab_door_new"), () -> new Block(new BlockOrdinaryPSDCabDoor(AbstractBlock.Settings.create())),ItemsGroup.CRT);
+        CRT_APG_CAB_DOOR_NEW = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_apg_cab_door_new"), () -> new Block(new BlockOrdinaryAPGCabDoor(AbstractBlock.Settings.create())),ItemsGroup.CRT);
         BEHAVIORALBLOCK = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "behavioral_block"), () -> new Block(new BlockBehavioral(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
         BEHAVIORALBLOCK_ = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "behavioral_block_90"), () -> new Block(new BlockBehavioralVertical(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
         SOUNDPROOFNET_TOP = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "soundproofnet_top"), () -> new Block(new BlockSoundproofNetTop(createDefaultBlockSettings(false))), ItemsGroup.USING_RAILWAY_BUILD);
@@ -179,6 +184,8 @@ public class Blocks {
         LIGHT_PINK_BLOCK = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "light_pink_block"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
         BLACK_MARBLE = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "black_marble"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))), ItemsGroup.CITY_BUILDING_BLOCKS);
         WHITE_MARBLE = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "white_marble"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
+        TERRAZZO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "terrazzo"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
+        BLACK_TERRAZZO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "black_terrazzo"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
         CEMENT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "cement"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
         PAVEMENT_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "pavement_1"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
         PAVEMENT_1_HALF = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "pavement_1_half"), () -> new Block(new SlabBlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
@@ -198,6 +205,9 @@ public class Blocks {
         YELLOW_TACTILE_BAVING_CONNECT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "yellow_tactile_paving_connect"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
         YELLOW_TACTILE_BAVING_CONNECT_HALF = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "yellow_tactile_paving_connect_half"), () -> new Block(new SlabBlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CITY_BUILDING_BLOCKS);
         CRT_RIGID_CATENARY_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_rigid_catenary_1"), () -> new Block(new BlockCRTRigidCatenary1(createDefaultBlockSettings(false))), ItemsGroup.CRT);
+        CRT_TEMP_FENCE_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_temp_fence_1"), () -> new Block(new BlockTempFence(AbstractBlock.Settings.create().burnable().nonOpaque().solid())), ItemsGroup.CRT);
+        CRT_FENCE_LIFT_TIPS_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_lift_tips_1"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
+
     }
 
 
