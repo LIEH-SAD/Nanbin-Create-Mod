@@ -11,7 +11,6 @@ import org.mtr.core.data.Position;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.registry.Registry;
-import org.mtr.mod.InitClient;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

@@ -2,6 +2,7 @@ package com.Nanbin.Registry.RegBlock;
 
 import com.Nanbin.Registry.SoundEvents;
 import org.mtr.mapping.holder.*;
+import com.Nanbin.Registry.RegMean.VoxelShapes;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
@@ -13,9 +14,11 @@ import org.mtr.mod.data.TicketSystem.EnumTicketBarrierOpen;
 import javax.annotation.Nonnull;
 import java.util.List;
 
+import static com.Nanbin.Registry.RegMean.VoxelShapes.union;
+
 public class BlockCRTTicketBarrier2 extends BlockExtension implements DirectionHelper {
     private final boolean isEntrance;
-    public static final EnumProperty<TicketSystem.EnumTicketBarrierOpen> OPEN = EnumProperty.of("open", TicketSystem.EnumTicketBarrierOpen.class);
+    public static final EnumProperty<EnumTicketBarrierOpen> OPEN = EnumProperty.of("open", EnumTicketBarrierOpen.class);
 
     public BlockCRTTicketBarrier2(boolean isEntrance) {
         super(Blocks.createDefaultBlockSettings(true, (blockState) -> 5));
@@ -26,14 +29,14 @@ public class BlockCRTTicketBarrier2 extends BlockExtension implements DirectionH
         if (!world.isClient() && PlayerEntity.isInstance(entity)) {
             Direction facing = IBlock.getStatePropertySafe(state, FACING);
             Vector3d playerPosRotated = entity.getPos().subtract((double)blockPos.getX() + (double)0.5F, (double)0.0F, (double)blockPos.getZ() + (double)0.5F).rotateY((float)Math.toRadians((double)facing.asRotation()));
-            TicketSystem.EnumTicketBarrierOpen open = (TicketSystem.EnumTicketBarrierOpen)IBlock.getStatePropertySafe(state, new Property((net.minecraft.state.property.Property)OPEN.data));
+            EnumTicketBarrierOpen open = (EnumTicketBarrierOpen)IBlock.getStatePropertySafe(state, new Property(OPEN.data));
             if ((open == EnumTicketBarrierOpen.OPEN || open == EnumTicketBarrierOpen.OPEN_CONCESSIONARY) && playerPosRotated.getZMapped() > (double)0.0F) {
-                world.setBlockState(blockPos, state.with(new Property((net.minecraft.state.property.Property)OPEN.data), EnumTicketBarrierOpen.CLOSED));
+                world.setBlockState(blockPos, state.with(new Property(OPEN.data), EnumTicketBarrierOpen.CLOSED));
             } else if (open == EnumTicketBarrierOpen.CLOSED && playerPosRotated.getZMapped() < (double)0.0F) {
                 BlockPos blockPosCopy = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-                world.setBlockState(blockPosCopy, state.with(new Property((net.minecraft.state.property.Property)OPEN.data), EnumTicketBarrierOpen.PENDING));
+                world.setBlockState(blockPosCopy, state.with(new Property(OPEN.data), EnumTicketBarrierOpen.PENDING));
                 TicketSystem.passThrough(world, blockPosCopy, PlayerEntity.cast(entity), this.isEntrance, !this.isEntrance, SoundEvents.CRT_TICKET.get(), SoundEvents.CRT_TICKET.get(), SoundEvents.CRT_TICKET.get(), SoundEvents.CRT_TICKET.get(), (SoundEvent)null, false, (newOpen) -> {
-                    world.setBlockState(blockPosCopy, state.with(new Property((net.minecraft.state.property.Property)OPEN.data), newOpen));
+                    world.setBlockState(blockPosCopy, state.with(new Property(OPEN.data), newOpen));
                     if (newOpen != EnumTicketBarrierOpen.CLOSED && !hasScheduledBlockTick(world, blockPosCopy, new Block(this))) {
                         scheduleBlockTick(world, blockPosCopy, new Block(this), 40);
                     }
@@ -55,15 +58,18 @@ public class BlockCRTTicketBarrier2 extends BlockExtension implements DirectionH
     @Nonnull
     public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         Direction facing = IBlock.getStatePropertySafe(state, FACING);
-        return IBlock.getVoxelShapeByDirection(13, 0, -2, 16, 16, 18, facing);
+        return union(IBlock.getVoxelShapeByDirection(13, 0, -2, 16, 16, 18, facing), IBlock.getVoxelShapeByDirection(-3, 0, -2, 0, 16, 18, facing));
     }
 
     @Nonnull
     public VoxelShape getCollisionShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         Direction facing = IBlock.getStatePropertySafe(state, FACING);
-        TicketSystem.EnumTicketBarrierOpen open = (TicketSystem.EnumTicketBarrierOpen)IBlock.getStatePropertySafe(state, new Property((net.minecraft.state.property.Property)OPEN.data));
+        EnumTicketBarrierOpen open = (EnumTicketBarrierOpen)IBlock.getStatePropertySafe(state, new Property((net.minecraft.state.property.Property)OPEN.data));
         VoxelShape base = IBlock.getVoxelShapeByDirection((double)15.0F, (double)0.0F, (double)0.0F, (double)16.0F, (double)24.0F, (double)16.0F, facing);
-        return open != EnumTicketBarrierOpen.OPEN && open != EnumTicketBarrierOpen.OPEN_CONCESSIONARY ? VoxelShapes.union(IBlock.getVoxelShapeByDirection((double)0.0F, (double)0.0F, (double)7.0F, (double)16.0F, (double)24.0F, (double)9.0F, facing), base) : base;
+        return open != EnumTicketBarrierOpen.OPEN && open != EnumTicketBarrierOpen.OPEN_CONCESSIONARY ? VoxelShapes.union(
+                IBlock.getVoxelShapeByDirection(13, 0, -2, 16, 24, 18, facing),
+                IBlock.getVoxelShapeByDirection(-3, 0, -2, 0, 24, 18, facing),
+                IBlock.getVoxelShapeByDirection(0, 0, 11, 13, 24, 13, facing)) : base;
     }
 
     public void addBlockProperties(List<HolderBase<?>> properties) {

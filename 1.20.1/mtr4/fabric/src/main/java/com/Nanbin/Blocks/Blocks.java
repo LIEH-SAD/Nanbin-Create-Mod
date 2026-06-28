@@ -37,6 +37,8 @@ public class Blocks {
     public final static BlockRegistryObject CRT_FENCE1;
     public final static BlockRegistryObject CRT_FENCE8;
     public final static BlockRegistryObject CRT_FENCE9;
+    public final static BlockRegistryObject CRT_FENCE10;
+    public final static BlockRegistryObject CRT_FENCE_TICKET;
     public final static BlockRegistryObject CRT_LIFT_TIPS;
     public final static BlockRegistryObject CRT_LIFT_TIPS_3;
     public final static BlockRegistryObject CRT_PSD_CAB_DOOR;
@@ -131,6 +133,8 @@ public class Blocks {
         CRT_FENCE1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_1"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
         CRT_FENCE8 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_8"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
         CRT_FENCE9 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_9"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
+        CRT_FENCE10 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_10"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
+        CRT_FENCE_TICKET = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_ticket"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
         CRT_PSD_CAB_DOOR = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_psd_cab_door"), () -> new Block(new BlockOrdinaryPSDCabDoor(AbstractBlock.Settings.create())),ItemsGroup.CRT);
         CRT_APG_CAB_DOOR_OLD = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_apg_cab_door_old"), () -> new Block(new BlockOrdinaryPSDCabDoor(AbstractBlock.Settings.create())),ItemsGroup.CRT);
         CRT_APG_CAB_FENCE_OLD = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_apg_cab_fence_old"), () -> new Block(new BlockCRTCabFence()),ItemsGroup.CRT);

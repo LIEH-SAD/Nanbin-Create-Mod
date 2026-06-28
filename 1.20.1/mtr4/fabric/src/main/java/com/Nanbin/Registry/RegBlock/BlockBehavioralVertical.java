@@ -16,7 +16,7 @@ public BlockBehavioralVertical(BlockSettings blockSettings) {
     super(blockSettings);
 }
 
-    public org.mtr.mapping.holder.BlockState getPlacementState2(ItemPlacementContext ctx) {
+    public BlockState getPlacementState2(ItemPlacementContext ctx) {
         return this.getDefaultState2().with(new Property<>(FACING.data), ctx.getPlayerFacing().data);
     }
 

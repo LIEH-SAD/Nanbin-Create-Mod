@@ -1,14 +1,15 @@
 {
   "schemaVersion": 1,
   "id": "lieh-nanbin",
-  "version": "3.0+mtr4",
+  "version": "${version}",
   "name": "Nanbin Create Mod",
-    "description": "MTR ? START!!!",
-  "authors": [
+  "description": "",
+  "authors": ["Nanbin Studio"],
+  "contributors": [
     "LIEH-SAD"
   ],
   "contact": {
-    "homepage": "https://lieh-sad.github.io/nanbin",
+    "homepage": "https://lieh-sad.github.io/nanbin/",
     "sources": "https://github.com/LIEH-SAD/Nanbin-Create-Mod"
   },
   "license": "MIT",
@@ -16,32 +17,23 @@
   "environment": "*",
   "entrypoints": {
     "modmenu": [
-      "com.Nanbin.client.ModmenuConfig"
+      "com.Nanbin.ModmenuConfig"
     ],
     "main": [
-      "com.Nanbin.nanbin"
+      "com.Nanbin.entrypoint"
     ],
     "client": [
-      "com.Nanbin.client.nanbinClient"
+      "com.Nanbin.entrypointClient"
     ]
   },
   "mixins": [
-    "nanbin.mixins.json",
-    {
-      "config": "nanbin.client.mixins.json",
-      "environment": "client"
-    }
+    "nanbin.mixins.json"
   ],
   "depends": {
     "fabricloader": "*",
     "fabric-api": "*",
     "minecraft": "1.20.x",
-    "mtr":  "*",
+    "mtr": ">=4.0.0",
     "filters": "*"
-   },
-  "suggests": {
-    "architectury": "9.2.14",
-    "jsblock": "2.2.0+1.20.1"
   }
-  }
-
+}
