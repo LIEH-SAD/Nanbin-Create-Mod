@@ -1,4 +1,4 @@
-package com.Nanbin.client.ItemsGroup;
+package com.Nanbin.client.FiltersGroup;
 
 import com.Nanbin.Blocks.Blocks;
 import com.Nanbin.ItemsGroup.ItemsGroup;
@@ -43,6 +43,8 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_TICKET_1_EXIT.get().data.asItem())
                 .addItems(Blocks.CRT_TICKET_2_ENTER.get().data.asItem())
                 .addItems(Blocks.CRT_TICKET_2_EXIT.get().data.asItem())
+                .addItems(Blocks.CRT_TICKET_3_ENTER.get().data.asItem())
+                .addItems(Blocks.CRT_TICKET_3_EXIT.get().data.asItem())
                 .addItems(Blocks.CRT_TICKET_MACHINE_1.get().data.asItem());
 
         //CRT_OVERHEAD_LINES = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_overhead_lines"), () -> new ItemStack(Blocks.CRT_LOGO.get().data))

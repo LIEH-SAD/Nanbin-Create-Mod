@@ -1,6 +1,6 @@
 package com.Nanbin;
 
-import com.Nanbin.client.Menu.NanbinConfigScreen;
+import com.Nanbin.client.Screen.NanbinConfigScreen;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 

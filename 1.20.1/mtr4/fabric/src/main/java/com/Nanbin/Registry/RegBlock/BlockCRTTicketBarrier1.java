@@ -10,8 +10,10 @@ import org.mtr.mod.Blocks;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.data.TicketSystem;
 import org.mtr.mod.data.TicketSystem.EnumTicketBarrierOpen;
+import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.Nanbin.Registry.RegMean.VoxelShapes.union;
@@ -70,6 +72,10 @@ public class BlockCRTTicketBarrier1 extends BlockExtension implements DirectionH
                 IBlock.getVoxelShapeByDirection(-4, 0, -7, 0, 24, 23, facing),
                 IBlock.getVoxelShapeByDirection(12, 0, -7, 16, 24, 23, facing),
                 IBlock.getVoxelShapeByDirection(0, 0, 6, 12, 24, 8, facing)) : base;
+    }
+
+    public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+        tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR.getMutableText(new Object[0]).formatted(TextFormatting.DARK_GRAY));
     }
 
     public void addBlockProperties(List<HolderBase<?>> properties) {

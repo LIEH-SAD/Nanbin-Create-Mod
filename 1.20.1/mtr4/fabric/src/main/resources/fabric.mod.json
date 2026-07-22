@@ -20,10 +20,10 @@
       "com.Nanbin.ModmenuConfig"
     ],
     "main": [
-      "com.Nanbin.entrypoint"
+      "com.Nanbin.nanbin"
     ],
     "client": [
-      "com.Nanbin.entrypointClient"
+      "com.Nanbin.nanbinClient"
     ]
   },
   "mixins": [

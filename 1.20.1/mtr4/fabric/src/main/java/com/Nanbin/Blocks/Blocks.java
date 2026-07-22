@@ -17,7 +17,6 @@ import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.SlabBlockExtension;
 import org.mtr.mapping.registry.BlockRegistryObject;
-import org.mtr.mod.block.BlockStationColor;
 import org.mtr.mod.item.ItemBlockEnchanted;
 
 import static com.Nanbin.Init.MOD_ID;
@@ -31,6 +30,8 @@ public class Blocks {
     public final static BlockRegistryObject CRT_TICKET_1_EXIT;
     public final static BlockRegistryObject CRT_TICKET_2_ENTER;
     public final static BlockRegistryObject CRT_TICKET_2_EXIT;
+    public final static BlockRegistryObject CRT_TICKET_3_ENTER;
+    public final static BlockRegistryObject CRT_TICKET_3_EXIT;
     public final static BlockRegistryObject CRT_TICKET_MACHINE_1;
     public final static BlockRegistryObject CRT_OLD_WALL1;
     public final static BlockRegistryObject CRT_OLD_WALL2;
@@ -57,8 +58,13 @@ public class Blocks {
     public final static BlockRegistryObject SOUNDPROOFNET_UP;
     public final static BlockRegistryObject LOGO;
     public final static BlockRegistryObject CEILING;
+    public final static BlockRegistryObject CEILING_2;
     public final static BlockRegistryObject CEILING_OVERHEAD;
+    public final static BlockRegistryObject CEILING_OVERHEAD_2;
+    public final static BlockRegistryObject STATION_COLOR_CEILING;
+    public final static BlockRegistryObject STATION_COLOR_CEILING_2;
     public final static BlockRegistryObject CEILING_LIGHT;
+    public final static BlockRegistryObject CEILING_LIGHT_2;
     public final static BlockRegistryObject ORDINARY_PSD_CAB_DOOR;
     public final static BlockRegistryObject PSD_TOP;
     public final static BlockRegistryObject BLUEFENCE;
@@ -117,6 +123,8 @@ public class Blocks {
     public final static BlockRegistryObject CRT_RIGID_CATENARY_1;
     public final static BlockRegistryObject CRT_TEMP_FENCE_1;
     public final static BlockRegistryObject CRT_FENCE_LIFT_TIPS_1;
+    public final static BlockRegistryObject NRT_TICKET_1_ENTER;
+    public final static BlockRegistryObject NRT_TICKET_1_EXIT;
 
     static {
         CRT_LOGO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_logo"), () -> new Block(new BlockCRTLogo(createDefaultBlockSettings(false, (blockState) -> 10))),ItemsGroup.CRT);
@@ -125,9 +133,11 @@ public class Blocks {
         CRT_TICKET_1_EXIT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_barrier_exit_1"), () -> new Block(new BlockCRTTicketBarrier1(false)), ItemsGroup.CRT);
         CRT_TICKET_2_ENTER = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_barrier_entrance_2"), () -> new Block(new BlockCRTTicketBarrier2(true)), ItemsGroup.CRT);
         CRT_TICKET_2_EXIT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_barrier_exit_2"), () -> new Block(new BlockCRTTicketBarrier2(false)), ItemsGroup.CRT);
+        CRT_TICKET_3_ENTER = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_barrier_entrance_3"), () -> new Block(new BlockCRTTicketBarrier3(true)), ItemsGroup.CRT);
+        CRT_TICKET_3_EXIT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_barrier_exit_3"), () -> new Block(new BlockCRTTicketBarrier3(false)), ItemsGroup.CRT);
         CRT_TICKET_MACHINE_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_ticket_machine_1"), () -> new Block(new BlockCRTTicketMachine1(createDefaultBlockSettings(true, (blockState) -> 5))), ItemsGroup.CRT);
         CRT_OLD_WALL1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_old_wall_1"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, ItemsGroup.CRT);
-        CRT_OLD_WALL2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_old_wall_2"), () -> new Block(new BlockExtension(createDefaultBlockSettings(false))) , ItemsGroup.CRT);
+        CRT_OLD_WALL2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_old_wall_2"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, ItemsGroup.CRT);
         CRT_LIFT_TIPS = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_lift_tips"), () -> new Block(new BlockPaperShapes(createDefaultBlockSettings(false))), ItemsGroup.CRT);
         CRT_LIFT_TIPS_3 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_lift_tips_3"), () -> new Block(new BlockPaperShapes(createDefaultBlockSettings(false))), ItemsGroup.CRT);
         CRT_FENCE1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_1"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
@@ -152,7 +162,12 @@ public class Blocks {
         LOGO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "logo"), () -> new Block(new BlockPaperShapes(createDefaultBlockSettings(false, (blockState) -> 10))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
         CEILING = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling"), () -> new Block(new BlockCeiling(createDefaultBlockSettings(false))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
         CEILING_OVERHEAD = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling_overhead"), () -> new Block(new BlockCeiling(createDefaultBlockSettings(false))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        STATION_COLOR_CEILING = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "station_color_ceiling"), () -> new Block(new BlockStationColorCeiling(createDefaultBlockSettings(false))), ItemBlockEnchanted::new, ItemsGroup.USING_STATION_BUILDING_BLOCKS);
         CEILING_LIGHT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling_light"), () -> new Block(new BlockCeilingLight(createDefaultBlockSettings(false, (blockState) -> 13))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        CEILING_2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling_2"), () -> new Block(new BlockCeiling(createDefaultBlockSettings(false))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        CEILING_OVERHEAD_2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling_overhead_2"), () -> new Block(new BlockCeiling(createDefaultBlockSettings(false))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        STATION_COLOR_CEILING_2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "station_color_ceiling_2"), () -> new Block(new BlockStationColorCeiling(createDefaultBlockSettings(false))), ItemBlockEnchanted::new, ItemsGroup.USING_STATION_BUILDING_BLOCKS);
+        CEILING_LIGHT_2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ceiling_light_2"), () -> new Block(new BlockCeilingLight(createDefaultBlockSettings(false, (blockState) -> 13))),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
         ORDINARY_PSD_CAB_DOOR = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "ordinary_psd_cab_door"), () -> new Block(new BlockOrdinaryPSDCabDoor(AbstractBlock.Settings.create())),ItemsGroup.USING_STATION_BUILDING_BLOCKS);
         PSD_TOP = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "psd_top"), () -> new Block(new BlockPSDTOP(createDefaultBlockSettings(false))), ItemsGroup.USING_STATION_BUILDING_BLOCKS);
         BLUEFENCE = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "bluefence"), () -> new Block(new BlockBlueFence(AbstractBlock.Settings.create().nonOpaque())),ItemsGroup.CITY_BUILDING_BLOCKS);
@@ -211,6 +226,8 @@ public class Blocks {
         CRT_RIGID_CATENARY_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_rigid_catenary_1"), () -> new Block(new BlockCRTRigidCatenary1(createDefaultBlockSettings(false))), ItemsGroup.CRT);
         CRT_TEMP_FENCE_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_temp_fence_1"), () -> new Block(new BlockTempFence(AbstractBlock.Settings.create().burnable().nonOpaque().solid())), ItemsGroup.CRT);
         CRT_FENCE_LIFT_TIPS_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_lift_tips_1"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
+        NRT_TICKET_1_ENTER = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "nrt_barrier_entrance_1"), () -> new Block(new BlockNRTTicketBarrier1(true)), ItemsGroup.NRT);
+        NRT_TICKET_1_EXIT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "nrt_barrier_exit_1"), () -> new Block(new BlockNRTTicketBarrier1(false)), ItemsGroup.NRT);
 
     }
 

@@ -1,7 +1,8 @@
 package com.Nanbin;
 
-import com.Nanbin.client.ItemsGroup.FiltersGroup;
-import com.Nanbin.client.ItemsGroup.FiltersMenu;
+import com.Nanbin.client.FiltersGroup.FiltersGroup;
+import com.Nanbin.client.FiltersGroup.FiltersMenu;
+import com.Nanbin.client.Registry.BlockColor;
 import com.Nanbin.client.Registry.RenderLayerReg;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +20,7 @@ public final class InitClient {
         ClientinitSteps.put("FiltersGroup", FiltersGroup::init);
         ClientinitSteps.put("FiltersMenu", FiltersMenu::init);
         ClientinitSteps.put("RenderLayer", RenderLayerReg::init);
+        ClientinitSteps.put("BlockColor", BlockColor::init);
 
         int currentStep = 1;
 

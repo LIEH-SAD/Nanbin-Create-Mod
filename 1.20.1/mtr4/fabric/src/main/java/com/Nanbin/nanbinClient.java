@@ -2,7 +2,7 @@ package com.Nanbin;
 
 import net.fabricmc.api.ClientModInitializer;
 
-public class entrypointClient implements ClientModInitializer {
+public class nanbinClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {

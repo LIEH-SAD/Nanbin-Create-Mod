@@ -3,6 +3,10 @@ package com.Nanbin.client.Registry;
 import com.Nanbin.Blocks.Blocks;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.minecraft.client.render.RenderLayer;
+import org.mtr.mod.BlockEntityTypes;
+import org.mtr.mod.render.RenderPSDTop;
+
+import static org.mtr.mod.InitClient.REGISTRY_CLIENT;
 
 public class RenderLayerReg {
 
@@ -18,6 +22,8 @@ public class RenderLayerReg {
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_TICKET_1_EXIT.get().data, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_TICKET_2_ENTER.get().data, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_TICKET_2_EXIT.get().data, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_TICKET_3_ENTER.get().data, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_TICKET_3_EXIT.get().data, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_TICKET_MACHINE_1.get().data, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.BLUEFENCE.get().data, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.BLUEFENCE_TOP.get().data, RenderLayer.getCutout());
@@ -34,5 +40,8 @@ public class RenderLayerReg {
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.SOUNDPROOFNET_GLASS.get().data, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.SOUNDPROOFNET_GLASS_2.get().data, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_FENCE_LIFT_TIPS_1.get().data, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(Blocks.NRT_TICKET_1_ENTER.get().data, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(Blocks.NRT_TICKET_1_EXIT.get().data, RenderLayer.getCutout());
+        REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PSD_TOP, RenderPSDTop::new);
     }
 }

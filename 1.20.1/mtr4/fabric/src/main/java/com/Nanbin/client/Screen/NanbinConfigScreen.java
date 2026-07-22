@@ -1,7 +1,7 @@
 
-package com.Nanbin.client.Menu;
+package com.Nanbin.client.Screen;
 
-import com.Nanbin.entrypoint;
+import com.Nanbin.nanbin;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
 import org.mtr.mod.Init;
@@ -169,7 +169,7 @@ public class NanbinConfigScreen extends MTRScreenBase implements IGui {
         graphicsHolder.scale(1.5F, 1.5F, 1.5F);
         graphicsHolder.drawText(titleText, 0, 6, -1, true, GraphicsHolder.getDefaultLight());
         graphicsHolder.pop();
-        graphicsHolder.drawText(entrypoint.FINAL_VERSION, 0, 24, -1, true, GraphicsHolder.getDefaultLight());
+        graphicsHolder.drawText(nanbin.FINAL_VERSION, 0, 24, -1, true, GraphicsHolder.getDefaultLight());
         graphicsHolder.pop();
     }
 
