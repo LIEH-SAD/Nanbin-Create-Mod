@@ -26,7 +26,7 @@ public class BlockCRTStationName1 extends BlockStationNameBase implements BlockW
 
     @Nonnull
     public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new BlockCRTStationName1.BlockEntity(blockPos, blockState);
+        return new BlockEntity(blockPos, blockState);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class BlockCRTStationName1 extends BlockStationNameBase implements BlockW
         }
 
         /**
-         * 从保存的 platformId 查找站台，缓存路线信息到字段。
+         * 从保存的 platformId 查找站台，缓存路线信息到字段
          * 在 readCompoundTag（区块加载）、setPlatformId（PacketUpdateRailwaySignConfig 服务端回调）
          * 和 setData（GUI 关闭后）时自动调用。
          * 客户端从 MinecraftClientData 解析（routes 为空时触发 PacketRequestPlatformRouteData 向服务端请求）。
@@ -99,9 +99,15 @@ public class BlockCRTStationName1 extends BlockStationNameBase implements BlockW
 
         @Override
         public void setPlatformId(long platformId) {
+            final long oldId = getPlatformId();
             super.setPlatformId(platformId);
-            // 在客户端和服务端都尝试解析：服务端通过反射获取完整路线数据并持久化，
-            // 客户端从 MinecraftClientData 解析（成功后通过 PacketSyncStationNameData 同步到服务端）。
+            if (platformId != oldId) {
+            	// 站台发生变化（切换/删除），清除旧的缓存路线数据
+            	routeColor = 0;
+            	routeNumber = "";
+            	platformName = "";
+            	markDirty2();
+            }
             resolvePlatformData();
         }
 
@@ -137,12 +143,15 @@ public class BlockCRTStationName1 extends BlockStationNameBase implements BlockW
             this.setPlatformId(platformId);
             resolvePlatformData();
             final Direction facing = IBlock.getStatePropertySafe(this.getCachedState2(), FACING);
-            final BlockPos neighborPos = this.getPos2().offset(facing.rotateYClockwise());
+            final BlockPos pos = this.getPos2().offset(facing.rotateYClockwise());
 
-            final org.mtr.mapping.holder.BlockEntity blockEntity = this.getWorld2().getBlockEntity(neighborPos);
-            if (blockEntity != null && blockEntity.data instanceof BlockEntity entity) {
+
+            final org.mtr.mapping.holder.BlockEntity blockEntity = this.getWorld2().getBlockEntity(pos);
+            if (blockEntity.data instanceof BlockEntity entity) {
                 entity.setPlatformId(platformId);
                 entity.markDirty2();
+            }else{
+                Init.LOGGER.error("BlockCRTStationName1.BlockEntity: Unable to set data for block entity at {}", pos.toShortString());
             }
             markDirty2();
         }

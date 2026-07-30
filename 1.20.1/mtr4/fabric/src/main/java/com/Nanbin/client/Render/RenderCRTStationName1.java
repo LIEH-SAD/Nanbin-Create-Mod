@@ -17,6 +17,7 @@ import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
+import org.mtr.mod.data.IGui;
 import org.mtr.mod.generated.lang.TranslationProvider;
 import org.mtr.mod.render.MainRenderer;
 import org.mtr.mod.render.QueuedRenderLayer;
@@ -25,10 +26,10 @@ import org.mtr.mod.render.StoredMatrixTransformations;
 
 import static org.mtr.mod.InitClient.findStation;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
-public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationName1.BlockEntity> {
+public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationName1.BlockEntity> implements IBlock, IGui, IDrawing {
 
 	// From MTR RenderStationNameBase: translate z by (0.5 - zOffset - 0.003125)
 	// Then old drawStationName added another -0.0375 in local space
@@ -44,8 +45,8 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 	private static final FontType SELECTED_FONT = FontType.SOURCE_HAN;
 	private static final int FONT_SIZE = 100;
 
-	/** 已经向服务端请求过路线数据的方块位置，避免每帧重复发送 */
-	private static final Set<Long> requestedPositions = new HashSet<>();
+	/** 已经向服务端请求过路线数据的 (方块位置→平台ID) 映射，站台变更后会自动重请求 */
+	private static final Map<Long, Long> requestedPlatformIds = new HashMap<>();
 
 	static {
 		CustomFontTextureCache.instance.selectedFont = SELECTED_FONT;
@@ -63,6 +64,7 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 
 		final BlockPos pos = entity.getPos2();
 		final BlockState state = world.getBlockState(pos);
+
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int shadingColor = RenderRouteBase.getShadingColor(facing, entity.getColor(state));
 
@@ -96,6 +98,7 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 
 		try {
 			final long savedPlatformId = entity.getPlatformId();
+			final long posKey = pos.asLong();
 			Platform platform = null;
 
 			if (savedPlatformId != 0) {
@@ -115,16 +118,21 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 					Registry.sendPacketToServer(new PacketSyncStationNameData(
 							entity.getPos2(), routeColor, routeNumber, platformNumber));
 				}
+				requestedPlatformIds.remove(posKey); // 数据已就绪，清除请求标记使站台切换后能重新请求
 			} else if (entity.getRouteColor() != 0) {
 				// 使用已保存到 NBT 的路线数据
 				themeColor = entity.getRouteColor();
 				routeColor = entity.getRouteColor();
 				routeNumber = entity.getRouteNumber();
 				platformNumber = entity.getPlatformName();
-			} else if (savedPlatformId != 0 && platform != null) {
-				// 站台存在但 routes 为空且无已保存数据 → 向服务端请求路线数据
-				final long posKey = pos.asLong();
-				if (requestedPositions.add(posKey)) {
+				requestedPlatformIds.remove(posKey); // 数据已就绪，清除请求标记使站台切换后能重新请求
+			}
+
+			// 站台 ID 存在但路线数据未就绪（platform 为 null、routes 为空、或缓存已被清空）→ 向服务端请求
+			if (savedPlatformId != 0 && routeColor == 0 && platformNumber.isEmpty()) {
+				final Long lastPlatformId = requestedPlatformIds.get(posKey);
+				if (lastPlatformId == null || lastPlatformId != savedPlatformId) {
+					requestedPlatformIds.put(posKey, savedPlatformId);
 					Registry.sendPacketToServer(new PacketRequestPlatformRouteData(pos));
 				}
 			}
@@ -150,5 +158,7 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 			IDrawing.drawTexture(graphicsHolder, textX, textY, textWidth, textHeight, 0F, 0F, 1F, 1F, facing, shadingColor, light);
 			graphicsHolder.pop();
 		});
+
+
 	}
 }
