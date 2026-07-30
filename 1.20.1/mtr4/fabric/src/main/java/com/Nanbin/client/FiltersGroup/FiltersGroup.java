@@ -36,7 +36,9 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_LIFT_TIPS_3.get().data.asItem())
                 .addItems(Blocks.CRT_OLD_WALL1.get().data.asItem())
                 .addItems(Blocks.CRT_OLD_WALL2.get().data.asItem())
-                .addItems(Blocks.CRT_PLATFORM.get().data.asItem());
+                .addItems(Blocks.CRT_PLATFORM.get().data.asItem())
+                .addItems(Blocks.CRT_STATION_NAME_1.get().data.asItem());
+
 
         CRT_TICKETS = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_tickets"), () -> new ItemStack(Blocks.CRT_TICKET_1_EXIT.get().data))
                 .addItems(Blocks.CRT_TICKET_1_ENTER.get().data.asItem())

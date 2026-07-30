@@ -1,11 +1,11 @@
 package com.Nanbin.Registry.RegBlock;
 
+import com.Nanbin.entity.BlockEntityTypes;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
-import org.mtr.mod.BlockEntityTypes;
 import org.mtr.mod.block.BlockPSDTop;
 import org.mtr.mod.block.IBlock;
 
@@ -29,7 +29,7 @@ public class BlockPSDTOP extends BlockExtension implements DirectionHelper {
 
     @Nonnull
     public BlockEntityExtension createBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new BlockPSDTop.BlockEntity(blockPos, blockState);
+        return new BlockPSDTOP.BlockEntity(blockPos, blockState);
     }
 
     public static class BlockEntity extends BlockPSDTop.BlockEntityBase {
@@ -45,7 +45,6 @@ public class BlockPSDTOP extends BlockExtension implements DirectionHelper {
     }
 
     public void addBlockProperties(List<HolderBase<?>> properties) {
-        super.addBlockProperties(properties);
         properties.add(FACING);
     }
 }

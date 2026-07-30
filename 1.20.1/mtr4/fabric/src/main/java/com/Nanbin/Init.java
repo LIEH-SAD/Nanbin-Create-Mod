@@ -1,6 +1,5 @@
 package com.Nanbin;
 
-import com.Nanbin.Blocks.BlockEntityTypes;
 import com.Nanbin.Blocks.Blocks;
 import com.Nanbin.Items.Items;
 import com.Nanbin.ItemsGroup.ItemsGroup;
@@ -11,6 +10,10 @@ import org.mtr.core.data.Position;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.registry.Registry;
+import com.Nanbin.entity.BlockEntityTypes;
+import com.Nanbin.packet.PacketOpenCRTPlatformScreen;
+import com.Nanbin.packet.PacketRequestPlatformRouteData;
+import com.Nanbin.packet.PacketSyncStationNameData;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,15 +24,22 @@ public final class Init {
     public static final Registry REGISTRY = new Registry();
 
     public static void init() {
+        LOGGER.info("Welcome!");
+
         long startTime = System.currentTimeMillis();
         Map<String, Runnable> initSteps = new LinkedHashMap<>();
 
-        initSteps.put("Blocks", Blocks::init);
-        initSteps.put("Items", Items::init);
         initSteps.put("ItemsGroup", ItemsGroup::init);
         initSteps.put("SoundEvents", SoundEvents::init);
+        initSteps.put("Blocks", Blocks::init);
         initSteps.put("BlockEntityTypes", BlockEntityTypes::init);
-        initSteps.put("MTR Packet", () -> {REGISTRY.setupPackets(new Identifier(MOD_ID, "packet"));REGISTRY.init();});
+        initSteps.put("Items", Items::init);
+        initSteps.put("Packet", () -> {
+            REGISTRY.setupPackets(new Identifier(MOD_ID, "packet"));
+            REGISTRY.registerPacket(PacketOpenCRTPlatformScreen.class, PacketOpenCRTPlatformScreen::new);
+            REGISTRY.registerPacket(PacketSyncStationNameData.class, PacketSyncStationNameData::new);
+            REGISTRY.registerPacket(PacketRequestPlatformRouteData.class, PacketRequestPlatformRouteData::new);
+        });
 
         int currentStep = 1;
 
@@ -42,6 +52,7 @@ public final class Init {
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
         LOGGER.info("Nanbin Create Mod has successfully registered in {} ms.", duration);
+        REGISTRY.init();
     }
 
     //接下来我们来写一些简单的调用

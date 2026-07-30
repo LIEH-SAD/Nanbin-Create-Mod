@@ -125,6 +125,7 @@ public class Blocks {
     public final static BlockRegistryObject CRT_FENCE_LIFT_TIPS_1;
     public final static BlockRegistryObject NRT_TICKET_1_ENTER;
     public final static BlockRegistryObject NRT_TICKET_1_EXIT;
+    public final static BlockRegistryObject CRT_STATION_NAME_1;
 
     static {
         CRT_LOGO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_logo"), () -> new Block(new BlockCRTLogo(createDefaultBlockSettings(false, (blockState) -> 10))),ItemsGroup.CRT);
@@ -228,7 +229,7 @@ public class Blocks {
         CRT_FENCE_LIFT_TIPS_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_fence_lift_tips_1"), () -> new Block(new BlockGlassFence()), ItemsGroup.CRT);
         NRT_TICKET_1_ENTER = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "nrt_barrier_entrance_1"), () -> new Block(new BlockNRTTicketBarrier1(true)), ItemsGroup.NRT);
         NRT_TICKET_1_EXIT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "nrt_barrier_exit_1"), () -> new Block(new BlockNRTTicketBarrier1(false)), ItemsGroup.NRT);
-
+        CRT_STATION_NAME_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_station_name_1"), () -> new Block(new BlockCRTStationName1(createDefaultBlockSettings(true))), ItemsGroup.CRT);
     }
 
 

@@ -42,6 +42,5 @@ public class RenderLayerReg {
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.CRT_FENCE_LIFT_TIPS_1.get().data, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.NRT_TICKET_1_ENTER.get().data, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(Blocks.NRT_TICKET_1_EXIT.get().data, RenderLayer.getCutout());
-        REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.PSD_TOP, RenderPSDTop::new);
     }
 }
