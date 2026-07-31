@@ -1,6 +1,6 @@
 package com.Nanbin.Registry.RegBlock;
 
-import com.Nanbin.Registry.RegMean.TicketMachineHelper;
+import com.Nanbin.mappingFabric.TicketMachineHelper;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.block.BlockDirectionalDoubleBlockBase;

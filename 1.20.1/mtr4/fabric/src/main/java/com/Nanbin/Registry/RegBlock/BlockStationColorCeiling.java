@@ -1,6 +1,6 @@
 package com.Nanbin.Registry.RegBlock;
 
-import com.Nanbin.Registry.TranslationProvider;
+import com.Nanbin.mappingFabric.TranslationProvider;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.DirectionHelper;

@@ -1,6 +1,6 @@
 package com.Nanbin.Registry.RegItem;
 
-import com.Nanbin.Registry.RegMean.TicketMachineHelper;
+import com.Nanbin.mappingFabric.TicketMachineHelper;
 import org.mtr.mapping.holder.Hand;
 import org.mtr.mapping.holder.ItemSettings;
 import org.mtr.mapping.holder.PlayerEntity;

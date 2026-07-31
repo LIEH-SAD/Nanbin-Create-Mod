@@ -1,0 +1,42 @@
+modLoader = "javafml"
+loaderVersion = "${loader_version_range}"
+license = "MTI"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+updateJSONURL="https://raw.githubusercontent.com/LIEH-SAD/Nanbin-Create-Mod/refs/heads/main/1.20.1/mtr4/update.json" #optional
+displayURL = "https://lieh-sad.github.io/nanbin/"
+logoFile="assets/nanbin/logo.png"
+authors = "Nanbin-Studio"
+description = '''
+'''
+
+[[dependencies."${mod_id}"]]
+modId = "forge"
+mandatory = true
+versionRange = "${forge_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "minecraft"
+mandatory = true
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "mtr"
+mandatory = true
+versionRange = "[4.0.0,4.1.0)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
+modId = "filters"
+mandatory = true
+versionRange = "[1.0.0,)"
+ordering = "NONE"
+side = "BOTH"

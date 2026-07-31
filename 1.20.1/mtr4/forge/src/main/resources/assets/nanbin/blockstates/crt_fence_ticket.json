@@ -1,0 +1,34 @@
+{
+	"variants": {
+		"facing=north,half=lower": {
+			"model": "nanbin:block/crt_fence_ticket"
+		},
+		"facing=east,half=lower": {
+			"model": "nanbin:block/crt_fence_ticket",
+			"y": 0
+		},
+		"facing=south,half=lower": {
+			"model": "nanbin:block/crt_fence_ticket",
+			"y": 180
+		},
+		"facing=west,half=lower": {
+			"model": "nanbin:block/crt_fence_ticket",
+			"y": 270
+		},
+		"facing=north,half=upper": {
+			"model": "nanbin:block/air"
+		},
+		"facing=east,half=upper": {
+			"model": "nanbin:block/air",
+			"y": 0
+		},
+		"facing=south,half=upper": {
+			"model": "nanbin:block/air",
+			"y": 180
+		},
+		"facing=west,half=upper": {
+			"model": "nanbin:block/air",
+			"y": 270
+		}
+	}
+}

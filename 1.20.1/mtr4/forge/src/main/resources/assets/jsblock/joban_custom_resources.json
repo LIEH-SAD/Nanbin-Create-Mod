@@ -1,0 +1,22 @@
+{
+    "pids_images": [
+      {
+        "id": "nanbin_crt_pids_1",
+        "name": "重庆轨道交通PIDS概念版",
+        "builtin": true,
+        "background": "nanbin:pids/image/crt_pids_1.png",
+        "fonts": "nanbin:harmonyos_sanssc_medium",
+        "scriptFiles": ["nanbin:pids/script/crt_pids_1.js"],
+        "blacklist": ["pids_1a"]
+      },
+      {
+        "id": "nanbin_crt_pids_2",
+        "name": "重庆轨道交通PIDS（1/3/9号线）",
+        "builtin": true,
+        "background": "nanbin:pids/image/crt_pids_2.png",
+        "fonts": "nanbin:harmonyos_sanssc_bold",
+        "scriptFiles": ["nanbin:pids/script/crt_pids_2.js"],
+        "blacklist": ["pids_1a"]
+      }
+    ]
+}

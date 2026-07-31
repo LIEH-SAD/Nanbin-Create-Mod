@@ -13,7 +13,7 @@ import org.mtr.mod.data.TicketSystem.EnumTicketBarrierOpen;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-import static com.Nanbin.Registry.RegMean.VoxelShapes.union;
+import static com.Nanbin.mappingFabric.VoxelShapes.union;
 
 public class BlockNRTTicketBarrier1 extends BlockExtension implements DirectionHelper {
     private final boolean isEntrance;

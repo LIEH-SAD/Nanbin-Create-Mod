@@ -2,7 +2,7 @@ package com.Nanbin.client.FiltersGroup;
 
 import com.Nanbin.Blocks.Blocks;
 import com.Nanbin.ItemsGroup.ItemsGroup;
-import com.Nanbin.mapping.FilterBuilder;
+import com.Nanbin.mappingFabric.FilterBuilder;
 import org.mtr.mapping.holder.ItemConvertible;
 import org.mtr.mapping.holder.ItemStack;
 import org.mtr.mapping.mapper.TextHelper;

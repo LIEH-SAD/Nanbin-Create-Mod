@@ -2,7 +2,7 @@ package com.Nanbin.client.FiltersGroup;
 
 import com.Nanbin.ItemsGroup.ItemsGroup;
 import com.Nanbin.client.Screen.NanbinConfigScreen;
-import com.Nanbin.mapping.FilterBuilder;
+import com.Nanbin.mappingFabric.FilterBuilder;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Screen;
 import org.mtr.mapping.mapper.TextHelper;

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "nanbin:block/yellow_tactile_paving_connect_bottom"
+    },
+    "type=double": {
+      "model": "nanbin:block/yellow_tactile_paving_connect"
+    },
+    "type=top": {
+      "model": "nanbin:block/yellow_tactile_paving_connect_top"
+    }
+  }
+}

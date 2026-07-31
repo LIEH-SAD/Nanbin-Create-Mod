@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nanbin:block/greenfence", "y": 180, "uvlock": true },
+    "facing=east":  { "model": "nanbin:block/greenfence", "y": 270, "uvlock": true },
+    "facing=south": { "model": "nanbin:block/greenfence", "y": 0, "uvlock": true },
+    "facing=west":  { "model": "nanbin:block/greenfence", "y": 90, "uvlock": true }
+  }
+}

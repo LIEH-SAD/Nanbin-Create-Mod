@@ -1,0 +1,64 @@
+{
+	"variants": {
+		"facing=north,open=closed": {
+			"model": "nanbin:block/crt_ticket_close_1_base"
+		},
+		"facing=east,open=closed": {
+			"model": "nanbin:block/crt_ticket_close_1_base",
+			"y": 90
+		},
+		"facing=south,open=closed": {
+			"model": "nanbin:block/crt_ticket_close_1_base",
+			"y": 180
+		},
+		"facing=west,open=closed": {
+			"model": "nanbin:block/crt_ticket_close_1_base",
+			"y": 270
+		},
+		"facing=north,open=pending": {
+			"model": "nanbin:block/crt_ticket_close_1_base"
+		},
+		"facing=east,open=pending": {
+			"model": "nanbin:block/crt_ticket_close_1_base",
+			"y": 90
+		},
+		"facing=south,open=pending": {
+			"model": "nanbin:block/crt_ticket_close_1_base",
+			"y": 180
+		},
+		"facing=west,open=pending": {
+			"model": "nanbin:block/crt_ticket_close_1_base",
+			"y": 270
+		},
+		"facing=north,open=open": {
+			"model": "nanbin:block/crt_ticket_open_1_base"
+		},
+		"facing=east,open=open": {
+			"model": "nanbin:block/crt_ticket_open_1_base",
+			"y": 90
+		},
+		"facing=south,open=open": {
+			"model": "nanbin:block/crt_ticket_open_1_base",
+			"y": 180
+		},
+		"facing=west,open=open": {
+			"model": "nanbin:block/crt_ticket_open_1_base",
+			"y": 270
+		},
+		"facing=north,open=open_concessionary": {
+			"model": "nanbin:block/crt_ticket_open_1_base"
+		},
+		"facing=east,open=open_concessionary": {
+			"model": "nanbin:block/crt_ticket_open_1_base",
+			"y": 90
+		},
+		"facing=south,open=open_concessionary": {
+			"model": "nanbin:block/crt_ticket_open_1_base",
+			"y": 180
+		},
+		"facing=west,open=open_concessionary": {
+			"model": "nanbin:block/crt_ticket_open_1_base",
+			"y": 270
+		}
+	}
+}

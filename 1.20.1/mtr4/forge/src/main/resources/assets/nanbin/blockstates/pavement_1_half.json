@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "nanbin:block/pavement_1_half_base"
+    },
+    "type=double": {
+      "model": "nanbin:block/pavement_1"
+    },
+    "type=top": {
+      "model": "nanbin:block/pavement_1_half_top"
+    }
+  }
+}

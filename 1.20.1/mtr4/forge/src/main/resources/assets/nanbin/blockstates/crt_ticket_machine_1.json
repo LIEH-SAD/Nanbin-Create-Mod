@@ -1,0 +1,36 @@
+{
+	"variants": {
+		"facing=north,half=lower": {
+			"model": "nanbin:block/crt_ticket_machine_1_base",
+			"y": 0
+		},
+		"facing=east,half=lower": {
+			"model": "nanbin:block/crt_ticket_machine_1_base",
+			"y": 90
+		},
+		"facing=south,half=lower": {
+			"model": "nanbin:block/crt_ticket_machine_1_base",
+			"y": 180
+		},
+		"facing=west,half=lower": {
+			"model": "nanbin:block/crt_ticket_machine_1_base",
+			"y": 270
+		},
+		"facing=north,half=upper": {
+			"model": "nanbin:block/crt_ticket_machine_1_top",
+			"y": 0
+		},
+		"facing=east,half=upper": {
+			"model": "nanbin:block/crt_ticket_machine_1_top",
+			"y": 90
+		},
+		"facing=south,half=upper": {
+			"model": "nanbin:block/crt_ticket_machine_1_top",
+			"y": 180
+		},
+		"facing=west,half=upper": {
+			"model": "nanbin:block/crt_ticket_machine_1_top",
+			"y": 270
+		}
+	}
+}

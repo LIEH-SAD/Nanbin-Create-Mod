@@ -1,0 +1,89 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Nanbin Create",
+	"textures": {
+		"1": "mtr:block/psd_top"
+	},
+	"elements": [
+		{
+			"name": "Main particle",
+			"from": [0, 1, 0],
+			"to": [16, 16, 6],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 1, 6]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 15], "texture": "#1", "cullface": "west"},
+				"east": {"uv": [10, 0, 16, 15], "texture": "#1"},
+				"south": {"uv": [0, 0, 16, 15], "texture": "#1"},
+				"west": {"uv": [0, 0, 6, 15], "texture": "#1", "cullface": "south"},
+				"up": {"uv": [0, 0, 16, 7], "rotation": 90, "texture": "#1", "cullface": "up"}
+			}
+		},
+		{
+			"name": "Bottom part",
+			"from": [0, 0, 0],
+			"to": [16, 1, 5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 1, 6]},
+			"faces": {
+				"north": {"uv": [0, 15, 16, 16], "texture": "#1", "cullface": "west"},
+				"east": {"uv": [11, 15, 16, 16], "texture": "#1"},
+				"west": {"uv": [0, 15, 5, 16], "texture": "#1", "cullface": "south"},
+				"down": {"uv": [0, 11, 16, 16], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"name": "Bottom curve lower",
+			"from": [0, 0, 5],
+			"to": [16, 1, 5.7654],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 5]},
+			"faces": {
+				"east": {"uv": [10.2346, 15, 11, 16], "texture": "#1"},
+				"west": {"uv": [5, 15, 5.7654, 16], "texture": "#1", "cullface": "south"},
+				"down": {"uv": [0, 10.2346, 16, 11], "rotation": 270, "texture": "#1"}
+			}
+		},
+		{
+			"name": "Bottom curve lower",
+			"from": [0, 0, 4.6],
+			"to": [16, 1.2, 5.6],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 0, 5.7654]},
+			"faces": {
+				"east": {"uv": [10.4, 14.8, 11.4, 16], "rotation": 90, "texture": "#1"},
+				"south": {"uv": [0, 14.8, 16, 16], "rotation": 270, "texture": "#1"},
+				"west": {"uv": [4.6, 14.8, 5.6, 16], "rotation": 270, "texture": "#1", "cullface": "south"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, 0, 1.25],
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 0, 2.25],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"firstperson_righthand": {
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"firstperson_lefthand": {
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"ground": {
+			"translation": [0, 3.25, 0],
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"gui": {
+			"rotation": [38, -42, 0],
+			"translation": [-1.75, -2, 1.25],
+			"scale": [0.7, 0.7, 0.7]
+		}
+	},
+	"groups": [
+		{
+			"name": "VoxelShapes",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0, 1, 2, 3]
+		}
+	]
+}

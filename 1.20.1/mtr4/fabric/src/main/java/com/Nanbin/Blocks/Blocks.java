@@ -11,7 +11,7 @@ import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetBase;
 import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetMiddle;
 import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetTop;
 import com.Nanbin.Registry.RegBlock.TallFence.*;
-import com.Nanbin.mapping.BlockSettingsFactory;
+import com.Nanbin.mappingFabric.BlockSettingsFactory;
 import org.mtr.mapping.holder.Block;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.BlockExtension;
