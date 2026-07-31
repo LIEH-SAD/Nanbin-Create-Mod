@@ -1,24 +1,27 @@
 package com.Nanbin.Registry.RegBlock;
 
-import com.Nanbin.packet.PacketOpenCRTPlatformScreen;
-import com.Nanbin.entity.BlockEntityTypes;
 import com.Nanbin.Init;
+import com.Nanbin.Registry.TranslationProvider;
+import com.Nanbin.entity.BlockEntityTypes;
 import com.Nanbin.mapping.IBlockExtension;
+import com.Nanbin.packet.PacketOpenCRTPlatformScreen;
+import org.mtr.core.data.Data;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Route;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockWithEntity;
+import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.block.BlockRouteSignBase;
 import org.mtr.mod.block.IBlock;
-import org.mtr.mod.client.MinecraftClientData;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 
-public class BlockCRTStationName1 extends BlockStationNameBase implements BlockWithEntity {
+public class BlockCRTStationName1 extends BlockStationNameBase implements DirectionHelper,BlockWithEntity {
 
     public BlockCRTStationName1(BlockSettings blockSettings) {
         super(blockSettings);
@@ -39,121 +42,101 @@ public class BlockCRTStationName1 extends BlockStationNameBase implements BlockW
         properties.add(FACING);
     }
 
+    public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
+        tooltip.add(TranslationProvider.TOOLTIP_STATION_COLOR.getMutableText(new Object[0]).formatted(TextFormatting.DARK_GRAY));
+    }
+
     public static class BlockEntity extends BlockRouteSignBase.BlockEntityBase {
 
-        private int routeColor;
+        private static final String KEY_ROUTE_NUMBER = "routeNumber";
         private String routeNumber = "";
-        private String platformName = "";
-
-        private static final String KEY_ROUTE_COLOR = "route_color";
-        private static final String KEY_ROUTE_NUMBER = "route_number";
-        private static final String KEY_PLATFORM_NAME = "platform_name";
 
         public BlockEntity(BlockPos pos, BlockState state) {
             super(BlockEntityTypes.CRT_STATION_NAME_1.get(), pos, state);
         }
 
-        @Override
-        public void readCompoundTag(CompoundTag tag) {
-            super.readCompoundTag(tag);
-            routeColor = tag.getInt(KEY_ROUTE_COLOR);
-            routeNumber = tag.getString(KEY_ROUTE_NUMBER);
-            platformName = tag.getString(KEY_PLATFORM_NAME);
-            resolvePlatformData();
-        }
-
-        @Override
-        public void writeCompoundTag(CompoundTag tag) {
-            super.writeCompoundTag(tag);
-            tag.putInt(KEY_ROUTE_COLOR, routeColor);
-            tag.putString(KEY_ROUTE_NUMBER, routeNumber);
-            tag.putString(KEY_PLATFORM_NAME, platformName);
-        }
-
-        /**
-         * 从保存的 platformId 查找站台，缓存路线信息到字段
-         * 在 readCompoundTag（区块加载）、setPlatformId（PacketUpdateRailwaySignConfig 服务端回调）
-         * 和 setData（GUI 关闭后）时自动调用。
-         * 客户端从 MinecraftClientData 解析（routes 为空时触发 PacketRequestPlatformRouteData 向服务端请求）。
-         */
-        private void resolvePlatformData() {
-            try {
-                if (getWorld2() == null) return;
-                final long id = getPlatformId();
-                if (id == 0) return;
-
-                if (getWorld2().isClient()) {
-                    // 客户端：从 MinecraftClientData 解析（platform.routes 可能为空直到收到 PacketUpdateData）
-                    final Platform platform = MinecraftClientData.getInstance().platformIdMap.get(id);
-                    if (platform != null && !platform.routes.isEmpty()) {
-                        final Route route = platform.routes.iterator().next();
-                        routeColor = route.getColor();
-                        routeNumber = route.getRouteNumber();
-                        platformName = platform.getName();
-                        markDirty2();
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-        }
-
-        @Override
-        public void setPlatformId(long platformId) {
-            final long oldId = getPlatformId();
-            super.setPlatformId(platformId);
-            if (platformId != oldId) {
-            	// 站台发生变化（切换/删除），清除旧的缓存路线数据
-            	routeColor = 0;
-            	routeNumber = "";
-            	platformName = "";
-            	markDirty2();
-            }
-            resolvePlatformData();
-        }
-
-        public int getRouteColor() {
-            return routeColor;
-        }
-
-        public void setRouteColor(int routeColor) {
-            this.routeColor = routeColor;
+        public int getColor(BlockState state) {
+            return -1; // 白色
         }
 
         public String getRouteNumber() {
             return routeNumber;
         }
 
-        public void setRouteNumber(String routeNumber) {
-            this.routeNumber = routeNumber == null ? "" : routeNumber;
+        @Override
+        public void setPlatformId(long platformId) {
+            super.setPlatformId(platformId);
+            // MTR 客户端游戏数据不含完整路线（routeNumber），因此在服务端配置平台时
+            // 同步一次真实的线路编号并写入 NBT，渲染端直接读取。
+            updateRouteNumberFromServer();
         }
 
-        public String getPlatformName() {
-            return platformName;
+        @Override
+        public void readCompoundTag(CompoundTag compoundTag) {
+            super.readCompoundTag(compoundTag);
+            routeNumber = compoundTag.getString(KEY_ROUTE_NUMBER);
         }
 
-        public void setPlatformName(String platformName) {
-            this.platformName = platformName == null ? "" : platformName;
-        }
-
-        public int getColor(BlockState state) {
-            return -1; // 白色，让纹理完全控制颜色
+        @Override
+        public void writeCompoundTag(CompoundTag compoundTag) {
+            super.writeCompoundTag(compoundTag);
+            compoundTag.putString(KEY_ROUTE_NUMBER, routeNumber);
         }
 
         public void setData(long platformId) {
             this.setPlatformId(platformId);
-            resolvePlatformData();
-            final Direction facing = IBlock.getStatePropertySafe(this.getCachedState2(), FACING);
-            final BlockPos pos = this.getPos2().offset(facing.rotateYClockwise());
+            final BlockPos pos;
+            pos = this.getPos2().offset(IBlock.getStatePropertySafe(this.getCachedState2(), FACING).rotateYClockwise());
 
-
-            final org.mtr.mapping.holder.BlockEntity blockEntity = this.getWorld2().getBlockEntity(pos);
+            org.mtr.mapping.holder.BlockEntity blockEntity = this.getWorld2().getBlockEntity(pos);
             if (blockEntity.data instanceof BlockEntity entity) {
                 entity.setPlatformId(platformId);
                 entity.markDirty2();
-            }else{
-                Init.LOGGER.error("BlockCRTStationName1.BlockEntity: Unable to set data for block entity at {}", pos.toShortString());
+            } else {
+                Init.LOGGER.error("BlockStationName1.BlockEntity: Unable to set data for block entity at {}", pos.toShortString());
             }
             markDirty2();
+        }
+
+        /**
+         * 服务端专用：反射访问 MTR 的 Simulator，按 platformId 找到服务该站台的完整 Route，
+         * 取出真实的线路编号（routeNumber）并缓存。MTR 客户端数据没有该字段，只能从服务端获取。
+         */
+        private void updateRouteNumberFromServer() {
+            if (getWorld2() == null || getWorld2().isClient()) {
+                return;
+            }
+            final long platformId = getPlatformId();
+            if (platformId == 0) {
+                return;
+            }
+            try {
+                final java.lang.reflect.Field mainField = Class.forName("org.mtr.mod.Init").getDeclaredField("main");
+                mainField.setAccessible(true);
+                final Object main = mainField.get(null);
+                if (main == null) {
+                    return;
+                }
+                final java.lang.reflect.Field simulatorsField = main.getClass().getDeclaredField("simulators");
+                simulatorsField.setAccessible(true);
+                final Iterable<?> simulators = (Iterable<?>) simulatorsField.get(main);
+                for (final Object simulator : simulators) {
+                    final Data data = (Data) simulator;
+                    final Platform platform = data.platformIdMap.get(platformId);
+                    if (platform != null) {
+                        for (final Route route : platform.routes) {
+                            final String number = route.getRouteNumber();
+                            if (number != null && !number.isEmpty()) {
+                                routeNumber = number;
+                                markDirty2();
+                                return;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                Init.LOGGER.error("BlockCRTStationName1: Failed to fetch route number for platform {}", platformId, e);
+            }
         }
     }
 }

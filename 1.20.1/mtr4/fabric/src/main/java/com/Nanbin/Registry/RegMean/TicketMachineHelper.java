@@ -1,7 +1,9 @@
 
 package com.Nanbin.Registry.RegMean;
 
-import org.mtr.mapping.holder.*;
+import org.mtr.mapping.holder.PlayerEntity;
+import org.mtr.mapping.holder.ServerPlayerEntity;
+import org.mtr.mapping.holder.World;
 import org.mtr.mod.Init;
 import org.mtr.mod.data.TicketSystem;
 import org.mtr.mod.packet.PacketOpenTicketMachineScreen;

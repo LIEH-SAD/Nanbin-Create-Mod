@@ -1,28 +1,27 @@
-
 package com.Nanbin.Registry.RegBlock;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.Property;
+import org.mtr.mapping.holder.BlockSettings;
+import org.mtr.mapping.holder.BlockState;
+import org.mtr.mapping.holder.ItemPlacementContext;
+import org.mtr.mapping.holder.Property;
+import org.mtr.mapping.mapper.BlockExtension;
+import org.mtr.mapping.mapper.DirectionHelper;
+import org.mtr.mapping.tool.HolderBase;
 
-public class BlockFacingBlock extends HorizontalFacingBlock {
-    public BlockFacingBlock(Settings settings) {
+import java.util.List;
+
+public class BlockFacingBlock extends BlockExtension {
+    public BlockFacingBlock(BlockSettings settings) {
         super(settings);
     }
 
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(new Property[]{FACING});
+    @Override
+    public void addBlockProperties(List<HolderBase<?>> properties) {
+        properties.add(DirectionHelper.FACING);
     }
 
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return (BlockState)this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
-    }
-
-    public PistonBehavior getPistonBehavior(BlockState state) {
-        return PistonBehavior.PUSH_ONLY;
+    @Override
+    public BlockState getPlacementState2(ItemPlacementContext ctx) {
+        return this.getDefaultState2().with(new Property<>(DirectionHelper.FACING.data), ctx.getPlayerFacing().getOpposite().data);
     }
 }

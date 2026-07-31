@@ -1,8 +1,8 @@
 package com.Nanbin.Registry.RegBlock;
 
+import com.Nanbin.Registry.RegMean.VoxelShapes;
 import com.Nanbin.Registry.SoundEvents;
 import org.mtr.mapping.holder.*;
-import com.Nanbin.Registry.RegMean.VoxelShapes;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;

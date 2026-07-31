@@ -1,10 +1,9 @@
 
 package com.Nanbin.client.Screen;
 
-import com.Nanbin.nanbin;
+import com.Nanbin.Init;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mod.Init;
 import org.mtr.mod.Patreon;
 import org.mtr.mod.client.DynamicTextureCache;
 import org.mtr.mod.client.IDrawing;
@@ -169,7 +168,7 @@ public class NanbinConfigScreen extends MTRScreenBase implements IGui {
         graphicsHolder.scale(1.5F, 1.5F, 1.5F);
         graphicsHolder.drawText(titleText, 0, 6, -1, true, GraphicsHolder.getDefaultLight());
         graphicsHolder.pop();
-        graphicsHolder.drawText(nanbin.FINAL_VERSION, 0, 24, -1, true, GraphicsHolder.getDefaultLight());
+        graphicsHolder.drawText(Init.FINAL_VERSION, 0, 24, -1, true, GraphicsHolder.getDefaultLight());
         graphicsHolder.pop();
     }
 

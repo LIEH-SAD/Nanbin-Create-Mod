@@ -2,10 +2,11 @@ package com.Nanbin.client.FiltersGroup;
 
 import com.Nanbin.Blocks.Blocks;
 import com.Nanbin.ItemsGroup.ItemsGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
+import com.Nanbin.mapping.FilterBuilder;
+import org.mtr.mapping.holder.ItemConvertible;
+import org.mtr.mapping.holder.ItemStack;
+import org.mtr.mapping.mapper.TextHelper;
 import ziyue.filters.Filter;
-import ziyue.filters.FilterBuilder;
 
 public final class FiltersGroup {
 
@@ -21,7 +22,7 @@ public final class FiltersGroup {
     private FiltersGroup() {}
 
     public static void init() {
-        CRT_FENCE = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_fence"), () -> new ItemStack(Blocks.CRT_FENCE1.get().data))
+        CRT_FENCE = FilterBuilder.registerFilter(ItemsGroup.CRT, TextHelper.translatable("FiltersGroup.nanbin.crt_fence"), () -> new ItemStack(new ItemConvertible(Blocks.CRT_FENCE1.get().data)))
                 .addItems(Blocks.CRT_FENCE1.get().data.asItem())
                 .addItems(Blocks.CRT_FENCE8.get().data.asItem())
                 .addItems(Blocks.CRT_FENCE9.get().data.asItem())
@@ -30,7 +31,7 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_FENCE_LIFT_TIPS_1.get().data.asItem())
                 .addItems(Blocks.CRT_TEMP_FENCE_1.get().data.asItem());
 
-        CRT_BUILDING_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_building_blocks"), () -> new ItemStack(Blocks.CRT_LOGO.get().data))
+        CRT_BUILDING_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CRT, TextHelper.translatable("FiltersGroup.nanbin.crt_building_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.CRT_LOGO.get().data)))
                 .addItems(Blocks.CRT_LOGO.get().data.asItem())
                 .addItems(Blocks.CRT_LIFT_TIPS.get().data.asItem())
                 .addItems(Blocks.CRT_LIFT_TIPS_3.get().data.asItem())
@@ -40,7 +41,7 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_STATION_NAME_1.get().data.asItem());
 
 
-        CRT_TICKETS = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_tickets"), () -> new ItemStack(Blocks.CRT_TICKET_1_EXIT.get().data))
+        CRT_TICKETS = FilterBuilder.registerFilter(ItemsGroup.CRT, TextHelper.translatable("FiltersGroup.nanbin.crt_tickets"), () -> new ItemStack(new ItemConvertible(Blocks.CRT_TICKET_1_EXIT.get().data)))
                 .addItems(Blocks.CRT_TICKET_1_ENTER.get().data.asItem())
                 .addItems(Blocks.CRT_TICKET_1_EXIT.get().data.asItem())
                 .addItems(Blocks.CRT_TICKET_2_ENTER.get().data.asItem())
@@ -49,17 +50,17 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_TICKET_3_EXIT.get().data.asItem())
                 .addItems(Blocks.CRT_TICKET_MACHINE_1.get().data.asItem());
 
-        //CRT_OVERHEAD_LINES = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_overhead_lines"), () -> new ItemStack(Blocks.CRT_LOGO.get().data))
+        //CRT_OVERHEAD_LINES = FilterBuilder.registerFilter(ItemsGroup.CRT, TextHelper.translatable("FiltersGroup.nanbin.crt_overhead_lines"), () -> new ItemStack(new ItemConvertible(Blocks.CRT_LOGO.get().data)))
                 //.addItems(Blocks.CRT_RIGID_CATENARY_1.get().data.asItem());
 
-        CRT_DOOR = FilterBuilder.registerFilter(ItemsGroup.CRT.creativeModeTab, Text.translatable("FiltersGroup.nanbin.crt_door"), () -> new ItemStack(Blocks.CRT_APG_CAB_DOOR_NEW.get().data))
+        CRT_DOOR = FilterBuilder.registerFilter(ItemsGroup.CRT, TextHelper.translatable("FiltersGroup.nanbin.crt_door"), () -> new ItemStack(new ItemConvertible(Blocks.CRT_APG_CAB_DOOR_NEW.get().data)))
                 //.addItems(Blocks.CRT_PSD_CAB_DOOR.get().data.asItem())
                 .addItems(Blocks.CRT_APG_CAB_DOOR_OLD.get().data.asItem())
                 .addItems(Blocks.CRT_APG_CAB_FENCE_OLD.get().data.asItem())
                 .addItems(Blocks.CRT_APG_CAB_FENCE_OLD_CONNECT.get().data.asItem())
                 .addItems(Blocks.CRT_APG_CAB_DOOR_NEW.get().data.asItem());
 
-        COMMON_BUILDING_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS.creativeModeTab, Text.translatable("FiltersGroup.nanbin.common_building_blocks"), () -> new ItemStack(Blocks.NANBIN_BLUE_BLOCK.get().data))
+        COMMON_BUILDING_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS, TextHelper.translatable("FiltersGroup.nanbin.common_building_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.NANBIN_BLUE_BLOCK.get().data)))
                 .addItems(Blocks.NANBIN_WHITE_BLOCK.get().data.asItem())
                 .addItems(Blocks.NANBIN_RED_BLOCK.get().data.asItem())
                 .addItems(Blocks.NANBIN_YELLOW_BLOCK.get().data.asItem())
@@ -91,7 +92,7 @@ public final class FiltersGroup {
                 .addItems(Blocks.BLACK_TERRAZZO.get().data.asItem())
                 .addItems(Blocks.CEMENT.get().data.asItem());
 
-        ROAD_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS.creativeModeTab, Text.translatable("FiltersGroup.nanbin.road_blocks"), () -> new ItemStack(Blocks.YELLOW_TACTILE_BAVING.get().data))
+        ROAD_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS, TextHelper.translatable("FiltersGroup.nanbin.road_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.YELLOW_TACTILE_BAVING.get().data)))
                 .addItems(Blocks.PAVEMENT_1.get().data.asItem())
                 .addItems(Blocks.PAVEMENT_1_HALF.get().data.asItem())
                 .addItems(Blocks.PAVEMENT_2.get().data.asItem())
@@ -110,7 +111,7 @@ public final class FiltersGroup {
                 .addItems(Blocks.YELLOW_TACTILE_BAVING_CONNECT.get().data.asItem())
                 .addItems(Blocks.YELLOW_TACTILE_BAVING_CONNECT_HALF.get().data.asItem());
 
-        FENCE_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS.creativeModeTab, Text.translatable("FiltersGroup.nanbin.fence_blocks"), () -> new ItemStack(Blocks.BLUEFENCE.get().data))
+        FENCE_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS, TextHelper.translatable("FiltersGroup.nanbin.fence_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.BLUEFENCE.get().data)))
                 .addItems(Blocks.BLUEFENCE.get().data.asItem())
                 .addItems(Blocks.GREENFENCE.get().data.asItem())
                 .addItems(Blocks.METALFENCE.get().data.asItem());

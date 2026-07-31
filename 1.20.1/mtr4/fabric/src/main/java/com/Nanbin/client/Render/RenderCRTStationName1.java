@@ -1,13 +1,12 @@
 package com.Nanbin.client.Render;
 
+import com.Nanbin.Init;
 import com.Nanbin.Registry.RegBlock.BlockCRTStationName1;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
 import com.Nanbin.client.Drawing.CustomFontTextureCache.FontType;
-import com.Nanbin.mapping.Registry;
-import com.Nanbin.packet.PacketRequestPlatformRouteData;
-import com.Nanbin.packet.PacketSyncStationNameData;
+import com.Nanbin.client.RouteMap.RouteMapGenerator;
+import com.Nanbin.client.RouteMap.RouteMapGenerator.ResolvedRouteData;
 import org.mtr.core.data.Platform;
-import org.mtr.core.data.Route;
 import org.mtr.core.data.Station;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
@@ -24,16 +23,14 @@ import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.RenderRouteBase;
 import org.mtr.mod.render.StoredMatrixTransformations;
 
-import static org.mtr.mod.InitClient.findStation;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mtr.mod.InitClient.findStation;
+
+
 public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationName1.BlockEntity> implements IBlock, IGui, IDrawing {
 
-	// From MTR RenderStationNameBase: translate z by (0.5 - zOffset - 0.003125)
-	// Then old drawStationName added another -0.0375 in local space
-	// With zOffset=0: total Z from center = 0.5 - 0 - 0.003125 - 0.0375 = 0.459375
 	private static final float Z_FROM_CENTER = 0.459375F;
 	private static final float BG_WIDTH = 1.4F;
 	private static final float BG_HEIGHT = 1.6F;
@@ -43,10 +40,9 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 	private static final boolean USE_CUSTOM_FONT = true;
 
 	private static final FontType SELECTED_FONT = FontType.SOURCE_HAN;
-	private static final int FONT_SIZE = 100;
-
-	/** 已经向服务端请求过路线数据的 (方块位置→平台ID) 映射，站台变更后会自动重请求 */
-	private static final Map<Long, Long> requestedPlatformIds = new HashMap<>();
+	private static final int FONT_SIZE = 92;
+	/** 调试：记录每个站名牌最近一次的解析状态 (posKey → stateKey)，仅在状态变化时输出日志 */
+	private static final Map<Long, String> lastDebugStates = new HashMap<>();
 
 	static {
 		CustomFontTextureCache.instance.selectedFont = SELECTED_FONT;
@@ -91,52 +87,25 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 		matrix.add(graphics -> graphics.translate(0, 0, Z_FROM_CENTER));
 
 		// Resolve route/platform data from saved platform ID
-		int themeColor = stationColor;
-		int routeColor = stationColor;
-		String routeNumber = "";
 		String platformNumber = "";
+		final long posKey = pos.asLong();
+
+		final long savedPlatformId = entity.getPlatformId();
+		// 优先使用服务端同步到方块实体上的真实线路编号（MTR 客户端数据不含 routeNumber）
+		final String syncedRouteNumber = entity.getRouteNumber() == null ? "" : entity.getRouteNumber();
+		final ResolvedRouteData resolved = RouteMapGenerator.resolveRouteData(savedPlatformId, stationColor, syncedRouteNumber);
+		final int themeColor = resolved.themeColor();
+		final int routeColor = resolved.routeColor();
+		final String routeNumber = resolved.routeNumber();
 
 		try {
-			final long savedPlatformId = entity.getPlatformId();
-			final long posKey = pos.asLong();
-			Platform platform = null;
-
-			if (savedPlatformId != 0) {
-				platform = MinecraftClientData.getInstance().platformIdMap.get(savedPlatformId);
-			}
-
-			if (platform != null && !platform.routes.isEmpty()) {
-				// 路线数据已就绪（收到 PacketUpdateData 后），同步到服务端持久化
-				final Route route = platform.routes.iterator().next();
-				themeColor = route.getColor();
-				routeColor = route.getColor();
-				routeNumber = route.getRouteNumber();
+			final MinecraftClientData clientData = MinecraftClientData.getInstance();
+			final Platform platform = (savedPlatformId == 0) ? null : clientData.platformIdMap.get(savedPlatformId);
+			if (platform != null) {
 				platformNumber = platform.getName();
-				if (entity.getRouteColor() != routeColor
-						|| !entity.getRouteNumber().equals(routeNumber)
-						|| !entity.getPlatformName().equals(platformNumber)) {
-					Registry.sendPacketToServer(new PacketSyncStationNameData(
-							entity.getPos2(), routeColor, routeNumber, platformNumber));
-				}
-				requestedPlatformIds.remove(posKey); // 数据已就绪，清除请求标记使站台切换后能重新请求
-			} else if (entity.getRouteColor() != 0) {
-				// 使用已保存到 NBT 的路线数据
-				themeColor = entity.getRouteColor();
-				routeColor = entity.getRouteColor();
-				routeNumber = entity.getRouteNumber();
-				platformNumber = entity.getPlatformName();
-				requestedPlatformIds.remove(posKey); // 数据已就绪，清除请求标记使站台切换后能重新请求
 			}
-
-			// 站台 ID 存在但路线数据未就绪（platform 为 null、routes 为空、或缓存已被清空）→ 向服务端请求
-			if (savedPlatformId != 0 && routeColor == 0 && platformNumber.isEmpty()) {
-				final Long lastPlatformId = requestedPlatformIds.get(posKey);
-				if (lastPlatformId == null || lastPlatformId != savedPlatformId) {
-					requestedPlatformIds.put(posKey, savedPlatformId);
-					Registry.sendPacketToServer(new PacketRequestPlatformRouteData(pos));
-				}
-			}
-		} catch (Exception ignored) {
+		} catch (Exception e) {
+			Init.LOGGER.error("RenderCRTStationName1: Error resolving platform name at {}", pos.toShortString(), e);
 		}
 
 		// Texture coordinates
@@ -147,6 +116,7 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 		final float textHeight = (BG_HEIGHT - TEXT_MARGIN * 2) * TEXT_SCALE;
 
 		final Identifier textureId;
+		// 数据暂缺时仍渲染（回退到站名/站色），不再跳过渲染
 		if (USE_CUSTOM_FONT) {
 			textureId = CustomFontTextureCache.instance.getSignTexture(stationName, themeColor, routeColor, routeNumber, platformNumber, drawAspect, SELECTED_FONT);
 		} else {
@@ -159,6 +129,35 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 			graphicsHolder.pop();
 		});
 
+		// ===== 调试：解析状态变化时输出一次日志（不再每秒刷屏） =====
+		final String stationColorHex = String.format("#%06X", stationColor);
+		final Platform debugPlatform = (savedPlatformId != 0) ? MinecraftClientData.getInstance().platformIdMap.get(savedPlatformId) : null;
 
+		final boolean debugRouteSynced = !syncedRouteNumber.isEmpty();
+		final String debugRouteNum = routeNumber.isEmpty() ? "N/A" : routeNumber;
+		final String debugRouteColorHex = String.format("#%06X", routeColor);
+		final String platName = (debugPlatform != null) ? debugPlatform.getName() : "N/A";
+		final int routesCount = (debugPlatform != null) ? debugPlatform.routes.size() : 0;
+		final String stateKey = savedPlatformId + "|" + (debugPlatform != null) + "|" + routesCount + "|" + debugRouteColorHex + "|" + debugRouteNum + "|" + platName + "|" + debugRouteSynced;
+
+		if (!stateKey.equals(lastDebugStates.get(posKey))) {
+			lastDebugStates.put(posKey, stateKey);
+			Init.LOGGER.info(
+				"[CRT-DEBUG] Pos={} | platformId={} | platformFound={} | routesCount={} | " +
+				"routeColor={} | routeNumber={} | syncedRouteNumber={} | synced={} | platformName={} | stationName={} | stationColor={} | textureId={}",
+				pos.toShortString(),
+				savedPlatformId,
+				(debugPlatform != null),
+				routesCount,
+				debugRouteColorHex,
+				debugRouteNum,
+				syncedRouteNumber,
+				debugRouteSynced,
+				platName,
+				stationName,
+				stationColorHex,
+				textureId
+			);
+		}
 	}
 }

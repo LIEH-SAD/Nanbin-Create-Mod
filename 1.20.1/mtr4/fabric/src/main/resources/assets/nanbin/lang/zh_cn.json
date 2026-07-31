@@ -154,8 +154,9 @@
   "tips.cabdoor.has.low": "权限不足以开启端门",
   "tips.cabdoor.has.nokey": "使用钥匙以开启端门",
 
-  "tooltip.block.nanbin.crt_temp_fence_1": "临时栏杆...也许吧",
-  "tooltip.block.nanbin.cab_door": "请使用高级驾驶钥匙或创造模式钥匙以开门",
+  "tooltip.nanbin.block.crt_temp_fence_1": "临时栏杆...也许吧",
+  "tooltip.nanbin.block.cab_door": "请使用高级驾驶钥匙或创造模式钥匙以开门",
+  "tooltip.nanbin.block.tall_fence": "的确很高",
 
   "pids.crt_1": "重庆轨道交通乘客咨询屏概念版"
 }

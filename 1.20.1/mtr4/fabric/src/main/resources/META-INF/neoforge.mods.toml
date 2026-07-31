@@ -1,0 +1,46 @@
+modLoader = "javafml"
+loaderVersion = "[3,)"
+issueTrackerURL = "https://github.com/LIEH-SAD/Nanbin-Create-Mod"
+license = "MTI"
+
+[[mods]]
+modId = "nanbin"
+version = "3.0.0"
+displayName = "Nanbin Create Mod"
+displayURL = "https://lieh-sad.github.io/nanbin/"
+description = '''
+'''
+authors = "LIEH-SAD"
+logoFile = "assets/nanbin/textures/logo.png"
+displayTest = "IGNORE_SERVER_VERSION"
+
+[[accessTransformers]]
+file = "META-INF/accesstransformer.cfg"
+
+[[dependencies.nanbin]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.20,1.21)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.nanbin]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.0.16-beta,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.nanbin]]
+modId = "mtr"
+type = "required"
+versionRange = "[4.0.0,4.1.0)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.nanbin]]
+modId = "filters"
+type = "required"
+versionRange = "[1.0.0,)"
+ordering = "NONE"
+side = "BOTH"

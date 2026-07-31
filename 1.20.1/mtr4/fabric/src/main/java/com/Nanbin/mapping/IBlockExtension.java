@@ -1,8 +1,8 @@
 package com.Nanbin.mapping;
 
+import com.Nanbin.Items.Items;
 import org.mtr.mapping.holder.*;
 import org.mtr.mod.block.IBlock;
-import com.Nanbin.Items.Items;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;

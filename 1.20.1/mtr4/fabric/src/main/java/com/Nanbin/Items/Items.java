@@ -3,7 +3,6 @@ package com.Nanbin.Items;
 import com.Nanbin.Registry.RegItem.ItemPhone;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.Item;
-import org.mtr.mapping.holder.ItemSettings;
 import org.mtr.mapping.registry.ItemRegistryObject;
 import org.mtr.mod.CreativeModeTabs;
 import org.mtr.mod.Init;

@@ -1,11 +1,11 @@
 package com.Nanbin.Registry.RegBlock;
 
+import com.Nanbin.Registry.TranslationProvider;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.block.IBlock;
-import org.mtr.mod.generated.lang.TranslationProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,7 +27,7 @@ public class BlockStationColorCeiling extends BlockExtension implements Directio
     }
 
     public void addTooltips(ItemStack stack, @Nullable BlockView world, List<MutableText> tooltip, TooltipContext options) {
-        tooltip.add(TranslationProvider.TOOLTIP_MTR_STATION_COLOR.getMutableText(new Object[0]).formatted(TextFormatting.DARK_GRAY));
+        tooltip.add(TranslationProvider.TOOLTIP_STATION_COLOR.getMutableText(new Object[0]).formatted(TextFormatting.DARK_GRAY));
     }
 
     public void addBlockProperties(List<HolderBase<?>> properties) {

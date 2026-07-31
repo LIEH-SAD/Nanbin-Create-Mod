@@ -4,16 +4,15 @@ import com.Nanbin.Blocks.Blocks;
 import com.Nanbin.Items.Items;
 import com.Nanbin.ItemsGroup.ItemsGroup;
 import com.Nanbin.Registry.SoundEvents;
+import com.Nanbin.entity.BlockEntityTypes;
+import com.Nanbin.packet.PacketOpenCRTPlatformScreen;
+import com.Nanbin.packet.PacketUpdateCustomColor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mtr.core.data.Position;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.registry.Registry;
-import com.Nanbin.entity.BlockEntityTypes;
-import com.Nanbin.packet.PacketOpenCRTPlatformScreen;
-import com.Nanbin.packet.PacketRequestPlatformRouteData;
-import com.Nanbin.packet.PacketSyncStationNameData;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,10 +20,14 @@ import java.util.Map;
 public final class Init {
     public static final String MOD_ID = "nanbin";
     public static final Logger LOGGER = LogManager.getLogger("Nanbin Create Mod");
-    public static final Registry REGISTRY = new Registry();
+    public static final Registry REGISTRY = new Registry();    //内部版本号（VERSION_DATA = 编译时间）
+    public static final String VERSION = "3.0";
+    public static final String VERSION_DATA = "0";
+    public static final String DESIGNED_MTR_VERSION = "4.0.0";
+    public static final String FINAL_VERSION = "{}.{}+MTR{}".formatted(VERSION, VERSION_DATA, DESIGNED_MTR_VERSION);
 
     public static void init() {
-        LOGGER.info("Welcome!");
+        LOGGER.info("Hello Nanbin!");
 
         long startTime = System.currentTimeMillis();
         Map<String, Runnable> initSteps = new LinkedHashMap<>();
@@ -37,8 +40,7 @@ public final class Init {
         initSteps.put("Packet", () -> {
             REGISTRY.setupPackets(new Identifier(MOD_ID, "packet"));
             REGISTRY.registerPacket(PacketOpenCRTPlatformScreen.class, PacketOpenCRTPlatformScreen::new);
-            REGISTRY.registerPacket(PacketSyncStationNameData.class, PacketSyncStationNameData::new);
-            REGISTRY.registerPacket(PacketRequestPlatformRouteData.class, PacketRequestPlatformRouteData::new);
+            REGISTRY.registerPacket(PacketUpdateCustomColor.class, PacketUpdateCustomColor::new);
         });
 
         int currentStep = 1;

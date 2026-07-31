@@ -1,0 +1,51 @@
+# The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
+modLoader="javafml"
+# A version range to match for said mod loader - for regular FML @Mod it will be the minecraft version (without the 1.)
+loaderVersion="[24,)"
+# A URL to refer people to when problems occur with this mod
+issueTrackerURL="https://github.com/LIEH-SAD/Nanbin-Create-Mod"
+# A URL for the "homepage" for this mod, displayed in the mod UI
+displayURL="https://lieh-sad.github.io/nanbin/"
+# A file name (in the root of the mod JAR) containing a logo for display
+logoFile="assets/nanbin/textures/logo.png"
+# A text field displayed in the mod UI
+authors="LIEH-SAD"
+license="MTI"
+# A list of mods - how many allowed here is determined by the individual mod loader
+[[mods]]
+# The modid of the mod
+modId="nanbin"
+# The version number of the mod - there's a few well known null variables useable here or just hardcode it
+version="3.0.0"
+# A display name for the mod
+displayName="Nanbin Create Mod"
+# The description text for the mod (multi line!)
+description='''
+'''
+[[dependencies.nanbin]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20,1.21)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.nanbin]]
+modId="forge"
+mandatory=true
+versionRange="[49.0.30,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.nanbin]]
+modId="mtr"
+mandatory=true
+versionRange="[4.0.0,4.1.0)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.nanbin]]
+modId="filters"
+mandatory=true
+versionRange="[1.0.0,)"
+ordering="NONE"
+side="BOTH"
