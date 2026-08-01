@@ -12,11 +12,11 @@ import static com.Nanbin.Init.MOD_ID;
 
 public class Items {
     public static final ItemRegistryObject PHONE;
-    public static final ItemRegistryObject IC_CARD;
+    //public static final ItemRegistryObject IC_CARD;
 
     static {
         PHONE = Init.REGISTRY.registerItem(new Identifier(MOD_ID, "phone"), (itemSettings) -> new Item(new ItemPhone(itemSettings)), CreativeModeTabs.CORE);
-        IC_CARD = Init.REGISTRY.registerItem(new Identifier(MOD_ID, "ic_card"), (itemSettings) ->  new Item(itemSettings), CreativeModeTabs.CORE);
+        //IC_CARD = Init.REGISTRY.registerItem(new Identifier(MOD_ID, "ic_card"), (itemSettings) ->  new Item(itemSettings), CreativeModeTabs.CORE);
     }
 
     public static void init() {

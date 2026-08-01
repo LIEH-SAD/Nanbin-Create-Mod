@@ -1,6 +1,6 @@
 package com.Nanbin.Registry.RegBlock;
 
-import com.Nanbin.mappingForge.TranslationProvider;
+import com.Nanbin.mapping.TranslationProvider;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mod.Blocks;

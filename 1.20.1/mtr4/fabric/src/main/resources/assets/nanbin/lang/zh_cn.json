@@ -1,16 +1,5 @@
 {
   "Menu.nanbin.about": "关于",
-  "Menu.nanbin.sam": "§o[MTR设置]   展示报站信息",
-  "Menu.nanbin.uta": "§o[MTR设置]   使用TTS放送报站信息",
-  "Menu.nanbin.htp": "§o[MTR设置]   隐藏车辆半透明部分",
-  "Menu.nanbin.lang": "§o[MTR设置]   文字显示",
-  "Menu.nanbin.dtr": "§o[MTR设置]   动态提升帧率",
-  "Menu.nanbin.tom": "§o[MTR设置]   列车震荡",
-  "Menu.nanbin.3drail": "§o[MTR设置]   3D立体轨道",
-  "Menu.nanbin.font": "§o[MTR设置]   使用自定义字体",
-  "Menu.nanbin.dss": "§o[MTR设置]   禁用着色器阴影",
-  "Menu.nanbin.support": "§f在 §5爱发电 §f上赞助 §2南滨创意 §f模组",
-
   "FiltersGroup.nanbin.crt_fence": "CRT 栏杆方块",
   "FiltersGroup.nanbin.crt_building_blocks": "CRT 建设方块",
   "FiltersGroup.nanbin.crt_tickets": "CRT 闸机方块",
@@ -19,6 +8,7 @@
   "FiltersGroup.nanbin.common_building_blocks": "普通建设方块",
   "FiltersGroup.nanbin.road_blocks": "道路方块",
   "FiltersGroup.nanbin.fence_blocks": "栅栏方块",
+  "FiltersGroup.nanbin.function_blocks": "功能方块",
 
   "itemGroup.nanbin.city_building_blocks": "城市建筑方块",
   "itemGroup.nanbin.using_railway_build": "通用铁路建设",
@@ -27,12 +17,10 @@
   "itemGroup.nanbin.chengdu_metro_building_blocks": "成都地铁建筑方块",
   "itemGroup.nanbin.using_station_building_blocks": "通用车站建设",
 
-  "block.nanbin.table_light": "台灯",
   "block.nanbin.drain_cover": "方形井盖（可叠加）",
 
   "block.nanbin.logo": "MTR墙贴标志",
   "block.nanbin.ordinary_psd_cab_door": "普通高架端门",
-  "block.nanbin.platform_door.tooltip": "只能使用驾驶钥匙打开",
   "block.nanbin.psd_top": "屏蔽门吊板",
   "block.nanbin.ceiling": "天花板(样式1)",
   "block.nanbin.ceiling_overhead": "架空天花板(样式1)",
@@ -53,7 +41,6 @@
   "block.nanbin.crt_barrier_entrance_3": "CRT入站闸机(黄花园站)",
   "block.nanbin.crt_barrier_exit_3": "CRT出站闸机(黄花园站)",
   "block.nanbin.crt_ticket_machine_1": "壁铜线自助票务机",
-
   "block.nanbin.crt_temp_fence_1": "CRT临时栏杆",
   "block.nanbin.crt_fence_1": "CRT栏杆（水平）",
   "block.nanbin.crt_fence_8": "CRT栏杆（水平末端右）",
@@ -69,19 +56,9 @@
   "block.nanbin.crt_apg_cab_fence_old_connect": "连接处的高架端栏",
   "block.nanbin.crt_apg_cab_door_new": "新高架端门",
   "block.nanbin.crt_station_name_1": "车站站名牌（样式1）",
-
-
   "block.nanbin.crt_logo": "重庆轨道交通标志",
 
-  "block.nanbin.chengdu_metro_logo": "成都地铁标志",
-
-  "item.nanbin.trash": "平平无奇的垃圾",
-  "item.nanbin.trash.tooltip": "平平无奇的垃圾，可能有点用？",
-
   "item.nanbin.phone": "华为Mate80ProMax非凡大师",
-
-  "item.nanbin.emetic": "催吐剂",
-  "item.nanbin.emetic.tooltip": "可以催吐的神秘配方，使用后饱食度清零",
 
   "block.nanbin.greenfence": "绿色围栏",
   "block.nanbin.bluefence": "蓝色围栏",
@@ -96,6 +73,8 @@
   "block.nanbin.pink_block": "粉色方块",
   "block.nanbin.black_marble": "黑色大理石",
   "block.nanbin.white_marble": "白色大理石",
+  "block.nanbin.black_terrazzo": "黑色水磨石",
+  "block.nanbin.terrazzo": "水磨石",
   "block.nanbin.cement": "水泥",
 
   "block.nanbin.pavement_1": "全高人行道（样式一）",
@@ -114,6 +93,7 @@
   "block.nanbin.yellow_tactile_paving_half": "半高黄色盲道（直行）",
   "block.nanbin.yellow_tactile_paving_connect": "全高黄色盲道（拐角）",
   "block.nanbin.yellow_tactile_paving_connect_half": "半高黄色盲道（拐角）",
+  "block.nanbin.road_name_block": "路名标识",
 
   "block.nanbin.light_red_block": "淡红色方块",
   "block.nanbin.light_yellow_block": "淡黄色方块",
@@ -158,5 +138,10 @@
   "tooltip.nanbin.block.cab_door": "请使用高级驾驶钥匙或创造模式钥匙以开门",
   "tooltip.nanbin.block.tall_fence": "的确很高",
 
-  "pids.crt_1": "重庆轨道交通乘客咨询屏概念版"
+  "gui.nanbin.road_name": "路名标识",
+  "gui.nanbin.road_name_1": "路名",
+  "gui.nanbin.road_name_2": "路名英文",
+  "gui.nanbin.road_name_3": "上一条路",
+  "gui.nanbin.road_name_4": "下一条路",
+  "gui.nanbin.road_name_save": "保存"
 }

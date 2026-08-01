@@ -11,7 +11,7 @@ import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetBase;
 import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetMiddle;
 import com.Nanbin.Registry.RegBlock.SoundproofNet.BlockSoundproofNetTop;
 import com.Nanbin.Registry.RegBlock.TallFence.*;
-import com.Nanbin.mappingFabric.BlockSettingsFactory;
+import com.Nanbin.mapping.BlockSettingsFactory;
 import org.mtr.mapping.holder.Block;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.mapper.BlockExtension;
@@ -127,6 +127,7 @@ public class Blocks {
     public final static BlockRegistryObject NRT_TICKET_1_ENTER;
     public final static BlockRegistryObject NRT_TICKET_1_EXIT;
     public final static BlockRegistryObject CRT_STATION_NAME_1;
+    public final static BlockRegistryObject ROAD_NAME;
 
     static {
         CRT_LOGO = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_logo"), () -> new Block(new BlockCRTLogo(createDefaultBlockSettings(false, (blockState) -> 10))),ItemsGroup.CRT);
@@ -231,6 +232,7 @@ public class Blocks {
         NRT_TICKET_1_ENTER = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "nrt_barrier_entrance_1"), () -> new Block(new BlockNRTTicketBarrier1(true)), ItemsGroup.NRT);
         NRT_TICKET_1_EXIT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "nrt_barrier_exit_1"), () -> new Block(new BlockNRTTicketBarrier1(false)), ItemsGroup.NRT);
         CRT_STATION_NAME_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_station_name_1"), () -> new Block(new BlockCRTStationName1(createDefaultBlockSettings(true))), ItemsGroup.CRT);
+        ROAD_NAME = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "road_name_block"), () -> new Block(new BlockRoadName(createDefaultBlockSettings(true))), ItemsGroup.CITY_BUILDING_BLOCKS);
     }
 
 

@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static com.Nanbin.mappingFabric.VoxelShapes.union;
+import static com.Nanbin.mapping.VoxelShapes.union;
 
 public class BlockCRTTicketBarrier3 extends BlockExtension implements DirectionHelper {
     private final boolean isEntrance;

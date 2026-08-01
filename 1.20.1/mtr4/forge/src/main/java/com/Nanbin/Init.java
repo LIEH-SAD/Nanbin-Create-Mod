@@ -6,7 +6,9 @@ import com.Nanbin.ItemsGroup.ItemsGroup;
 import com.Nanbin.Registry.SoundEvents;
 import com.Nanbin.entity.BlockEntityTypes;
 import com.Nanbin.packet.PacketOpenCRTPlatformScreen;
+import com.Nanbin.packet.PacketOpenRoadNameScreen;
 import com.Nanbin.packet.PacketUpdateCustomColor;
+import com.Nanbin.packet.PacketUpdateRoadNameData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mtr.core.data.Position;
@@ -24,7 +26,7 @@ public final class Init {
     public static final String VERSION = "3.0";
     public static final String VERSION_DATA = "26801";
     public static final String DESIGNED_MTR_VERSION = "4.0.0";
-    public static final String FINAL_VERSION = "{}.{}+MTR{}".formatted(VERSION, VERSION_DATA, DESIGNED_MTR_VERSION);
+    public static final String FINAL_VERSION = VERSION + "." + VERSION_DATA + " + MTR" + DESIGNED_MTR_VERSION;
 
     public static void init() {
         LOGGER.info("Hello Nanbin!");
@@ -40,7 +42,9 @@ public final class Init {
         initSteps.put("Packet", () -> {
             REGISTRY.setupPackets(new Identifier(MOD_ID, "packet"));
             REGISTRY.registerPacket(PacketOpenCRTPlatformScreen.class, PacketOpenCRTPlatformScreen::new);
+            REGISTRY.registerPacket(PacketOpenRoadNameScreen.class, PacketOpenRoadNameScreen::new);
             REGISTRY.registerPacket(PacketUpdateCustomColor.class, PacketUpdateCustomColor::new);
+            REGISTRY.registerPacket(PacketUpdateRoadNameData.class, PacketUpdateRoadNameData::new);
         });
 
         int currentStep = 1;

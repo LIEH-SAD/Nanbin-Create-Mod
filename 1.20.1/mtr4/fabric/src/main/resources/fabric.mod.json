@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "lieh-nanbin",
-  "version": "${version}",
+  "version": "3.0.26801",
   "name": "Nanbin Create Mod",
   "description": "",
   "authors": ["Nanbin Studio"],
@@ -33,7 +33,7 @@
     "fabricloader": "*",
     "fabric-api": "*",
     "minecraft": "1.20.x",
-    "mtr": ">=4.0.0",
-    "filters": "*"
+    "mtr": "*",
+    "filters": ">=1.0.0"
   }
 }

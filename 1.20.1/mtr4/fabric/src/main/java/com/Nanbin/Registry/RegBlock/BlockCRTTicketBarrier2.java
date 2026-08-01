@@ -1,6 +1,6 @@
 package com.Nanbin.Registry.RegBlock;
 
-import com.Nanbin.mappingFabric.VoxelShapes;
+import com.Nanbin.mapping.VoxelShapes;
 import com.Nanbin.Registry.SoundEvents;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
@@ -14,7 +14,7 @@ import org.mtr.mod.data.TicketSystem.EnumTicketBarrierOpen;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-import static com.Nanbin.mappingFabric.VoxelShapes.union;
+import static com.Nanbin.mapping.VoxelShapes.union;
 
 public class BlockCRTTicketBarrier2 extends BlockExtension implements DirectionHelper {
     private final boolean isEntrance;

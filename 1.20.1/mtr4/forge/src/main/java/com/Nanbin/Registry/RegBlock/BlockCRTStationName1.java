@@ -1,9 +1,10 @@
 package com.Nanbin.Registry.RegBlock;
 
 import com.Nanbin.Init;
-import com.Nanbin.mappingForge.TranslationProvider;
+import com.Nanbin.Registry.RegBlock.base.BlockStationNameBase;
+import com.Nanbin.mapping.TranslationProvider;
 import com.Nanbin.entity.BlockEntityTypes;
-import com.Nanbin.mappingForge.IBlockExtension;
+import com.Nanbin.mapping.IBlockExtension;
 import com.Nanbin.packet.PacketOpenCRTPlatformScreen;
 import org.mtr.core.data.Data;
 import org.mtr.core.data.Platform;

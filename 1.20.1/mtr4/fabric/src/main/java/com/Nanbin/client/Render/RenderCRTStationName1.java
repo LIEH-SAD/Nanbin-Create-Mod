@@ -41,6 +41,10 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 
 	private static final FontType SELECTED_FONT = FontType.SOURCE_HAN;
 	private static final int FONT_SIZE = 92;
+	/** MTR 的 Render 加载早于 BlockEntity，且字体纹理有缓存，需定时强制刷新 */
+	private static final long REFRESH_INTERVAL_MS = 1000L;
+
+	private long lastRefreshTime = 0;
 	/** 调试：记录每个站名牌最近一次的解析状态 (posKey → stateKey)，仅在状态变化时输出日志 */
 	private static final Map<Long, String> lastDebugStates = new HashMap<>();
 
@@ -55,6 +59,14 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 
 	@Override
 	public void render(BlockCRTStationName1.BlockEntity entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
+		// MTR 的 Render 加载早于 BlockEntity，且字体纹理被缓存不会随数据/布局变化自动失效，
+		// 因此每秒强制刷新一次缓存，确保站名、间距等显示最新效果。
+		final long now = System.currentTimeMillis();
+		if (now - lastRefreshTime >= REFRESH_INTERVAL_MS) {
+			lastRefreshTime = now;
+			CustomFontTextureCache.instance.clearFittedTextureCache();
+		}
+
 		final World world = entity.getWorld2();
 		if (world == null) return;
 

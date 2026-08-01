@@ -9,6 +9,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public class NanbinClientForge {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        InitClient.init();
+        // Block colors and block entity renderers were already queued at mod construction
+        // time (InitClient.initRendering), so only register the steps that need blocks,
+        // which are guaranteed to be registered by now.
+        InitClient.initMenuAndRenderLayers();
     }
 }

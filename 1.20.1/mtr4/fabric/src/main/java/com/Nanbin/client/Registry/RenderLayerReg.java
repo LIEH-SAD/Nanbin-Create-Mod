@@ -1,7 +1,7 @@
 package com.Nanbin.client.Registry;
 
 import com.Nanbin.Blocks.Blocks;
-import com.Nanbin.mappingFabric.BlockRenderLayerHelper;
+import com.Nanbin.mapping.BlockRenderLayerHelper;
 import org.mtr.mapping.holder.RenderLayer;
 
 public class RenderLayerReg {

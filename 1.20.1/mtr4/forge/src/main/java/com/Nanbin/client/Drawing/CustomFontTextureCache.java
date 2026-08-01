@@ -40,6 +40,7 @@ public class CustomFontTextureCache {
 
 	private final Map<FontType, Font> rawFonts = new HashMap<>();
 	private final Map<String, Identifier> textureCache = new HashMap<>();
+	private final Map<String, FittedTextTexture> fittedTextureCache = new HashMap<>();
 	private final String textureIdPrefix = "nanbin_font_" + UUID.randomUUID().toString().replace("-", "") + "_";
 	private int textureCounter = 0;
 
@@ -48,13 +49,17 @@ public class CustomFontTextureCache {
 	}
 
 	public Identifier getTextTexture(String text, float maxWidth, FontType fontType) {
+		return getTextTexture(text, maxWidth, fontType, fontSize, Color.WHITE);
+	}
+
+	public Identifier getTextTexture(String text, float maxWidth, FontType fontType, int fontSize, Color textColor) {
 		// Apply MTR pipe rules: "||" or more hides everything after it
 		final String displayText = extractVisibleText(text);
 		if (displayText.isEmpty()) {
 			return DynamicTextureCache.instance.getStationName(text, maxWidth).identifier;
 		}
 
-		final String cacheKey = fontType.name() + "|" + displayText + "|" + maxWidth + "|" + fontSize;
+		final String cacheKey = fontType.name() + "|" + displayText + "|" + maxWidth + "|" + fontSize + "|" + textColor.getRGB();
 		final Identifier cached = textureCache.get(cacheKey);
 		if (cached != null) {
 			return cached;
@@ -66,7 +71,7 @@ public class CustomFontTextureCache {
 		if (rawFont == null) {
 			id = DynamicTextureCache.instance.getStationName(text, maxWidth).identifier;
 		} else {
-			final NativeImage nativeImage = renderText(displayText, maxWidth, rawFont);
+			final NativeImage nativeImage = renderText(displayText, maxWidth, rawFont, fontSize, textColor);
 			if (nativeImage == null) {
 				id = DynamicTextureCache.instance.getStationName(text, maxWidth).identifier;
 			} else {
@@ -78,6 +83,109 @@ public class CustomFontTextureCache {
 
 		textureCache.put(cacheKey, id);
 		return id;
+	}
+
+	/**
+	 * A tightly-fitted text texture: the texture is exactly as large as the rendered text
+	 * (plus a small padding), so it can be drawn in a GUI at a 1:1 pixel size and scaled
+	 * down proportionally when it exceeds a display box.
+	 */
+	public static class FittedTextTexture {
+		public final Identifier identifier;
+		public final int width;
+		public final int height;
+
+		public FittedTextTexture(Identifier identifier, int width, int height) {
+			this.identifier = identifier;
+			this.width = width;
+			this.height = height;
+		}
+	}
+
+	public FittedTextTexture getFittedTextTexture(String text, FontType fontType, int fontSize, Color textColor) {
+		final String displayText = extractVisibleText(text);
+		if (displayText.isEmpty()) {
+			return new FittedTextTexture(DynamicTextureCache.instance.getStationName(text, 1.0F).identifier, 0, 0);
+		}
+
+		final String cacheKey = "fit|" + fontType.name() + "|" + displayText + "|" + fontSize + "|" + textColor.getRGB();
+		final FittedTextTexture cached = fittedTextureCache.get(cacheKey);
+		if (cached != null) {
+			return cached;
+		}
+
+		final Font rawFont = getRawFont(fontType);
+
+		// 字体加载失败或渲染失败时不缓存，以免字体恢复后仍显示空/兜底结果
+		if (rawFont == null) {
+			return new FittedTextTexture(DynamicTextureCache.instance.getStationName(text, 1.0F).identifier, 0, 0);
+		}
+
+		final NativeImage nativeImage = renderFittedText(displayText, rawFont, fontSize, textColor);
+		if (nativeImage == null) {
+			return new FittedTextTexture(DynamicTextureCache.instance.getStationName(text, 1.0F).identifier, 0, 0);
+		}
+
+		final NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
+		final String name = textureIdPrefix + "f" + (textureCounter++);
+		final FittedTextTexture result = new FittedTextTexture(MinecraftClient.getInstance().getTextureManager().registerDynamicTexture(name, texture), nativeImage.getWidth(), nativeImage.getHeight());
+
+		fittedTextureCache.put(cacheKey, result);
+		return result;
+	}
+
+	/** Renders a single line of text tightly fitted to its content (with a small padding). */
+	private NativeImage renderFittedText(String text, Font rawFont, int fontSize, Color textColor) {
+		try {
+			final Font textFont = rawFont.deriveFont(Font.PLAIN, (float) fontSize);
+
+			final BufferedImage temp = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+			final Graphics2D tempG = temp.createGraphics();
+			tempG.setFont(textFont);
+			final FontMetrics metrics = tempG.getFontMetrics(textFont);
+			final int textWidth = metrics.stringWidth(text);
+			final int textAscent = metrics.getAscent();
+			final int textDescent = metrics.getDescent();
+			tempG.dispose();
+
+			final int padding = Math.max(2, Math.round(fontSize * 0.08F));
+			final int textureWidth = Math.max(1, textWidth + padding * 2);
+			final int textureHeight = Math.max(1, textAscent + textDescent + padding * 2);
+
+			final BufferedImage img = new BufferedImage(textureWidth, textureHeight, BufferedImage.TYPE_INT_ARGB);
+			final Graphics2D g = img.createGraphics();
+			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+			g.setFont(textFont);
+			g.setColor(textColor);
+			g.drawString(text, padding, padding + textAscent);
+			g.dispose();
+
+			return toNativeImage(img);
+		} catch (Exception e) {
+			LOGGER.error("Failed to render fitted text \"{}\" to texture", text, e);
+			return null;
+		}
+	}
+
+	/** Converts an AWT ARGB image into a Minecraft NativeImage (ARGB pixel data repacked as ABGR). */
+	private static NativeImage toNativeImage(BufferedImage img) {
+		final int w = img.getWidth();
+		final int h = img.getHeight();
+		final NativeImage nativeImage = new NativeImage(w, h, false);
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				final int argb = img.getRGB(x, y);
+				final int a = (argb >> 24) & 0xFF;
+				final int r = (argb >> 16) & 0xFF;
+				final int g = (argb >> 8) & 0xFF;
+				final int b = argb & 0xFF;
+				final int abgr = (a << 24) | (b << 16) | (g << 8) | r;
+				nativeImage.setPixelColor(x, y, abgr);
+			}
+		}
+		return nativeImage;
 	}
 
 	/**
@@ -144,7 +252,7 @@ public class CustomFontTextureCache {
 	 * - Small gap between rows
 	 * - Uniformly scaled down if either row exceeds texture bounds
 	 */
-	private NativeImage renderText(String text, float maxWidth, Font rawFont) {
+	private NativeImage renderText(String text, float maxWidth, Font rawFont, int fontSize, Color textColor) {
 		try {
 			final int textureHeight = TEXTURE_HEIGHT;
 			final int textureWidth = Math.round(textureHeight * maxWidth);
@@ -174,7 +282,6 @@ public class CustomFontTextureCache {
 			final int cjkFontSize = fontSize;
 			final int latinFontSize = Math.max(Math.round(fontSize * 0.6F), 8);
 			final float gapRatio = 0.15F; // small vertical gap relative to cjk font height
-
 			final Font cjkFont = rawFont.deriveFont(Font.PLAIN, (float) cjkFontSize);
 			final Font latinFont = rawFont.deriveFont(Font.PLAIN, (float) latinFontSize);
 
@@ -235,7 +342,7 @@ public class CustomFontTextureCache {
 				g.translate(sx, 0);
 				g.scale(scale, scale);
 				g.setFont(cjkFont);
-				g.setColor(Color.WHITE);
+				g.setColor(textColor);
 				g.drawString(cjkLine.toString(), 0, cursorY + cjkAscent);
 				g.scale(1.0 / scale, 1.0 / scale);
 				g.translate(-sx, 0);
@@ -247,7 +354,7 @@ public class CustomFontTextureCache {
 				g.translate(sx, 0);
 				g.scale(scale, scale);
 				g.setFont(latinFont);
-				g.setColor(Color.WHITE);
+				g.setColor(textColor);
 				g.drawString(latinLine.toString(), 0, cursorY + latinAscent);
 				g.scale(1.0 / scale, 1.0 / scale);
 				g.translate(-sx, 0);
@@ -367,7 +474,7 @@ public class CustomFontTextureCache {
 				final int latinW = hasLatin ? getStringWidth(latinLine.toString(), latinFont) : 0;
 				final int cjkH = hasCjk ? getFontHeight(cjkFont) : 0;
 				final int latinH = hasLatin ? getFontHeight(latinFont) : 0;
-				final int gap = (hasCjk && hasLatin) ? Math.round(fontSize * 0.15F) : 0;
+				final int gap = (hasCjk && hasLatin) ? Math.round(fontSize * 0.02F) : 0;
 
 				final int maxLineW = Math.max(cjkW, latinW);
 				final int totalTextH = (hasCjk ? cjkH : 0) + gap + (hasLatin ? latinH : 0);
@@ -390,7 +497,7 @@ public class CustomFontTextureCache {
 				// Center text block vertically in the text zone, biased slightly downward
 				final int textZoneTop = Math.round(H * TOP_BAR_END);
 				final float scaledTextH = totalTextH * scale;
-				final float baseY = textZoneTop + (textZoneH - scaledTextH) * 0.55F;
+				final float baseY = textZoneTop + (textZoneH - scaledTextH) * 0.65F + H * 0.05F;
 
 				float cursorY = baseY;
 				if (hasCjk) {
@@ -539,6 +646,17 @@ public class CustomFontTextureCache {
 
 	public void clearCache() {
 		textureCache.clear();
+		fittedTextureCache.clear();
 		rawFonts.clear();
+	}
+
+	/**
+	 * 仅清除文字纹理缓存（保留已加载的字体），供渲染器定时刷新使用。
+	 * MTR 的 Render 加载早于 BlockEntity，且方块数据更新后纹理不会自动失效，
+	 * 渲染器需每秒调用一次以确保显示最新的文字内容。
+	 */
+	public void clearFittedTextureCache() {
+		fittedTextureCache.clear();
+		textureCache.clear();
 	}
 }

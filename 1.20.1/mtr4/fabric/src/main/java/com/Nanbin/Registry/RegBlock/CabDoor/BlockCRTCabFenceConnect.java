@@ -1,6 +1,6 @@
 package com.Nanbin.Registry.RegBlock.CabDoor;
 
-import com.Nanbin.mappingFabric.VoxelShapes;
+import com.Nanbin.mapping.VoxelShapes;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.tool.HolderBase;
 import org.mtr.mod.Blocks;

@@ -2,7 +2,7 @@ package com.Nanbin.client.FiltersGroup;
 
 import com.Nanbin.Blocks.Blocks;
 import com.Nanbin.ItemsGroup.ItemsGroup;
-import com.Nanbin.mappingFabric.FilterBuilder;
+import com.Nanbin.mapping.FilterBuilder;
 import org.mtr.mapping.holder.ItemConvertible;
 import org.mtr.mapping.holder.ItemStack;
 import org.mtr.mapping.mapper.TextHelper;
@@ -13,11 +13,12 @@ public final class FiltersGroup {
     public static Filter CRT_FENCE;
     public static Filter CRT_BUILDING_BLOCKS;
     public static Filter CRT_TICKETS;
-    public static Filter CRT_OVERHEAD_LINES;
+    //public static Filter CRT_OVERHEAD_LINES;
     public static Filter CRT_DOOR;
     public static Filter COMMON_BUILDING_BLOCKS;
     public static Filter ROAD_BLOCKS;
     public static Filter FENCE_BLOCKS;
+    public static Filter FUNCTION_BLOCKS;
 
     private FiltersGroup() {}
 
@@ -116,6 +117,8 @@ public final class FiltersGroup {
                 .addItems(Blocks.GREENFENCE.get().data.asItem())
                 .addItems(Blocks.METALFENCE.get().data.asItem());
 
+        FUNCTION_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS, TextHelper.translatable("FiltersGroup.nanbin.function_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.ROAD_NAME.get().data)))
+                .addItems(Blocks.ROAD_NAME.get().data.asItem());
     }
 
 }

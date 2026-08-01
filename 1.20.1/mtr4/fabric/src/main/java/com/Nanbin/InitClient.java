@@ -5,7 +5,7 @@ import com.Nanbin.client.FiltersGroup.FiltersMenu;
 import com.Nanbin.client.Registry.BlockColor;
 import com.Nanbin.client.Registry.BlockEntityRender;
 import com.Nanbin.client.Registry.RenderLayerReg;
-import com.Nanbin.mappingFabric.Registry;
+import com.Nanbin.mapping.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

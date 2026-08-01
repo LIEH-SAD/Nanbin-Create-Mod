@@ -1,7 +1,7 @@
 package com.Nanbin.Registry.RegBlock.CabDoor;
 
-import com.Nanbin.mappingFabric.TranslationProvider;
-import com.Nanbin.mappingFabric.DoorBlockExtension;
+import com.Nanbin.mapping.TranslationProvider;
+import com.Nanbin.mapping.DoorBlockExtension;
 import org.jetbrains.annotations.Nullable;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.DirectionHelper;

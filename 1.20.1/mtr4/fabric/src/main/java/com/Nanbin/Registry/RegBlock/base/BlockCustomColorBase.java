@@ -1,7 +1,7 @@
 package com.Nanbin.Registry.RegBlock.base;
 
 import com.Nanbin.Init;
-import com.Nanbin.mappingFabric.IBlockExtension;
+import com.Nanbin.mapping.IBlockExtension;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockExtension;

@@ -1,6 +1,6 @@
 package com.Nanbin.Registry.RegBlock.SoundproofNet;
 
-import com.Nanbin.mappingForge.VoxelShapes;
+import com.Nanbin.mapping.VoxelShapes;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
 import org.mtr.mapping.mapper.DirectionHelper;

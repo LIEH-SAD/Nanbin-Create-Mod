@@ -1,7 +1,7 @@
 package com.Nanbin.Registry.RegBlock.TallFence;
 
-import com.Nanbin.mappingForge.TranslationProvider;
-import com.Nanbin.mappingForge.WorldHelper;
+import com.Nanbin.mapping.TranslationProvider;
+import com.Nanbin.mapping.WorldHelper;
 import org.jetbrains.annotations.Nullable;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
