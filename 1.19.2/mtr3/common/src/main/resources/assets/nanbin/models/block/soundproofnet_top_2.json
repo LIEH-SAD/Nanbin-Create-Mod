@@ -1,0 +1,80 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "nanbin:block/light_gray",
+		"1": "mtr:block/metal",
+		"particle": "nanbin:block/light_gray"
+	},
+	"elements": [
+		{
+			"from": [15, 0, 0],
+			"to": [16, 21, 2],
+			"rotation": {"angle": 45, "axis": "x", "origin": [15, 0, 0]},
+			"faces": {
+				"north": {"uv": [1, 8, 2, 16], "texture": "#1"},
+				"east": {"uv": [0, 8, 2, 16], "texture": "#1"},
+				"south": {"uv": [0, 8, 1, 16], "texture": "#1"},
+				"west": {"uv": [0, 8, 2, 16], "texture": "#1"},
+				"up": {"uv": [0, 0, 1, 2], "texture": "#1"},
+				"down": {"uv": [0, 0, 1, 2], "texture": "#1"}
+			}
+		},
+		{
+			"from": [0, 0, 0],
+			"to": [1, 21, 2],
+			"rotation": {"angle": 45, "axis": "x", "origin": [15, 0, 0]},
+			"faces": {
+				"north": {"uv": [1, 8, 2, 16], "texture": "#1"},
+				"east": {"uv": [0, 8, 2, 16], "texture": "#1"},
+				"south": {"uv": [0, 8, 1, 16], "texture": "#1"},
+				"west": {"uv": [0, 8, 2, 16], "texture": "#1"},
+				"up": {"uv": [0, 0, 1, 2], "texture": "#1"},
+				"down": {"uv": [0, 0, 1, 2], "texture": "#1"}
+			}
+		},
+		{
+			"from": [1, 0, 0],
+			"to": [15, 21, 1],
+			"rotation": {"angle": 45, "axis": "x", "origin": [15, 0, 0]},
+			"faces": {
+				"north": {"uv": [1, 8, 15, 16], "texture": "#0"},
+				"east": {"uv": [1, 8, 2, 16], "texture": "#0"},
+				"south": {"uv": [1, 8, 15, 16], "texture": "#0"},
+				"west": {"uv": [0, 8, 1, 16], "texture": "#0"},
+				"up": {"uv": [1, 0, 15, 1], "texture": "#0"},
+				"down": {"uv": [1, 1, 15, 2], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"thirdperson_lefthand": {
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"firstperson_righthand": {
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"firstperson_lefthand": {
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"ground": {
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"gui": {
+			"rotation": [10, -45, 0],
+			"scale": [0.6, 0.6, 0.6]
+		}
+	},
+	"groups": [
+		{
+			"name": "group0",
+			"origin": [15, 0, 0],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1, 2]
+		}
+	]
+}

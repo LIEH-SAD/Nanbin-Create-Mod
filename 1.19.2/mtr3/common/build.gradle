@@ -1,0 +1,25 @@
+architectury {
+    common rootProject.enabled_platforms.split(',')
+}
+
+dependencies {
+    // We depend on Fabric Loader here to use the Fabric @Environment annotations,
+    // which get remapped to the correct annotations on each platform.
+    // Do NOT use other classes from Fabric Loader.
+    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+
+    // The merged Minecraft jar used by the common module has Fabric's
+    // interface-injected types (e.g. FabricBlock, FabricBlockState) applied when
+    // processing the Fabric platform. Compile-only access is required so the
+    // injected interfaces resolve; no Fabric classes are written in code.
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
+
+    // Architectury API. This is optional, and you can comment it out if you don't need it.
+    modImplementation "dev.architectury:architectury:$rootProject.architectury_api_version"
+
+    // Minecraft Transit Railway (MTR), referenced by com.Nanbin.mapping and org.mtr.mapping.
+    // Kept in sync with the dependency declared in fabric/build.gradle so the common module
+    // has access to the MTR classes at compile time.
+    modImplementation "maven.modrinth:minecraft-transit-railway:FABRIC-1.19.2-3.2.2-hotfix-1"
+    modApi("ziyue.filters:filters-fabric:1.0.0+1.19.2") {exclude(group: "net.fabricmc")}
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "block/leaves",
+  "textures": {
+    "all": "nanbin:block/crt_old_wall_2"
+  }
+}

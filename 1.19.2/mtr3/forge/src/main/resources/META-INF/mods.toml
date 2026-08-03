@@ -1,0 +1,47 @@
+modLoader = "javafml"
+loaderVersion = "[36,)"
+issueTrackerURL = "https://github.com/LIEH-SAD/Nanbin-Create-Mod/issues"
+license = "MIT"
+
+[[mods]]
+modId = "nanbin"
+version = "${version}"
+displayName = "Nanbin Create Mod"
+authors = "Nanbin-Studio"
+description = "None"
+logoFile = "icon.png"
+
+[[dependencies.nanbin]]
+modId = "forge"
+mandatory = true
+versionRange = "[36,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.nanbin]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19,1.20)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.nanbin]]
+modId = "architectury"
+mandatory = true
+versionRange = "[1.26.37,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.nanbin]]
+modId = "mtr"
+mandatory = true
+versionRange = "[,4.0.0)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.nanbin]]
+modId = "filters"
+mandatory = true
+versionRange = "[1.0.0,)"
+ordering = "AFTER"
+side = "BOTH"
