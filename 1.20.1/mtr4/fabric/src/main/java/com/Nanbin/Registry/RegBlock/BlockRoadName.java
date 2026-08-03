@@ -20,12 +20,6 @@ import java.util.List;
 
 import static org.mtr.mod.block.IBlock.SIDE_EXTENDED;
 
-/**
- * @author ZiYueCommentary
- * @see BlockEntity
- * @since 1.0.0
- */
-
 public class BlockRoadName extends BlockExtension implements DirectionHelper, BlockWithEntity
 {
     public BlockRoadName() {

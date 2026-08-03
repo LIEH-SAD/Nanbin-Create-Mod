@@ -13,7 +13,7 @@
     "sources": "https://github.com/LIEH-SAD/Nanbin-Create-Mod"
   },
   "license": "MIT",
-  "icon": "assets/nanbin/icon.png",
+  "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "modmenu": [

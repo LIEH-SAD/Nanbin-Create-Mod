@@ -1,7 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "nanbin:item/crtfence_8"
+    "layer0": "nanbin:item/crtfence_ticket"
   },
   "render_type": "translucent"
 }
