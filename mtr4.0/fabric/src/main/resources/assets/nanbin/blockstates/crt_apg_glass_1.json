@@ -1,0 +1,184 @@
+{
+	"variants": {
+		"facing=west,side_count=1,mode=single,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side1_single_bottom"
+		},
+		"facing=north,side_count=1,mode=single,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side1_single_bottom",
+			"y": 90
+		},
+		"facing=east,side_count=1,mode=single,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side1_single_bottom",
+			"y": 180
+		},
+		"facing=south,side_count=1,mode=single,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side1_single_bottom",
+			"y": 270
+		},
+		"facing=west,side_count=1,mode=single,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side1_single_top"
+		},
+		"facing=north,side_count=1,mode=single,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side1_single_top",
+			"y": 90
+		},
+		"facing=east,side_count=1,mode=single,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side1_single_top",
+			"y": 180
+		},
+		"facing=south,side_count=1,mode=single,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side1_single_top",
+			"y": 270
+		},
+		"facing=west,side_count=2,mode=left,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side2_left_bottom"
+		},
+		"facing=north,side_count=2,mode=left,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side2_left_bottom",
+			"y": 90
+		},
+		"facing=east,side_count=2,mode=left,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side2_left_bottom",
+			"y": 180
+		},
+		"facing=south,side_count=2,mode=left,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side2_left_bottom",
+			"y": 270
+		},
+		"facing=west,side_count=2,mode=left,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side2_left_top"
+		},
+		"facing=north,side_count=2,mode=left,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side2_left_top",
+			"y": 90
+		},
+		"facing=east,side_count=2,mode=left,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side2_left_top",
+			"y": 180
+		},
+		"facing=south,side_count=2,mode=left,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side2_left_top",
+			"y": 270
+		},
+		"facing=west,side_count=2,mode=right,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side2_right_bottom"
+		},
+		"facing=north,side_count=2,mode=right,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side2_right_bottom",
+			"y": 90
+		},
+		"facing=east,side_count=2,mode=right,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side2_right_bottom",
+			"y": 180
+		},
+		"facing=south,side_count=2,mode=right,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side2_right_bottom",
+			"y": 270
+		},
+		"facing=west,side_count=2,mode=right,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side2_right_top"
+		},
+		"facing=north,side_count=2,mode=right,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side2_right_top",
+			"y": 90
+		},
+		"facing=east,side_count=2,mode=right,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side2_right_top",
+			"y": 180
+		},
+		"facing=south,side_count=2,mode=right,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side2_right_top",
+			"y": 270
+		},
+		"facing=west,side_count=3,mode=left,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_left_bottom"
+		},
+		"facing=north,side_count=3,mode=left,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_left_bottom",
+			"y": 90
+		},
+		"facing=east,side_count=3,mode=left,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_left_bottom",
+			"y": 180
+		},
+		"facing=south,side_count=3,mode=left,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_left_bottom",
+			"y": 270
+		},
+		"facing=west,side_count=3,mode=left,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_left_top"
+		},
+		"facing=north,side_count=3,mode=left,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_left_top",
+			"y": 90
+		},
+		"facing=east,side_count=3,mode=left,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_left_top",
+			"y": 180
+		},
+		"facing=south,side_count=3,mode=left,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_left_top",
+			"y": 270
+		},
+		"facing=west,side_count=3,mode=middle,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_middle_bottom"
+		},
+		"facing=north,side_count=3,mode=middle,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_middle_bottom",
+			"y": 90
+		},
+		"facing=east,side_count=3,mode=middle,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_middle_bottom",
+			"y": 180
+		},
+		"facing=south,side_count=3,mode=middle,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_middle_bottom",
+			"y": 270
+		},
+		"facing=west,side_count=3,mode=middle,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_middle_top"
+		},
+		"facing=north,side_count=3,mode=middle,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_middle_top",
+			"y": 90
+		},
+		"facing=east,side_count=3,mode=middle,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_middle_top",
+			"y": 180
+		},
+		"facing=south,side_count=3,mode=middle,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_middle_top",
+			"y": 270
+		},
+		"facing=west,side_count=3,mode=right,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_right_bottom"
+		},
+		"facing=north,side_count=3,mode=right,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_right_bottom",
+			"y": 90
+		},
+		"facing=east,side_count=3,mode=right,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_right_bottom",
+			"y": 180
+		},
+		"facing=south,side_count=3,mode=right,half=lower": {
+			"model": "nanbin:block/crt_apg_1/side3_right_bottom",
+			"y": 270
+		},
+		"facing=west,side_count=3,mode=right,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_right_top"
+		},
+		"facing=north,side_count=3,mode=right,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_right_top",
+			"y": 90
+		},
+		"facing=east,side_count=3,mode=right,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_right_top",
+			"y": 180
+		},
+		"facing=south,side_count=3,mode=right,half=upper": {
+			"model": "nanbin:block/crt_apg_1/side3_right_top",
+			"y": 270
+		}
+	}
+}

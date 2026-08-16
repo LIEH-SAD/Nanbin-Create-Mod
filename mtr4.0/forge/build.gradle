@@ -1,0 +1,105 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+import org.mtr.mod.BuildTools
+
+plugins {
+	id "net.minecraftforge.gradle" version "6.+"
+	id "org.spongepowered.mixin" version "+"
+}
+
+final BuildTools buildTools = new BuildTools(minecraftVersion, "forge", mtrVersion, project)
+
+minecraft {
+	mappings channel: "official", version: minecraftVersion
+	accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
+	runs {
+		configureEach {
+			property "forge.logging.markers", "REGISTRIES"
+			property "forge.logging.console.level", "debug"
+		}
+		client {}
+		server { args "--nogui" }
+	}
+}
+
+sourceSets.main.resources { srcDir "src/generated/resources" }
+
+dependencies {
+	minecraft "net.minecraftforge:forge:${minecraftVersion}-${buildTools.getForgeVersion()}"
+	annotationProcessor "org.spongepowered:mixin:+:processor"
+	implementation fg.deobf("org.mtr:MTR-forge:${mtrVersion}+${minecraftVersion}-server")
+
+	implementation(fg.deobf("ziyue.filters:filters-forge:${buildTools.getFiltersVersion()}"))
+}
+
+mixin {
+	config "nanbin.mixins.json"
+	debug.verbose = true
+	debug.export = true
+}
+
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(buildTools.javaLanguageVersion))
+	}
+	withSourcesJar()
+}
+
+tasks.register("setupFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from "src/main/mods.template.toml"
+		into "src/main/resources/META-INF"
+		filter(ReplaceTokens, tokens: [version: version, minecraftVersion: minecraftVersion, mtrVersion: mtrVersion])
+		rename "(.+).template.toml", "\$1.toml"
+	}
+
+	delete fileTree("src/main/java/com/Nanbin/Blocks")
+	delete fileTree("src/main/java/com/Nanbin/Items")
+	delete fileTree("src/main/java/com/Nanbin/ItemsGroup")
+	delete fileTree("src/main/java/com/Nanbin/Registry")
+	delete fileTree("src/main/java/com/Nanbin/entity")
+	delete fileTree("src/main/java/com/Nanbin/util")
+	delete fileTree("src/main/java/com/Nanbin/Init.java")
+	delete fileTree("src/main/java/com/Nanbin/InitClient.java")
+	delete fileTree("src/main/java/com/Nanbin/client")
+	delete fileTree("src/main/java/com/Nanbin/packet")
+	delete fileTree("src/main/resources/assets")
+	delete fileTree("src/main/resources/data")
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/java/com/Nanbin"
+		into "src/main/java/com/Nanbin"
+		exclude "**/NanbinClientFabric.java"
+		exclude "**/NanbinFabric.java"
+		exclude "**/ModmenuConfig.java"
+		exclude "**/mapping/**"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/resources"
+		into "src/main/resources"
+		exclude "fabric.mod.json"
+		exclude "msd.accesswidener"
+	}
+}
+
+compileJava.dependsOn("setupFiles")
+
+build {
+	doLast {
+		buildTools.copyBuildFile()
+	}
+}
+
+shadowJar {
+	archiveFileName.set("Nanbin-${version}+${minecraftVersion}+forge+mtr4.jar")
+	finalizedBy "reobfShadowJar"
+}
+
+reobf {
+	shadowJar {}
+}
+
+assemble.dependsOn shadowJar

@@ -1,0 +1,23 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Nanbin Studio",
+	"textures": {
+		"1": "nanbin:block/metal",
+		"particle": "nanbin:block/metal",
+		"frontbottom": "nanbin:block/crt_apg_glass_1_side3_left_bottom_left",
+		"fronttop": "mtr:block/transparent"
+	},
+	"elements": [
+		{
+			"from": [2, 0, 0],
+			"to": [4, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, -8, 0]},
+			"faces": {
+				"north": {"uv": [12, 0, 14, 16], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [16, 0, 0, 16], "texture": "#frontbottom"},
+				"south": {"uv": [2, 0, 4, 16], "texture": "#fronttop", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#frontbottom"}
+			}
+		}
+	]
+}

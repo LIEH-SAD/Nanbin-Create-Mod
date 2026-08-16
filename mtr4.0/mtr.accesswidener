@@ -1,0 +1,4 @@
+accessWidener	v2	intermediary
+transitive-accessible	method	net/minecraft/class_4286	<init>	(IILnet/minecraft/class_2561;Lnet/minecraft/class_327;ZLnet/minecraft/class_4286$class_8930;)V
+transitive-accessible	method	net/minecraft/class_1921	method_24049	(Ljava/lang/String;Lnet/minecraft/class_293;Lnet/minecraft/class_293$class_5596;IZZLnet/minecraft/class_1921$class_4688;)Lnet/minecraft/class_1921$class_4687;
+transitive-accessible	field	net/minecraft/class_1921$class_4687	field_21403	Lnet/minecraft/class_1921$class_4688;

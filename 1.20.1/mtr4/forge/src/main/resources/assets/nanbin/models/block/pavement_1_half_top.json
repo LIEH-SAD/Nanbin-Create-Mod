@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/slab_top",
-  "textures": {
-    "bottom": "nanbin:block/pavement_1",
-    "side": "nanbin:block/pavement_1",
-    "top": "nanbin:block/pavement_1"
-  }
-}

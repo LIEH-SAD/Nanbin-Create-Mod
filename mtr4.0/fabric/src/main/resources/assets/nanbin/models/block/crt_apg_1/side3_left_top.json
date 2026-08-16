@@ -1,0 +1,54 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Nanbin Studio",
+	"textures": {
+		"3": "nanbin:block/metal",
+		"particle": "nanbin:block/metal",
+		"fronttop": "mtr:block/transparent",
+		"frontbottom": "nanbin:block/crt_apg_glass_1_side3_left_top_left",
+		"sidebottom": "nanbin:block/cab_door_apg_triangle"
+	},
+	"elements": [
+		{
+			"from": [0.835, 0.8, 0],
+			"to": [3, 1, 16],
+			"rotation": {"angle": 22.5, "axis": "z", "origin": [3, 1, 8]},
+			"faces": {
+				"north": {"uv": [13, 15, 15.165, 15.2], "texture": "#sidebottom", "cullface": "north"},
+				"south": {"uv": [0.835, 15, 3, 15.2], "texture": "#fronttop", "cullface": "south"},
+				"up": {"uv": [0.835, 0, 3, 16], "texture": "#3"}
+			}
+		},
+		{
+			"from": [1, 0, 0],
+			"to": [4, 0.172, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, -8, 0]},
+			"faces": {
+				"north": {"uv": [12, 15.828, 15, 16], "texture": "#fronttop"},
+				"south": {"uv": [1, 15.828, 4, 16], "texture": "#fronttop"},
+				"west": {"uv": [0, 15.828, 16, 16], "texture": "#fronttop"},
+				"down": {"uv": [1, 0, 4, 16], "texture": "#fronttop"}
+			}
+		},
+		{
+			"from": [3, 0, 0],
+			"to": [4, 1, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, -8, 0]},
+			"faces": {
+				"north": {"uv": [12, 15, 13, 16], "texture": "#fronttop", "cullface": "north"},
+				"east": {"uv": [0, 7, 16, 8.2], "texture": "#frontbottom"},
+				"south": {"uv": [3, 15, 4, 16], "texture": "#3", "cullface": "south"},
+				"up": {"uv": [3, 0, 4, 16], "texture": "#3"}
+			}
+		},
+		{
+			"from": [1, 0, 0],
+			"to": [3, 1, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, -8, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 8], "texture": "#fronttop", "cullface": "north"},
+				"south": {"uv": [16, 0, 0, 8], "texture": "#sidebottom", "cullface": "south"}
+			}
+		}
+	]
+}

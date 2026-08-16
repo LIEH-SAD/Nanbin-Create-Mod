@@ -1,0 +1,23 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Nanbin Studio",
+	"textures": {
+		"0": "nanbin:block/white_block",
+		"particle": "nanbin:block/white_block"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 6],
+			"to": [16, 8, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 6]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"east": {"uv": [0, 0, 4, 16], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 4, 16], "texture": "#0"},
+				"up": {"uv": [0, 0, 16, 4], "texture": "#0"},
+				"down": {"uv": [0, 0, 16, 4], "texture": "#0"}
+			}
+		}
+	]
+}
