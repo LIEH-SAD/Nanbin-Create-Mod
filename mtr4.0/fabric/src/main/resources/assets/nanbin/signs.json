@@ -74,6 +74,123 @@
       "textSize": 0.8
     },
     {
+      "id": "crt_check",
+      "textureResource": "nanbin:textures/block/sign/crt_check",
+      "small": true
+    },
+    {
+      "id": "crt_check_with_text",
+      "textureResource": "nanbin:textures/block/sign/crt_check",
+      "flipCustomText": false,
+      "small": true,
+      "customText": "行李检查|Baggage Check",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_check_with_text_flipped",
+      "textureResource": "nanbin:textures/block/sign/crt_check",
+      "flipCustomText": true,
+      "small": true,
+      "customText": "行李检查|Baggage Check",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_check_with_text_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_check_gray",
+      "flipCustomText": false,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "行李检查|Baggage Check",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_check_with_text_flipped_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_check_gray",
+      "flipCustomText": true,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "行李检查|Baggage Check",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_escalator",
+      "textureResource": "nanbin:textures/block/sign/crt_escalator",
+      "small": true
+    },
+    {
+      "id": "crt_escalator_with_text",
+      "textureResource": "nanbin:textures/block/sign/crt_escalator",
+      "flipCustomText": false,
+      "small": true,
+      "customText": "自动扶梯|Escalator",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_escalator_with_text_flipped",
+      "textureResource": "nanbin:textures/block/sign/crt_escalator",
+      "flipCustomText": true,
+      "small": true,
+      "customText": "自动扶梯|Escalator",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_escalator_with_text_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_escalator_gray",
+      "flipCustomText": false,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "自动扶梯|Escalator",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_escalator_with_text_flipped_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_escalator_gray",
+      "flipCustomText": true,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "自动扶梯|Escalator",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_stair",
+      "textureResource": "nanbin:textures/block/sign/crt_stair",
+      "small": true
+    },
+    {
+      "id": "crt_stair_with_text",
+      "textureResource": "nanbin:textures/block/sign/crt_stair",
+      "flipCustomText": false,
+      "small": true,
+      "customText": "楼梯|Stair",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_stair_with_text_flipped",
+      "textureResource": "nanbin:textures/block/sign/crt_stair",
+      "flipCustomText": true,
+      "small": true,
+      "customText": "楼梯|Stair",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_stair_with_text_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_stair_gray",
+      "flipCustomText": false,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "楼梯|Stair",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_stair_with_text_flipped_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_stair_gray",
+      "flipCustomText": true,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "楼梯|Stair",
+      "textSize": 0.8
+    },
+    {
       "id": "crt_ticket_sell",
       "textureResource": "nanbin:textures/block/sign/crt_ticket_sell",
       "small": true
@@ -110,6 +227,45 @@
       "small": true,
       "backgroundColor": "#6C6D70",
       "customText": "售票 加值处|Tickets",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_server",
+      "textureResource": "nanbin:textures/block/sign/crt_server",
+      "small": true
+    },
+    {
+      "id": "crt_server_with_text",
+      "textureResource": "nanbin:textures/block/sign/crt_server",
+      "flipCustomText": false,
+      "small": true,
+      "customText": "售票 问询|Tickets Inquiry",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_server_with_text_flipped",
+      "textureResource": "nanbin:textures/block/sign/crt_server",
+      "flipCustomText": true,
+      "small": true,
+      "customText": "售票 问询|Tickets Inquiry",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_server_with_text_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_server_gray",
+      "flipCustomText": false,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "售票 问询|Tickets Inquiry",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_server_with_text_flipped_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_server_gray",
+      "flipCustomText": true,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "售票 问询|Tickets Inquiry",
       "textSize": 0.8
     },
     {
@@ -230,6 +386,84 @@
       "textSize": 0.8
     },
     {
+      "id": "crt_female_toilot",
+      "textureResource": "nanbin:textures/block/sign/crt_female_toilot",
+      "small": true
+    },
+    {
+      "id": "crt_female_toilot_with_text",
+      "textureResource": "nanbin:textures/block/sign/crt_female_toilot",
+      "flipCustomText": false,
+      "small": true,
+      "customText": "卫生间|Toilet",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_female_toilot_with_text_flipped",
+      "textureResource": "nanbin:textures/block/sign/crt_female_toilot",
+      "flipCustomText": true,
+      "small": true,
+      "customText": "卫生间|Toilet",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_female_toilot_with_text_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_female_toilot_gray",
+      "flipCustomText": false,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "卫生间|Toilet",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_female_toilot_with_text_flipped_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_female_toilot_gray",
+      "flipCustomText": true,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "卫生间|Toilet",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_male_toilot",
+      "textureResource": "nanbin:textures/block/sign/crt_male_toilot",
+      "small": true
+    },
+    {
+      "id": "crt_male_toilot_with_text",
+      "textureResource": "nanbin:textures/block/sign/crt_male_toilot",
+      "flipCustomText": false,
+      "small": true,
+      "customText": "卫生间|Toilet",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_male_toilot_with_text_flipped",
+      "textureResource": "nanbin:textures/block/sign/crt_male_toilot",
+      "flipCustomText": true,
+      "small": true,
+      "customText": "卫生间|Toilet",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_male_toilot_with_text_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_male_toilot_gray",
+      "flipCustomText": false,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "卫生间|Toilet",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_male_toilot_with_text_flipped_gray",
+      "textureResource": "nanbin:textures/block/sign/crt_male_toilot_gray",
+      "flipCustomText": true,
+      "small": true,
+      "backgroundColor": "#6C6D70",
+      "customText": "卫生间|Toilet",
+      "textSize": 0.8
+    },
+    {
       "id": "crt_exit_up",
       "textureResource": "nanbin:textures/block/sign/crt_exit_up",
       "small": true,
@@ -329,6 +563,30 @@
       "textSize": 0.8
     },
     {
+      "id": "crt_exit_down",
+      "textureResource": "nanbin:textures/block/sign/crt_exit_down",
+      "small": true,
+      "backgroundColor": "#FCED22"
+    },
+    {
+      "id": "crt_exit_down_with_text",
+      "textureResource": "nanbin:textures/block/sign/crt_exit_down",
+      "flipCustomText": false,
+      "small": true,
+      "backgroundColor": "#FCED22",
+      "customText": "出口|Exit",
+      "textSize": 0.8
+    },
+    {
+      "id": "crt_exit_down_with_text_flipped",
+      "textureResource": "nanbin:textures/block/sign/crt_exit_down",
+      "flipCustomText": true,
+      "small": true,
+      "backgroundColor": "#FCED22",
+      "customText": "出口|Exit",
+      "textSize": 0.8
+    },
+    {
       "id": "crt_railway",
       "textureResource": "nanbin:textures/block/sign/crt_railway",
       "small": true
@@ -339,19 +597,10 @@
       "small": true
     },
     {
-      "id": "crt_route_number",
-      "textureResource": "nanbin:textures/block/sign/crt_route_number",
-      "flipCustomText": false,
-      "small": false,
-      "customText": "...",
-      "textColor": "#000000",
-      "textSize": 1.0,
-      "textBold": false
-    },
-    {
-      "id": "crt_route_name",
+      "id": "crt_route_name_flipped",
       "textureResource": "nanbin:textures/block/sign/crt_route_name",
-      "flipCustomText": false,
+      "flipCustomText": true,
+      "backgroundColor": "#FFFFFF",
       "small": false,
       "customText": "...",
       "textColor": "#000000",
@@ -359,11 +608,56 @@
       "textBold": false
     },
     {
-      "id": "crt_route_name_flipped",
+      "id": "crt_route_name",
       "textureResource": "nanbin:textures/block/sign/crt_route_name",
-      "flipCustomText": true,
+      "flipCustomText": false,
+      "backgroundColor": "#FFFFFF",
       "small": false,
       "customText": "...",
+      "textColor": "#000000",
+      "textSize": 0.8,
+      "textBold": false
+    },
+    {
+      "id": "crt_route_number",
+      "textureResource": "nanbin:textures/block/sign/crt_route_number",
+      "flipCustomText": false,
+      "backgroundColor": "#FFFFFF",
+      "small": false,
+      "customText": "...",
+      "textColor": "#000000",
+      "textSize": 1.0,
+      "textBold": false
+    },
+    {
+      "id": "crt_station_name1",
+      "textureResource": "nanbin:textures/block/sign/crt_station_name",
+      "flipCustomText": false,
+      "backgroundColor": "#FFFFFF",
+      "small": false,
+      "customText": "废案",
+      "textColor": "#000000",
+      "textSize": 0.8,
+      "textBold": true
+    },
+    {
+      "id": "nanbin_custom_text1",
+      "textureResource": "nanbin:textures/block/sign/personality_text",
+      "flipCustomText": false,
+      "backgroundColor": "#FFFFFF",
+      "small": false,
+      "customText": "废案",
+      "textColor": "#000000",
+      "textSize": 0.8,
+      "textBold": false
+    },
+    {
+      "id": "nanbin_custom_text_flipped1",
+      "textureResource": "nanbin:textures/block/sign/personality_text",
+      "flipCustomText": true,
+      "backgroundColor": "#FFFFFF",
+      "small": false,
+      "customText": "废案",
       "textColor": "#000000",
       "textSize": 0.8,
       "textBold": false

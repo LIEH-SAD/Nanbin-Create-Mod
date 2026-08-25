@@ -6,6 +6,10 @@ plugins {
 	id "org.spongepowered.mixin" version "+"
 }
 
+repositories {
+    mavenCentral()
+}
+
 final BuildTools buildTools = new BuildTools(minecraftVersion, "forge", mtrVersion, project)
 
 minecraft {
@@ -23,12 +27,24 @@ minecraft {
 
 sourceSets.main.resources { srcDir "src/generated/resources" }
 
-dependencies {
-	minecraft "net.minecraftforge:forge:${minecraftVersion}-${buildTools.getForgeVersion()}"
-	annotationProcessor "org.spongepowered:mixin:+:processor"
-	implementation fg.deobf("org.mtr:MTR-forge:${mtrVersion}+${minecraftVersion}-server")
+tasks.processResources {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	from("src/main/resources") {
+		into ""
+	}
+}
 
-	implementation(fg.deobf("ziyue.filters:filters-forge:${buildTools.getFiltersVersion()}"))
+jarJar.enable()
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraftVersion}-${buildTools.getForgeVersion()}"
+    annotationProcessor "org.spongepowered:mixin:+:processor"
+    implementation fg.deobf("org.mtr:MTR-forge:${mtrVersion}+${minecraftVersion}-server")
+    
+    implementation(fg.deobf("ziyue.filters:filters-forge:${buildTools.getFiltersVersion()}"))
+
+    // Nashorn 引擎：forge 1.20.1 环境自带 org.openjdk.nashorn:nashorn-core:15.4（含 asm），
+    // 因此这里不打包任何 JS 引擎，避免与环境中/其他 mod 的 nashorn/graal 模块冲突。
 }
 
 mixin {
@@ -96,6 +112,8 @@ build {
 shadowJar {
 	archiveFileName.set("Nanbin-${version}+${minecraftVersion}+forge+mtr4.jar")
 	finalizedBy "reobfShadowJar"
+	configurations = [project.configurations.shadow]
+	zip64 true
 }
 
 reobf {

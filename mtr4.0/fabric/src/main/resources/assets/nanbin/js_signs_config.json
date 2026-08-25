@@ -1,0 +1,10 @@
+{
+  "scripts": [
+    {
+      "id": "crt_station_entrance",
+      "path": "assets/nanbin/js/crt_station_entrance.js",
+      "icon": "nanbin:textures/block/sign/crt_railway.png",
+      "name": "js_sign.nanbin.crt_station_entrance"
+    }
+  ]
+}

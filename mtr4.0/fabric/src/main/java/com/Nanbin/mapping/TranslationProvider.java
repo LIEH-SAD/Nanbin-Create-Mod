@@ -10,6 +10,9 @@ public interface TranslationProvider {
     TranslationHolder BLOCK_TEMP_FENCE = new TranslationHolder("tooltip.nanbin.block.crt_temp_fence_1");
     TranslationHolder BLOCK_TALL_FENCE = new TranslationHolder("tooltip.nanbin.block.tall_fence");
     TranslationHolder TOOLTIP_STATION_COLOR = new TranslationHolder("tooltip.mtr.station_color");
+    TranslationHolder BRUSH_USE = new TranslationHolder("tooltip.nanbin.brush_use");
+    TranslationHolder APG_DOOR_SORT_FROM_LEFT = new TranslationHolder("tooltip.nanbin.apg_door_sort_from_left");
+    TranslationHolder APG_DOOR_SORT_FROM_RIGHT = new TranslationHolder("tooltip.nanbin.apg_door_sort_from_right");
     
     public static class TranslationHolder {
         public final String key;
@@ -23,7 +26,7 @@ public interface TranslationProvider {
         }
 
         public Text getText(Object... arguments) {
-            return new Text((net.minecraft.text.Text)TextHelper.translatable(this.key, arguments).data);
+            return Text.cast(TextHelper.translatable(this.key, arguments));
         }
 
         public String getString(Object... arguments) {

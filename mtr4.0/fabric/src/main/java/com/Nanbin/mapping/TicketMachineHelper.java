@@ -1,13 +1,8 @@
 
 package com.Nanbin.mapping;
 
-import com.Nanbin.mapping.Registry;
 import com.Nanbin.packet.PacketOpenTicketMachineScreen;
-import org.mtr.mapping.holder.ClientPlayerEntity;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.PlayerEntity;
-import org.mtr.mapping.holder.ServerPlayerEntity;
-import org.mtr.mapping.holder.World;
+import org.mtr.mapping.holder.*;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.data.IGui;
 import org.mtr.mod.data.TicketSystem;

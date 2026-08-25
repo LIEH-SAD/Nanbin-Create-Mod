@@ -17,6 +17,35 @@ dependencies {
         exclude(group: "net.fabricmc")
     }
     modImplementation "org.mtr:MTR-fabric:${mtrVersion}+${minecraftVersion}"
+
+    // Nashorn 引擎（org.openjdk.nashorn:nashorn-core）：fabric 环境不自带，需 include 打包进 mod。
+    // 依赖的 asm 由 Minecraft/fabric-loader 运行时提供（生产版本 json 自带 org.ow2.asm:9.9），无需打包。
+    def nashorn = [
+            "org.openjdk.nashorn:nashorn-core:15.4"
+    ]
+    nashorn.each { dep ->
+        compileOnly(dep)
+        // runtimeOnly 使 dev 环境（runClient / IntelliJ）运行时也能找到 Nashorn 类；
+        // include 负责把依赖打进 mod jar 的 META-INF/jars/（JarInJar）。
+        runtimeOnly(dep)
+        include(dep)
+    }
+}
+
+// 从 remapJar 的分析 classpath 中排除 include 的引擎 jar（mod 代码仅通过 javax.script + 反射间接使用，无需重映射）
+configurations {
+    includedJars {
+        canBeResolved = true
+        canBeConsumed = false
+        extendsFrom configurations.include
+    }
+}
+
+afterEvaluate {
+    def includedJarFiles = configurations.includedJars.resolvedConfiguration.resolvedArtifacts.collect { it.file }
+    tasks.named("remapJar").configure {
+        classpath.setFrom(classpath.files.findAll { f -> !includedJarFiles.contains(f) })
+    }
 }
 
 repositories {

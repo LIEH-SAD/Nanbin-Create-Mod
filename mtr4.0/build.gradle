@@ -24,6 +24,7 @@ subprojects {
 	}
 
 	repositories {
+		mavenCentral()
 		flatDir { dirs "../libs" }
 		maven { url "https://jitpack.io" }
 		maven { url "https://maven.ziyuesinicization.site/releases/" }
