@@ -7,7 +7,7 @@ import com.Nanbin.Registry.SoundEvents;
 import com.Nanbin.entity.BlockEntityTypes;
 import com.Nanbin.mapping.Registry;
 import com.Nanbin.packet.PacketHandler;
-import org.apache.http.config.RegistryBuilder;
+import mtr.Keys;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,11 +17,11 @@ import java.util.Map;
 public final class Init {
     public static final String MOD_ID = "nanbin";
     public static final Logger LOGGER = LogManager.getLogger("Nanbin Create Mod");
-    public static final Registry REGISTRY = new Registry();
-    public static final String VERSION = "3.0";
-    public static final String VERSION_DATA = "26805";
-    public static final String DESIGNED_MTR_VERSION = "3.2.0";
-    public static final String FINAL_VERSION = VERSION + "." + VERSION_DATA + " + MTR" + DESIGNED_MTR_VERSION;
+    public static final String VERSION = "3.1";
+    public static final String VERSION_DATA = "26925";
+    public static boolean IS_TEST_VERSION = true;
+    public static final String DESIGNED_MTR_VERSION = Keys.MOD_VERSION;
+    public static final String FINAL_VERSION = VERSION + "." + VERSION_DATA + "+MTR" + DESIGNED_MTR_VERSION;
 
     public static void init() {
         LOGGER.info("Hello Nanbin!");

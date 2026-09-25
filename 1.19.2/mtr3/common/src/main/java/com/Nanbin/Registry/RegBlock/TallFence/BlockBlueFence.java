@@ -1,7 +1,9 @@
 package com.Nanbin.Registry.RegBlock.TallFence;
 
 import com.Nanbin.Blocks.Blocks;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;

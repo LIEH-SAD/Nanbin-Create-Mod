@@ -1,11 +1,9 @@
 package com.Nanbin.client.Render;
 
-import com.Nanbin.Init;
 import com.Nanbin.Registry.RegBlock.BlockCRTStationName1;
 import com.Nanbin.Registry.RegBlock.BlockCRTStationName1.BlockEntity.ResolvedRouteData;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
 import com.Nanbin.client.Drawing.CustomFontTextureCache.FontType;
-import com.Nanbin.client.RouteMap.RouteMapGenerator.StationNameLayout;
 import mtr.client.ClientData;
 import mtr.client.IDrawing;
 import mtr.data.Platform;
@@ -31,13 +29,45 @@ import java.util.Map;
 /**
  * CRT 站名牌（样式 1）渲染器：在单块薄板站名牌的正面绘制车站名/线路信息。
  * 数据来源：站名/站色取自 {@link ClientData#DATA_CACHE}（按方块坐标归属车站），
- * 线路颜色/编号由 {@link RouteMapGenerator} 解析，文字贴图由
+ * 线路颜色/编号由 {@link com.Nanbin.client.RouteMap.RouteMapGenerator} 解析，文字贴图由
  * {@link CustomFontTextureCache#getSignTexture} 生成。
  */
 public class RenderCRTStationName1 implements BlockEntityRenderer<BlockCRTStationName1.BlockEntity> {
 
+	private static final float Z_FROM_CENTER = 0.459375F;
+	private static final float BG_WIDTH = 1.4F;
+	private static final float BG_HEIGHT = 1.6F;
+	private static final float TEXT_MARGIN = 0.05F;
+	private static final float TEXT_SCALE = 0.6F;
+
+	private static final boolean USE_CUSTOM_FONT = true;
+	private static final boolean WHITE_BACKGROUND = false;
+
+	// ---- 本站名牌渲染数据：顶条 + 底条 + 正色圆 ----
 	private static final FontType FONT_TYPE = FontType.SOURCE_HAN;
-	private static final int FONT_SIZE = 92;
+	private static final int FONT_SIZE = 85;
+	private static final FontType FONT_TYPE_2 = FontType.SOURCE_SANS_3; // 圆内文字字体（仅纯数字用 Source Sans 3，其余用主字体 FONT_TYPE）
+	private static final float TOP_BAR_END = 0.10F;       // 顶条底缘（相对 H）
+	private static final float TEXT_END = 0.55F;          // 文字区底缘（相对 H）
+	private static final float MIDDLE_BAR_START = 0F;     // 无中间条
+	private static final float MIDDLE_BAR_END = 0F;
+	private static final float MIDDLE_BAR_WIDTH = 0F;
+	private static final float BOTTOM_BAR_START = 0.70F;  // 底条上缘（相对 H）
+	// ---- 文字排版参数 ----
+	private static final float LATIN_FONT_RATIO = 0.5F;    // 拉丁行字号 = FONT_SIZE * ratio
+	private static final float GAP_RATIO = 0.02F;          // 中/拉行距 = FONT_SIZE * ratio
+	private static final float VERTICAL_BIAS = 0.65F;      // 文字块垂直偏置
+	private static final float EXTRA_OFFSET_RATIO = 0F; // 文字块额外下移 = H * ratio
+	private static final float TEXT_MARGIN_DEFAULT = 0.04F;
+	private static final float TEXT_MARGIN_MEDIUM = 0.12F;
+	private static final float TEXT_MARGIN_SHORT = 0.20F;
+	// ---- 圆参数 ----
+	private static final float CIRCLE_CENTER_Y_OFFSET = 0F;   // 圆心相对基准位置的下移量 = H * ratio
+	private static final float CIRCLE_RADIUS_H_RATIO = 0.10F; // 圆半径上限 = H * ratio
+	private static final float CIRCLE_RADIUS_W_RATIO = 0.14F; // 圆半径上限 = W * ratio
+	private static final float STROKE_H_RATIO = 0.006F;       // 描边宽 = max(H * ratio, 2)
+	private static final float CIRCLE_FONT_RATIO = 0.35F;     // 圆内字号 = FONT_SIZE * ratio
+	private static final boolean INVERTED_CIRCLE = false;
 
 	/** MTR 的 Render 加载早于 BlockEntity，且字体纹理有缓存，需定时强制刷新 */
 	private static final long REFRESH_INTERVAL_MS = 1000L;
@@ -49,15 +79,6 @@ public class RenderCRTStationName1 implements BlockEntityRenderer<BlockCRTStatio
 
 	/** 状态诊断日志去重：仅当解析结果变化时记录一次 */
 	private String lastDiagnosticKey = "";
-
-	/** 绘制面 Z 偏移（相对方块中心）：模型正面在 z=0，方块中心在 0.5，文字画在正面之外 */
-	private static final float Z_FROM_CENTER = StationNameLayout.Z_FROM_CENTER;
-
-	/** 贴图绘制尺寸（世界单位），布局规范见 {@link StationNameLayout} */
-	private static final float BG_WIDTH = StationNameLayout.BG_WIDTH;
-	private static final float BG_HEIGHT = StationNameLayout.BG_HEIGHT;
-	private static final float TEXT_MARGIN = StationNameLayout.TEXT_MARGIN;
-	private static final float TEXT_SCALE = StationNameLayout.TEXT_SCALE;
 
 	public RenderCRTStationName1(BlockEntityRendererFactory.Context context) {
 		CustomFontTextureCache.instance.selectedFont = FONT_TYPE;
@@ -99,7 +120,7 @@ public class RenderCRTStationName1 implements BlockEntityRenderer<BlockCRTStatio
 
 		// 线路数据：由方块实体基于自身已保存的站台 ID 与线路编号解析
 		final ResolvedRouteData resolved = entity.getResolvedData(stationColor);
-		final int themeColor = resolved.themeColor();
+		final int themeColor = resolved.routeColor();
 		final int routeColor = resolved.routeColor();
 		final String routeNumber = resolved.routeNumber();
 
@@ -118,7 +139,12 @@ public class RenderCRTStationName1 implements BlockEntityRenderer<BlockCRTStatio
 		final float textWidth = (BG_WIDTH - TEXT_MARGIN * 2) * TEXT_SCALE;
 		final float textHeight = (BG_HEIGHT - TEXT_MARGIN * 2) * TEXT_SCALE;
 
-		final Identifier textureId = CustomFontTextureCache.instance.getSignTexture(stationName, themeColor, routeColor, routeNumber, platformNumber, drawAspect, FONT_TYPE);
+		final Identifier textureId;
+		if (USE_CUSTOM_FONT) {
+			textureId = CustomFontTextureCache.instance.getSignTexture(stationName, themeColor, routeColor, routeNumber, platformNumber, drawAspect, FONT_TYPE, FONT_SIZE, FONT_TYPE_2, TOP_BAR_END, TEXT_END, MIDDLE_BAR_START, MIDDLE_BAR_END, MIDDLE_BAR_WIDTH, BOTTOM_BAR_START, LATIN_FONT_RATIO, GAP_RATIO, VERTICAL_BIAS, EXTRA_OFFSET_RATIO, TEXT_MARGIN_DEFAULT, TEXT_MARGIN_MEDIUM, TEXT_MARGIN_SHORT, CIRCLE_CENTER_Y_OFFSET, CIRCLE_RADIUS_H_RATIO, CIRCLE_RADIUS_W_RATIO, STROKE_H_RATIO, CIRCLE_FONT_RATIO, INVERTED_CIRCLE, WHITE_BACKGROUND);
+		} else {
+			textureId = CustomFontTextureCache.instance.getSignTexture(stationName, themeColor, routeColor, routeNumber, platformNumber, drawAspect, FONT_TYPE);
+		}
 
 		// 状态诊断日志：仅当解析结果变化时记录一次，方便排查线路/站台数据是否被解析到
 		final String diagnosticKey = pos.toShortString() + "|facing=" + facing + "|station=" + stationName
@@ -127,11 +153,6 @@ public class RenderCRTStationName1 implements BlockEntityRenderer<BlockCRTStatio
 				+ "|texture=" + textureId;
 		if (!diagnosticKey.equals(lastDiagnosticKey)) {
 			lastDiagnosticKey = diagnosticKey;
-			Init.LOGGER.info("RenderCRTStationName1: {}", diagnosticKey);
-		}
-
-		if (!stationName.isEmpty() && textureId.getPath().contains("nanbin_empty_fallback")) {
-			Init.LOGGER.info("RenderCRTStationName1 STILL-FALLBACK: pos={} station='{}' textureId={}", pos.toShortString(), stationName, textureId);
 		}
 
 		final StoredMatrixTransformations baseMatrix = new StoredMatrixTransformations();
@@ -151,11 +172,6 @@ public class RenderCRTStationName1 implements BlockEntityRenderer<BlockCRTStatio
 		matrices.pop();
 	}
 
-	/**
-	 * 未配置站台时，按站名牌所在坐标归属车站。
-	 * 站名牌自身坐标不在 {@link mtr.data.DataCache#blockPosToStation} 中，
-	 * 因此遍历所有车站，取第一个覆盖站名牌坐标的车站区域（AreaBase.inArea）。结果按坐标缓存。
-	 */
 	private Station findStationByPosition(BlockPos pos) {
 		final Long cachedStationId = stationSearchCache.get(pos.asLong());
 		if (cachedStationId != null) {

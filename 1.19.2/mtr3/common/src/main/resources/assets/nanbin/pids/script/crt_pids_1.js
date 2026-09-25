@@ -57,7 +57,6 @@ function render(ctx, state, pids) {
 
     //文字渲染
     Text.create("Clock")
-    .font("nanbin:harmonyos_sanssc_medium")
     .text(PIDSUtil.formatTime(MinecraftClient.worldDayTime(), true))
     .color(0xFFFFFF)
     .pos(124, 6)
@@ -66,7 +65,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("Title")
-    .font("nanbin:harmonyos_sanssc_medium")
     .text(TextUtil.cycleString(Title))
     .color(whiteColor)
     .pos(26, 0.5)
@@ -74,7 +72,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("firstColText1")
-    .font("nanbin:harmonyos_sanssc_medium")
     .text(TextUtil.cycleString(firstColText1))
     .color(whiteColor)
     .pos(101, 18)
@@ -82,7 +79,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("secondColText1")
-    .font("nanbin:harmonyos_sanssc_medium")
     .text(TextUtil.cycleString(secondColText1 + pids.arrivals().get(0).destination()))
     .color(whiteColor)
     .pos(101, 24)
@@ -91,7 +87,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("ftime")
-    .font("nanbin:harmonyos_sanssc_medium")
     .text(TextUtil.cycleString(reftime))
     .color(whiteColor)
     .pos(101, 33)
@@ -100,7 +95,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("thirdColText1")
-    .font("nanbin:harmonyos_sanssc_medium")
     .text(TextUtil.cycleString(thirdColText1))
     .color(whiteColor)
     .pos(101, 47)
@@ -108,7 +102,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("fourthColText1")
-    .font("nanbin:harmonyos_sanssc_medium")
     .text(TextUtil.cycleString(secondColText1 + pids.arrivals().get(1).destination()))
     .color(whiteColor)
     .pos(101, 53)
@@ -117,7 +110,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("stime")
-    .font("nanbin:harmonyos_sanssc_medium")
     .text(TextUtil.cycleString(restime))
     .color(whiteColor)
     .pos(101, 58)

@@ -16,6 +16,7 @@ public class RenderLayerReg {
         BlockRenderLayerHelper.putBlock(Blocks.CRT_FENCE9, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_FENCE10, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_FENCE_TICKET, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.CRT_FENCE_TICKET_FLIPPED, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_TICKET_1_ENTER, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_TICKET_1_EXIT, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_TICKET_2_ENTER, RenderLayer.getCutout());
@@ -35,6 +36,12 @@ public class RenderLayerReg {
         BlockRenderLayerHelper.putBlock(Blocks.CRT_APG_CAB_FENCE_OLD_CONNECT, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_APG_CAB_DOOR_NEW, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_PSD_CAB_DOOR, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.CRT_PSD_TOP, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.CRT_PSD_TOP_CONNECT, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.BUS_TICKET_PROCESSOR, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.CRT_STATION_INFO_1, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.CRT_STATION_INFO_1_DOUBLE, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.ORDINARY_STATION_NAME, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_APG_DOOR_1, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_APG_GLASS_1, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_APG_GLASS_END_1, RenderLayer.getCutout());

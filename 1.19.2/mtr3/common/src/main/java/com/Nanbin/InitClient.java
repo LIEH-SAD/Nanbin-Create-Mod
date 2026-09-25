@@ -1,12 +1,15 @@
 package com.Nanbin;
 
+import com.Nanbin.client.ClientData.NanbinClientConfig;
+import com.Nanbin.client.Drawing.NanbinSignLoader;
+import com.Nanbin.client.Drawing.RouteMapOverride;
 import com.Nanbin.client.FiltersGroup.FiltersGroup;
 import com.Nanbin.client.FiltersGroup.FiltersMenu;
 import com.Nanbin.client.Registry.BlockColor;
 import com.Nanbin.client.Registry.BlockEntityRender;
 import com.Nanbin.client.Registry.RenderLayerReg;
-import com.Nanbin.packet.ClientPacketHelper;
 import com.Nanbin.packet.PacketOpenScreen;
+import dev.architectury.event.events.client.ClientTickEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,8 +31,16 @@ public class InitClient {
         ClientinitSteps.put("PacketOpenScreen", PacketOpenScreen::registerClientReceivers);
         ClientinitSteps.put("BlockEntityRender", BlockEntityRender::init);
         ClientinitSteps.put("BlockColor", BlockColor::init);
+        ClientinitSteps.put("NanbinSignLoader", NanbinSignLoader::register);
+        ClientinitSteps.put("RouteMapOverride", InitClient::initRouteMapOverride);
 
         runClientInitSteps(ClientinitSteps);
+    }
+
+    /** 每次启动游戏后按配置拉取线路图并覆盖；同时挂上每 tick 的自动恢复。 */
+    private static void initRouteMapOverride() {
+        RouteMapOverride.apply(NanbinClientConfig.getRouteMapUrl());
+        ClientTickEvent.CLIENT_POST.register(client -> RouteMapOverride.tick());
     }
 
     /**

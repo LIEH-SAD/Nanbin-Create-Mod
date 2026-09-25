@@ -1,63 +1,93 @@
 {
 	"variants": {
-		"facing=north,open=closed": {
+		"facing=north,open=closed,fault=false": {
 			"model": "nanbin:block/crt_ticket_close_2_base"
 		},
-		"facing=east,open=closed": {
-			"model": "nanbin:block/crt_ticket_close_2_base",
-			"y": 90
-		},
-		"facing=south,open=closed": {
-			"model": "nanbin:block/crt_ticket_close_2_base",
-			"y": 180
-		},
-		"facing=west,open=closed": {
-			"model": "nanbin:block/crt_ticket_close_2_base",
-			"y": 270
-		},
-		"facing=north,open=pending": {
-			"model": "nanbin:block/crt_ticket_close_2_base"
-		},
-		"facing=east,open=pending": {
-			"model": "nanbin:block/crt_ticket_close_2_base",
-			"y": 90
-		},
-		"facing=south,open=pending": {
-			"model": "nanbin:block/crt_ticket_close_2_base",
-			"y": 180
-		},
-		"facing=west,open=pending": {
-			"model": "nanbin:block/crt_ticket_close_2_base",
-			"y": 270
-		},
-		"facing=north,open=open": {
+		"facing=north,open=open,fault=false": {
 			"model": "nanbin:block/crt_ticket_open_2_base"
 		},
-		"facing=east,open=open": {
+		"facing=north,open=open_concessionary,fault=false": {
+			"model": "nanbin:block/crt_ticket_open_2_base"
+		},
+		"facing=north,open=closed,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base"
+		},
+		"facing=north,open=open,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base"
+		},
+		"facing=north,open=open_concessionary,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base"
+		},
+		"facing=east,open=closed,fault=false": {
+			"model": "nanbin:block/crt_ticket_close_2_base",
+			"y": 90
+		},
+		"facing=east,open=open,fault=false": {
 			"model": "nanbin:block/crt_ticket_open_2_base",
 			"y": 90
 		},
-		"facing=south,open=open": {
+		"facing=east,open=open_concessionary,fault=false": {
+			"model": "nanbin:block/crt_ticket_open_2_base",
+			"y": 90
+		},
+		"facing=east,open=closed,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base",
+			"y": 90
+		},
+		"facing=east,open=open,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base",
+			"y": 90
+		},
+		"facing=east,open=open_concessionary,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base",
+			"y": 90
+		},
+		"facing=south,open=closed,fault=false": {
+			"model": "nanbin:block/crt_ticket_close_2_base",
+			"y": 180
+		},
+		"facing=south,open=open,fault=false": {
 			"model": "nanbin:block/crt_ticket_open_2_base",
 			"y": 180
 		},
-		"facing=west,open=open": {
+		"facing=south,open=open_concessionary,fault=false": {
+			"model": "nanbin:block/crt_ticket_open_2_base",
+			"y": 180
+		},
+		"facing=south,open=closed,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base",
+			"y": 180
+		},
+		"facing=south,open=open,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base",
+			"y": 180
+		},
+		"facing=south,open=open_concessionary,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base",
+			"y": 180
+		},
+		"facing=west,open=closed,fault=false": {
+			"model": "nanbin:block/crt_ticket_close_2_base",
+			"y": 270
+		},
+		"facing=west,open=open,fault=false": {
 			"model": "nanbin:block/crt_ticket_open_2_base",
 			"y": 270
 		},
-		"facing=north,open=open_concessionary": {
-			"model": "nanbin:block/crt_ticket_open_2_base"
-		},
-		"facing=east,open=open_concessionary": {
+		"facing=west,open=open_concessionary,fault=false": {
 			"model": "nanbin:block/crt_ticket_open_2_base",
-			"y": 90
+			"y": 270
 		},
-		"facing=south,open=open_concessionary": {
-			"model": "nanbin:block/crt_ticket_open_2_base",
-			"y": 180
+		"facing=west,open=closed,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base",
+			"y": 270
 		},
-		"facing=west,open=open_concessionary": {
-			"model": "nanbin:block/crt_ticket_open_2_base",
+		"facing=west,open=open,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base",
+			"y": 270
+		},
+		"facing=west,open=open_concessionary,fault=true": {
+			"model": "nanbin:block/crt_ticket_fault_2_base",
 			"y": 270
 		}
 	}

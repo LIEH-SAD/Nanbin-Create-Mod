@@ -1,7 +1,6 @@
 package com.Nanbin.Registry.RegBlock.CabDoor;
 
 import mtr.Items;
-import mtr.block.IBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoorBlock;

@@ -59,7 +59,10 @@ public class BlockCRTPlatform extends BlockDirectionalMapper {
         Block blockAbove = stateAbove.getBlock();
         EnumDoorType doorType;
         if (!(blockAbove instanceof BlockPSDDoor) && !(blockAbove instanceof BlockPSDGlass) && !(blockAbove instanceof BlockPSDGlassEnd)) {
-            if (!(blockAbove instanceof BlockAPGDoor) && !(blockAbove instanceof BlockAPGGlass) && !(blockAbove instanceof BlockAPGGlassEnd)) {
+            if (!(blockAbove instanceof BlockAPGDoor) && !(blockAbove instanceof BlockAPGGlass) && !(blockAbove instanceof BlockAPGGlassEnd)
+                    && !(blockAbove instanceof BlockCRTAPGDoor1) && !(blockAbove instanceof BlockCRTAPGDoor2)
+                    && !(blockAbove instanceof BlockCRTAPGGlass1) && !(blockAbove instanceof BlockCRTAPGGlass2)
+                    && !(blockAbove instanceof BlockCRTAPGGlassEnd1) && !(blockAbove instanceof BlockCRTAPGGlassEnd2)) {
                 doorType = BlockCRTPlatform.EnumDoorType.NONE;
             } else {
                 doorType = BlockCRTPlatform.EnumDoorType.APG;

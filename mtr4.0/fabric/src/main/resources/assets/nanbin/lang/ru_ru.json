@@ -1,6 +1,7 @@
 {
   "FiltersGroup.nanbin.crt_fence": "Блок перил CRT",
   "FiltersGroup.nanbin.crt_building_blocks": "Строительные блоки CRT",
+  "FiltersGroup.nanbin.crt_escalator": "Эскалаторы CRT",
   "FiltersGroup.nanbin.crt_tickets": "Блок турникета CRT",
   "FiltersGroup.nanbin.crt_overhead_lines": "Контактная сеть CRT",
   "FiltersGroup.nanbin.crt_door": "Блок двери CRT",
@@ -133,5 +134,11 @@
   "gui.nanbin.road_name_2": "Название улицы на английском",
   "gui.nanbin.road_name_3": "Предыдущая улица",
   "gui.nanbin.road_name_4": "Следующая улица",
-  "gui.nanbin.road_name_save": "Сохранить"
+  "gui.nanbin.road_name_save": "Сохранить",
+  "tips.nanbin.ticket_fault.in_use": "Устройство неисправно и недоступно",
+  "tips.nanbin.ticket_fault.on": "Устройство переведено в неисправное состояние",
+  "tips.nanbin.ticket_fault.off": "Устройство снова введено в эксплуатацию",
+  "item.nanbin.crt_escalator": "Эскалатор",
+  "block.nanbin.crt_escalator_side": "Эскалатор (боковая панель)",
+  "block.nanbin.crt_escalator_step": "Эскалатор (ступени)"
 }

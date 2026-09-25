@@ -13,6 +13,7 @@ public class RenderLayerReg {
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_FENCE10.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_FENCE_LIFT_TIPS_1.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_FENCE_TICKET.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_FENCE_TICKET_FLIPPED.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_TICKET_1_EXIT.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_TICKET_1_ENTER.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_TICKET_2_EXIT.get());
@@ -36,7 +37,23 @@ public class RenderLayerReg {
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_CAB_FENCE_OLD_CONNECT.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_CAB_DOOR_NEW.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_PSD_CAB_DOOR.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.LOGO.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_FENCE_LIFT_TIPS_1.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_LIFT_TIPS_3.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_LIFT_TIPS_2.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_PSD_TOP.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_PSD_TOP_CONNECT.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.BUS_TICKET_PROCESSOR.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_STATION_INFO_1.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_STATION_INFO_1_DOUBLE.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.ORDINARY_STATION_NAME.get());
+
+        // CRT 矮屏蔽门（APG）系列
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_DOOR_1.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_GLASS_1.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_GLASS_END_1.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_DOOR_2.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_GLASS_2.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_GLASS_END_2.get());
     }
 }

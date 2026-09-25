@@ -21,6 +21,7 @@ import java.util.List;
 public class BlockBusTicketProcessor extends BlockTicketProcessor implements BlockWithEntity {
     public static final int MODE_TWO_TAP = 0;
     public static final int MODE_FIXED_AMOUNT = 1;
+    public static final int DEFAULT_AMOUNT = 5;
 
     public BlockBusTicketProcessor() {
         super(false, false, false);
@@ -89,7 +90,7 @@ public class BlockBusTicketProcessor extends BlockTicketProcessor implements Blo
         if (blockEntity != null && blockEntity.data instanceof BlockEntity entity) {
             return entity.getAmount();
         }
-        return 5;
+        return DEFAULT_AMOUNT;
     }
 
     @Override
@@ -99,7 +100,7 @@ public class BlockBusTicketProcessor extends BlockTicketProcessor implements Blo
 
     public static class BlockEntity extends BlockEntityExtension {
         private int mode = MODE_TWO_TAP;
-        private int amount = 5;
+        private int amount = DEFAULT_AMOUNT;
 
         public BlockEntity(BlockPos pos, BlockState state) {
             super(BlockEntityTypes.BUS_TICKET_PROCESSOR.get(), pos, state);

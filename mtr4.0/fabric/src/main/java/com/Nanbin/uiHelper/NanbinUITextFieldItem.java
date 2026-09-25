@@ -1,0 +1,118 @@
+package com.Nanbin.uiHelper;
+
+import org.mtr.mapping.holder.MutableText;
+import org.mtr.mapping.holder.TextRenderer;
+import org.mtr.mapping.mapper.GraphicsHolder;
+import org.mtr.mapping.mapper.GuiDrawing;
+import org.mtr.mapping.mapper.TextFieldWidgetExtension;
+import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.tool.TextCase;
+
+import javax.annotation.Nullable;
+import java.util.function.Consumer;
+
+/**
+ * 文本框类型的配置项：样式与 {@link NanbinUIConfigItem} 一致
+ * （常态 20% 不透明度 #000000，悬停或聚焦时淡入到 40% 不透明度 #FFFFFF），
+ * 但内容是一个可以直接输入的内嵌文本框，而不是二级菜单。
+ *
+ * <p>文本框不在屏幕的自动渲染列表里（避免盖住行底色），而是由本组件在内容区里自己绘制；
+ * 输入由 {@link NanbinUIScreen#registerInputChild} 登记的控件负责。
+ */
+public class NanbinUITextFieldItem extends NanbinUIComponent {
+
+	public static final int HEIGHT = 24;
+	public static final int FIELD_HEIGHT = 20;
+	private static final int TEXT_INSET = 4;
+	private static final int LABEL_GAP = 8;
+	private static final int MIN_FIELD_WIDTH = 40;
+
+	private final TextRenderer textRenderer;
+	@Nullable
+	private final MutableText label;
+	private final TextFieldWidgetExtension textField;
+	@Nullable
+	private String suggestion;
+	private float hoverAmount;
+	/** 文本框左边界，布局时算好后供绘制阶段使用。 */
+	private int fieldX;
+
+	public NanbinUITextFieldItem(TextRenderer textRenderer, @Nullable MutableText label, String value, int maxLength) {
+		this.textRenderer = textRenderer;
+		this.label = label;
+		this.textField = new TextFieldWidgetExtension(0, 0, MIN_FIELD_WIDTH, FIELD_HEIGHT,
+				label == null ? TextHelper.literal("") : label, maxLength, TextCase.DEFAULT, null, null);
+		this.textField.setText2(value == null ? "" : value);
+		this.topMargin = 2;
+	}
+
+	@Override
+	public int getHeight() {
+		return HEIGHT;
+	}
+
+	/**
+	 * 输入框为空时显示的灰色占位文本。
+	 *
+	 * <p>注意：{@code setSuggestion2} 是"跟随光标"的补全提示，
+	 * 输入内容后会紧跟在文字后面一起画出来，不能直接当占位符用；
+	 * 这里只在内容为空时才把它交给控件。
+	 */
+	public NanbinUITextFieldItem setSuggestion(@Nullable String suggestion) {
+		this.suggestion = suggestion;
+		return this;
+	}
+
+	/** 文本变化时的回调。 */
+	public NanbinUITextFieldItem setChangedListener(@Nullable Consumer<String> listener) {
+		this.textField.setChangedListener2(listener);
+		return this;
+	}
+
+	public String getText() {
+		return textField.getText2();
+	}
+
+	public void setText(String text) {
+		textField.setText2(text == null ? "" : text);
+	}
+
+	public TextFieldWidgetExtension getTextField() {
+		return textField;
+	}
+
+	@Override
+	public void attach(NanbinUIScreen screen) {
+		// 屏幕每次 init 都会清空控件列表，这里重新登记一次（只登记输入，绘制由本组件负责）
+		textField.setTextFieldFocused2(false);
+		screen.registerInputChild(textField);
+	}
+
+	@Override
+	protected void onLayout() {
+		fieldX = x + TEXT_INSET + (label == null ? 0 : textRenderer.getWidth(label.getString()) + LABEL_GAP);
+		textField.setX2(fieldX);
+		textField.setY2(y + (HEIGHT - FIELD_HEIGHT) / 2);
+		textField.setWidth2(Math.max(MIN_FIELD_WIDTH, x + width - TEXT_INSET - fieldX));
+	}
+
+	@Override
+	public void render(GraphicsHolder graphicsHolder, TextRenderer textRenderer, int mouseX, int mouseY, float delta) {
+		// 聚焦期间保持高亮，鼠标移开也不会闪回常态
+		final boolean active = isMouseOver(mouseX, mouseY) || textField.isFocused2();
+		hoverAmount = approach(hoverAmount, active ? 1.0F : 0.0F, delta / FADE_TICKS);
+
+		final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
+		guiDrawing.beginDrawingRectangle();
+		guiDrawing.drawRectangle(x, y, x + width, y + HEIGHT, hoverColor(hoverAmount));
+		guiDrawing.finishDrawingRectangle();
+
+		if (label != null) {
+			final String text = trim(textRenderer, label.getString(), fieldX - TEXT_INSET - LABEL_GAP - x);
+			graphicsHolder.drawText(text, x + TEXT_INSET, y + (HEIGHT - 8) / 2, 0xFFFFFFFF, true, GraphicsHolder.getDefaultLight());
+		}
+		// 有内容时清掉建议文本，避免它跟在输入内容后面显示出来
+		textField.setSuggestion2(textField.getText2().isEmpty() ? suggestion : null);
+		textField.render(graphicsHolder, mouseX, mouseY, delta);
+	}
+}

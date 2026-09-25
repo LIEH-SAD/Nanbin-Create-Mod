@@ -1,7 +1,7 @@
-{
+﻿{
 	"variants": {
 		"": {
-			"model": "mtr:block/apg_door"
+			"model": "nanbin:block/apg_door"
 		}
 	}
 }

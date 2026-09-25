@@ -86,10 +86,10 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_APG_CAB_DOOR_NEW.get().data.asItem())
                 .addItems(Items.CRT_APG_DOOR_1.get().data)
                 .addItems(Items.CRT_APG_GLASS_1.get().data)
-                //.addItems(Items.CRT_APG_GLASS_END_1.get().data)
+                .addItems(Items.CRT_APG_GLASS_END_1.get().data)
                 .addItems(Items.CRT_APG_DOOR_2.get().data)
-                .addItems(Items.CRT_APG_GLASS_2.get().data);
-                //.addItems(Items.CRT_APG_GLASS_END_2.get().data);
+                .addItems(Items.CRT_APG_GLASS_2.get().data)
+                .addItems(Items.CRT_APG_GLASS_END_2.get().data);
 
         COMMON_BUILDING_BLOCKS = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS, TextHelper.translatable("FiltersGroup.nanbin.common_building_blocks"), () -> new ItemStack(new ItemConvertible(Blocks.NANBIN_BLUE_BLOCK.get().data)))
                 .addItems(Blocks.NANBIN_WHITE_BLOCK.get().data.asItem())

@@ -20,9 +20,10 @@ public final class Init {
     public static final Logger LOGGER = LogManager.getLogger("Nanbin Create Mod");
     public static final Registry REGISTRY = new Registry();
     public static final String VERSION = "3.1";     //南滨扩展会引用这些
-    public static final String VERSION_DATA = "26819";
+    public static final String VERSION_DATA = "26925";
+    public static boolean IS_TEST_VERSION = true;   //未发布版本特殊标记
     public static final String DESIGNED_MTR_VERSION = Keys.MOD_VERSION;
-    public static final String FINAL_VERSION = VERSION + "." + VERSION_DATA + " + MTR" + DESIGNED_MTR_VERSION;
+    public static final String FINAL_VERSION = VERSION + "." + VERSION_DATA + "+MTR" + DESIGNED_MTR_VERSION;
 
     public static void init() {
         LOGGER.info("Hello Nanbin!");

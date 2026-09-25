@@ -62,10 +62,7 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
             final LongAVLTreeSet platformIds = new LongAVLTreeSet();
 
             for (final Platform platform : clientData.platformIdMap.values()) {
-                final Position midPos = platform.getMidPosition();
-                final int dx = Math.abs((int) midPos.getX() - doorPos.getX());
-                final int dz = Math.abs((int) midPos.getZ() - doorPos.getZ());
-                if (dx <= PLATFORM_SEARCH_RANGE && dz <= PLATFORM_SEARCH_RANGE) {
+                if (isNearPlatform(doorPos, platform)) {
                     platformIds.add(platform.getId());
                 }
             }
@@ -95,6 +92,18 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
         return false;
     }
 
+    /** 判断门是否位于站台沿线（按站台两端坐标的 XZ 包围盒判定，含 PLATFORM_SEARCH_RANGE 裕量）。
+     *  原实现只比较站台中点，导致长站台只有中间的门能匹配到站台。 */
+    private boolean isNearPlatform(BlockPos doorPos, Platform platform) {
+        final Position position1 = platform.getRandomPosition();
+        final Position position2 = platform.getOtherPosition(position1);
+        final long minX = Math.min(position1.getX(), position2.getX()) - PLATFORM_SEARCH_RANGE;
+        final long maxX = Math.max(position1.getX(), position2.getX()) + PLATFORM_SEARCH_RANGE;
+        final long minZ = Math.min(position1.getZ(), position2.getZ()) - PLATFORM_SEARCH_RANGE;
+        final long maxZ = Math.max(position1.getZ(), position2.getZ()) + PLATFORM_SEARCH_RANGE;
+        return doorPos.getX() >= minX && doorPos.getX() <= maxX && doorPos.getZ() >= minZ && doorPos.getZ() <= maxZ;
+    }
+
     /** 带 TTL 缓存的门编号：避免每帧沿墙全量扫描（最多 512×2 格），最多每秒重算一次。 */
     private int getDoorNumberCached(World world, BlockPos blockPos) {
         final long now = System.currentTimeMillis();
@@ -115,10 +124,7 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
         try {
             final MinecraftClientData clientData = MinecraftClientData.getInstance();
             for (final Platform platform : clientData.platformIdMap.values()) {
-                final Position midPos = platform.getMidPosition();
-                final int dx = Math.abs((int) midPos.getX() - doorPos.getX());
-                final int dz = Math.abs((int) midPos.getZ() - doorPos.getZ());
-                if (dx <= PLATFORM_SEARCH_RANGE && dz <= PLATFORM_SEARCH_RANGE) {
+                if (isNearPlatform(doorPos, platform)) {
                     final long platformId = platform.getId();
                     for (final SimplifiedRoute route : clientData.simplifiedRoutes) {
                         if (route.getPlatformIndex(platformId) >= 0) {

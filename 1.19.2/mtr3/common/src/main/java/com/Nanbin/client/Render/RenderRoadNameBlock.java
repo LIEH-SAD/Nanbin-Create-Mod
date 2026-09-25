@@ -20,7 +20,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  * 路名方块渲染器：在方块模型（3 块宽 × 1 块高 × 2px 厚的标牌）的正反两面渲染四个文本显示框，
@@ -118,8 +118,7 @@ public class RenderRoadNameBlock implements BlockEntityRenderer<BlockRoadName.Bl
 		final String stateKey = pos.toShortString() + "|" + facing + "|" + String.join("|", texts);
 		if (!stateKey.equals(lastRenderStateKey)) {
 			lastRenderStateKey = stateKey;
-			Init.LOGGER.info("RenderRoadNameBlock: drawing texts on facing={} texts=[{}]", facing, String.join("|", texts));
-		}
+			}
 
 		final int shadingColor = RenderRouteBase.getShadingColor(facing, 0xFFFFFFFF);
 
@@ -179,7 +178,7 @@ public class RenderRoadNameBlock implements BlockEntityRenderer<BlockRoadName.Bl
 
 		final FittedTextTexture fitted = CustomFontTextureCache.instance.getFittedTextTexture(text, FONT_TYPE, DISPLAY_FONT_SIZES[index], new Color(DISPLAY_COLORS[index], true));
 		if (fitted.identifier == null || fitted.width <= 0 || fitted.height <= 0) {
-			Init.LOGGER.error("RenderRoadNameBlock: fitted texture invalid for text='{}' index={} id={} w={} h={}", text, index, fitted.identifier, fitted.width, fitted.height);
+			Init.LOGGER.error("[RenderRoadNameBlock]: fitted texture invalid for text='{}' index={} id={} w={} h={}", text, index, fitted.identifier, fitted.width, fitted.height);
 			return;
 		}
 

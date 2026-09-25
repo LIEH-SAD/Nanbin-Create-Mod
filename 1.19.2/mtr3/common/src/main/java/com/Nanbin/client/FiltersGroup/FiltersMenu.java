@@ -4,7 +4,6 @@ import com.Nanbin.ItemsGroup.ItemsGroup;
 import com.Nanbin.client.Screen.NanbinConfigScreen;
 import mtr.mappings.Text;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import ziyue.filters.FilterBuilder;
 
 public class FiltersMenu {

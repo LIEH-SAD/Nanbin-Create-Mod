@@ -2,6 +2,7 @@
   "Menu.nanbin.about": "À propos",
   "FiltersGroup.nanbin.crt_fence": "Clôtures CRT",
   "FiltersGroup.nanbin.crt_building_blocks": "Blocs de construction CRT",
+  "FiltersGroup.nanbin.crt_escalator": "Escalators CRT",
   "FiltersGroup.nanbin.crt_tickets": "Blocs de barrières CRT",
   "FiltersGroup.nanbin.crt_overhead_lines": "Lignes aériennes CRT",
   "FiltersGroup.nanbin.crt_door": "Blocs de portes CRT",
@@ -196,5 +197,11 @@
   "js_sign.nanbin.example_clock": "Exemple horloge",
   "js_sign.nanbin.example_station_info": "Exemple informations quai",
   "js_sign.nanbin.crt_station_entrance": "Entrée Chongqing Rail Transit",
-  "js_sign.nanbin.example_multi_screen": "Exemple multi‑écran (Quai / Ligne / Sortie)"
+  "js_sign.nanbin.example_multi_screen": "Exemple multi‑écran (Quai / Ligne / Sortie)",
+  "tips.nanbin.ticket_fault.in_use": "Cet appareil est hors service",
+  "tips.nanbin.ticket_fault.on": "Appareil mis hors service",
+  "tips.nanbin.ticket_fault.off": "Appareil remis en service",
+  "item.nanbin.crt_escalator": "Escalator",
+  "block.nanbin.crt_escalator_side": "Escalator (panneau latéral)",
+  "block.nanbin.crt_escalator_step": "Escalator (marches)"
 }

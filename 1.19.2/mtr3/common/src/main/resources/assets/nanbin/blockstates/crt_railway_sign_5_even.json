@@ -1,0 +1,8 @@
+﻿{
+	"variants": {
+		"facing=north": { "model": "nanbin:block/crt_railway_sign_end_half" },
+		"facing=east": { "model": "nanbin:block/crt_railway_sign_end_half", "y": 90 },
+		"facing=south": { "model": "nanbin:block/crt_railway_sign_end_half", "y": 180 },
+		"facing=west": { "model": "nanbin:block/crt_railway_sign_end_half", "y": 270 }
+	}
+}

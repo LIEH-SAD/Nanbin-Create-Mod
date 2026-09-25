@@ -2,6 +2,7 @@
   "Menu.nanbin.about": "关于",
   "FiltersGroup.nanbin.crt_fence": "CRT 栏杆方块",
   "FiltersGroup.nanbin.crt_building_blocks": "CRT 建设方块",
+  "FiltersGroup.nanbin.crt_escalator": "CRT 自动扶梯",
   "FiltersGroup.nanbin.crt_tickets": "CRT 闸机方块",
   "FiltersGroup.nanbin.crt_overhead_lines": "CRT 接触网",
   "FiltersGroup.nanbin.crt_door": "CRT 门方块",
@@ -192,9 +193,19 @@
   "gui.nanbin.js_data.select_route": "选择线路",
   "gui.nanbin.js_data.select_exit": "选择出口",
   "gui.nanbin.js_data.select_text": "自定义文本",
+  "gui.nanbin.config.title": "配置",
+  "gui.nanbin.config.route_map": "全局覆写线路图",
+  "gui.nanbin.config.homepage": "模组主页",
+  "gui.nanbin.config.contributors": "贡献者",
   "gui.nanbin.custom_text.title": "自定义文本",
   "js_sign.nanbin.example_clock": "示例时钟",
   "js_sign.nanbin.example_station_info": "示例站台信息",
   "js_sign.nanbin.crt_station_entrance": "重庆轨道交通入站",
-  "js_sign.nanbin.example_multi_screen": "示例多屏（站台/线路/出口）"
+  "js_sign.nanbin.example_multi_screen": "示例多屏（站台/线路/出口）",
+  "tips.nanbin.ticket_fault.in_use": "该设备已故障，暂时无法使用",
+  "tips.nanbin.ticket_fault.on": "已将该设备设为故障状态",
+  "tips.nanbin.ticket_fault.off": "已解除该设备的故障状态",
+  "item.nanbin.crt_escalator": "自动扶梯",
+  "block.nanbin.crt_escalator_side": "自动扶梯（侧板）",
+  "block.nanbin.crt_escalator_step": "自动扶梯（梯级）"
 }

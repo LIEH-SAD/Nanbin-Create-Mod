@@ -225,8 +225,12 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 			final int thumbHeight = Math.max(10, scrollbarHeight * getVisibleHeight() / getScrollableHeight());
 			final int thumbY = scrollbarY + (scrollbarHeight - thumbHeight) * scrollIndex / getMaxScroll();
 
-			new GuiDrawing(graphicsHolder).drawRectangle(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_WIDTH, scrollbarY + scrollbarHeight, 0xFF000000); // Scrollbar background
-			new GuiDrawing(graphicsHolder).drawRectangle(scrollbarX, thumbY, scrollbarX + SCROLLBAR_WIDTH, thumbY + thumbHeight, SCROLLBAR_COLOR); // Scrollbar thumb
+			// GuiDrawing 必须先 begin/finish，否则 drawRectangle 因 matrix 未初始化而变成空操作
+			final GuiDrawing scrollbarDrawing = new GuiDrawing(graphicsHolder);
+			scrollbarDrawing.beginDrawingRectangle();
+			scrollbarDrawing.drawRectangle(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_WIDTH, scrollbarY + scrollbarHeight, 0xFF000000); // Scrollbar background
+			scrollbarDrawing.drawRectangle(scrollbarX, thumbY, scrollbarX + SCROLLBAR_WIDTH, thumbY + thumbHeight, SCROLLBAR_COLOR); // Scrollbar thumb
+			scrollbarDrawing.finishDrawingRectangle();
 		}
 	}
 

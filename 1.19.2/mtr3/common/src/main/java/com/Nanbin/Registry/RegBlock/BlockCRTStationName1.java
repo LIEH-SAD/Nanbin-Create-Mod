@@ -11,11 +11,7 @@ import mtr.client.ClientData;
 import mtr.data.Platform;
 import mtr.data.Route;
 import mtr.data.Station;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.ShapeContext;
+import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.nbt.NbtCompound;
@@ -153,8 +149,6 @@ public class BlockCRTStationName1 extends HorizontalFacingBlock implements Block
 						if (routeNumber.isEmpty()) {
 							routeNumber = routeNumberOf(matchedRoute);
 						}
-					} else {
-						Init.LOGGER.info("CRTStationName: platform {} selected but no route passes it (routes={})", platformId, ClientData.ROUTES.size());
 					}
 				}
 
@@ -167,7 +161,7 @@ public class BlockCRTStationName1 extends HorizontalFacingBlock implements Block
 					}
 				}
 			} catch (Exception e) {
-				Init.LOGGER.error("CRTStationName: Error resolving route data for platform {}", platformId, e);
+				Init.LOGGER.error("[CRTStationName1]: Error resolving route data for platform {}", platformId, e);
 			}
 
 			return new ResolvedRouteData(themeColor, routeColor, routeNumber);

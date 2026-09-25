@@ -2,6 +2,7 @@
   "Menu.nanbin.about": "Über",
   "FiltersGroup.nanbin.crt_fence": "CRT‑Zäune",
   "FiltersGroup.nanbin.crt_building_blocks": "CRT‑Baublöcke",
+  "FiltersGroup.nanbin.crt_escalator": "CRT Rolltreppen",
   "FiltersGroup.nanbin.crt_tickets": "CRT‑Schrankenblöcke",
   "FiltersGroup.nanbin.crt_overhead_lines": "CRT‑Oberleitung",
   "FiltersGroup.nanbin.crt_door": "CRT‑Türblöcke",
@@ -196,5 +197,11 @@
   "js_sign.nanbin.example_clock": "Beispieluhr",
   "js_sign.nanbin.example_station_info": "Beispiel‑Bahnsteiginformationen",
   "js_sign.nanbin.crt_station_entrance": "Chongqing Rail Transit Eingang",
-  "js_sign.nanbin.example_multi_screen": "Multi‑Bildschirm‑Beispiel (Bahnsteig / Linie / Ausgang)"
+  "js_sign.nanbin.example_multi_screen": "Multi‑Bildschirm‑Beispiel (Bahnsteig / Linie / Ausgang)",
+  "tips.nanbin.ticket_fault.in_use": "Dieses Gerät ist außer Betrieb",
+  "tips.nanbin.ticket_fault.on": "Gerät außer Betrieb gesetzt",
+  "tips.nanbin.ticket_fault.off": "Gerät wieder in Betrieb genommen",
+  "item.nanbin.crt_escalator": "Rolltreppe",
+  "block.nanbin.crt_escalator_side": "Rolltreppe (Seitenwand)",
+  "block.nanbin.crt_escalator_step": "Rolltreppe (Stufen)"
 }

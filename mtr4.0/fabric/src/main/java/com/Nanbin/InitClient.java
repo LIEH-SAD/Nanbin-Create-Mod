@@ -1,5 +1,7 @@
 package com.Nanbin;
 
+import com.Nanbin.client.ClientData.NanbinClientConfig;
+import com.Nanbin.client.Drawing.RouteMapOverride;
 import com.Nanbin.client.FiltersGroup.FiltersGroup;
 import com.Nanbin.client.FiltersGroup.FiltersMenu;
 import com.Nanbin.client.Registry.BlockColor;
@@ -29,8 +31,15 @@ public final class InitClient {
 
         ClientinitSteps.put("BlockEntityRender", BlockEntityRender::init);
         ClientinitSteps.put("BlockColor", BlockColor::init);
+        ClientinitSteps.put("RouteMapOverride", InitClient::initRouteMapOverride);
 
         runClientInitSteps(ClientinitSteps);
+    }
+
+    /** 每次启动游戏后按配置拉取线路图并覆盖；同时挂上每 tick 的自动恢复。 */
+    private static void initRouteMapOverride() {
+        RouteMapOverride.apply(NanbinClientConfig.getRouteMapUrl());
+        Registry.CLIENT_REGISTRY.eventRegistryClient.registerEndClientTick(RouteMapOverride::tick);
     }
 
     public static void initMenuAndRenderLayers() {

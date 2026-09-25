@@ -2,6 +2,7 @@
   "Menu.nanbin.about": "About",
   "FiltersGroup.nanbin.crt_fence": "CRT Fence Blocks",
   "FiltersGroup.nanbin.crt_building_blocks": "CRT Building Blocks",
+  "FiltersGroup.nanbin.crt_escalator": "CRT Escalators",
   "FiltersGroup.nanbin.crt_tickets": "CRT Gate Blocks",
   "FiltersGroup.nanbin.crt_overhead_lines": "CRT Catenary",
   "FiltersGroup.nanbin.crt_door": "CRT Door Blocks",
@@ -192,9 +193,19 @@
   "gui.nanbin.js_data.select_route": "Select Route",
   "gui.nanbin.js_data.select_exit": "Select Exit",
   "gui.nanbin.js_data.select_text": "Custom Text",
+  "gui.nanbin.config.title": "Config",
+  "gui.nanbin.config.route_map": "Route Map Override",
+  "gui.nanbin.config.homepage": "Mod Homepage",
+  "gui.nanbin.config.contributors": "Contributors",
   "gui.nanbin.custom_text.title": "Custom Text",
   "js_sign.nanbin.example_clock": "Example Clock",
   "js_sign.nanbin.example_station_info": "Example Platform Info",
   "js_sign.nanbin.crt_station_entrance": "Chongqing Rail Transit Entrance",
-  "js_sign.nanbin.example_multi_screen": "Multi‑Screen Example (Platform / Route / Exit)"
+  "js_sign.nanbin.example_multi_screen": "Multi‑Screen Example (Platform / Route / Exit)",
+  "tips.nanbin.ticket_fault.in_use": "This device is out of service",
+  "tips.nanbin.ticket_fault.on": "Device set out of service",
+  "tips.nanbin.ticket_fault.off": "Device restored to service",
+  "item.nanbin.crt_escalator": "Escalator",
+  "block.nanbin.crt_escalator_side": "Escalator (Side Panel)",
+  "block.nanbin.crt_escalator_step": "Escalator (Steps)"
 }

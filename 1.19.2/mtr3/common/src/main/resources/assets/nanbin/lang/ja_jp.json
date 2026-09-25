@@ -1,6 +1,7 @@
 {
   "FiltersGroup.nanbin.crt_fence": "CRT手すりブロック",
   "FiltersGroup.nanbin.crt_building_blocks": "CRT建設ブロック",
+  "FiltersGroup.nanbin.crt_escalator": "CRT エスカレーター",
   "FiltersGroup.nanbin.crt_tickets": "CRT改札ブロック",
   "FiltersGroup.nanbin.crt_overhead_lines": "CRT架線",
   "FiltersGroup.nanbin.crt_door": "CRTドアブロック",
@@ -120,6 +121,11 @@
   "tips.cabdoor.close": "端扉を閉めました",
   "tips.cabdoor.has.low": "扉を開ける権限が不足しています",
   "tips.cabdoor.has.nokey": "鍵を使用して端扉を開けてください",
+  "tips.railway_sign_pole": "現在の鉄道信号柱の向き：%s",
+  "direction.nanbin.north": "北",
+  "direction.nanbin.east": "東",
+  "direction.nanbin.south": "南",
+  "direction.nanbin.west": "西",
   "tooltip.nanbin.block.crt_temp_fence_1": "仮設手すり…かもしれない",
   "tooltip.nanbin.block.cab_door": "上級運転キーまたはクリエイティブキーで扉を開けます",
   "tooltip.nanbin.block.tall_fence": "とても高い塀です",
@@ -128,5 +134,11 @@
   "gui.nanbin.road_name_2": "道路名英語",
   "gui.nanbin.road_name_3": "前の道路",
   "gui.nanbin.road_name_4": "次の道路",
-  "gui.nanbin.road_name_save": "保存"
+  "gui.nanbin.road_name_save": "保存",
+  "tips.nanbin.ticket_fault.in_use": "この端末は故障中のためご利用いただけません",
+  "tips.nanbin.ticket_fault.on": "端末を故障状態に設定しました",
+  "tips.nanbin.ticket_fault.off": "端末の故障状態を解除しました",
+  "item.nanbin.crt_escalator": "エスカレーター",
+  "block.nanbin.crt_escalator_side": "エスカレーター（側板）",
+  "block.nanbin.crt_escalator_step": "エスカレーター（踏段）"
 }

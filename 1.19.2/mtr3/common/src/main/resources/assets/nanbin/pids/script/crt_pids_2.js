@@ -56,7 +56,6 @@ function render(ctx, state, pids) {
 
     //文字渲染
     Text.create("End Stop")
-        .font("nanbin:harmonyos_sanssc_bold")
         .text(TextUtil.cycleString(pids.arrivals().get(0).destination()))
         .color(0xFFFFFF)
         .pos(130, 3)
@@ -65,7 +64,6 @@ function render(ctx, state, pids) {
         .draw(ctx);
 
     Text.create("Clock")
-    .font("nanbin:harmonyos_sanssc_bold")
     .text(PIDSUtil.formatTime(MinecraftClient.worldDayTime(), true))
     .color(0xFFFFFF)
     .pos(130, 69)
@@ -74,7 +72,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("firstColText1")
-    .font("nanbin:harmonyos_sanssc_bold")
     .text(TextUtil.cycleString(firstColText1))
     .color(whiteColor)
     .pos(108, 18)
@@ -82,7 +79,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("secondColText1")
-    .font("nanbin:harmonyos_sanssc_bold")
     .text(TextUtil.cycleString(secondColText1 + pids.arrivals().get(0).destination()))
     .color(whiteColor)
     .pos(108, 24)
@@ -91,7 +87,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("ftime")
-    .font("nanbin:harmonyos_sanssc_bold")
     .text(TextUtil.cycleString(reftime))
     .color(whiteColor)
     .pos(108, 33)
@@ -100,7 +95,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("thirdColText1")
-    .font("nanbin:harmonyos_sanssc_bold")
     .text(TextUtil.cycleString(thirdColText1))
     .color(whiteColor)
     .pos(108, 47)
@@ -108,7 +102,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("fourthColText1")
-    .font("nanbin:harmonyos_sanssc_bold")
     .text(TextUtil.cycleString(secondColText1 + pids.arrivals().get(1).destination()))
     .color(whiteColor)
     .pos(108, 53)
@@ -117,7 +110,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("stime")
-    .font("nanbin:harmonyos_sanssc_bold")
     .text(TextUtil.cycleString(restime))
     .color(whiteColor)
     .pos(108, 58)
@@ -126,7 +118,6 @@ function render(ctx, state, pids) {
     .draw(ctx);
 
     Text.create("customMsg")
-    .font("nanbin:harmonyos_sanssc_bold")
     .text(TextUtil.cycleString(pids.getCustomMessage(0)))
     .color(whiteColor)
     .scale(0.6)

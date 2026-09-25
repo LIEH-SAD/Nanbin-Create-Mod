@@ -53,19 +53,32 @@ public final class JSDrawContext {
 	}
 
 	public void drawText(String text, double x, double y, double w, double h, double color, double scale, boolean bold, boolean centered) {
-		RenderCRTRailwaySign.renderJSTextInBox(text, storedMatrixTransformations, facing, startX + (float) x, startY + (float) y, (float) w, (float) h, normalizeColor((int) color), (float) scale, bold, centered);
+		RenderCRTRailwaySign.renderJSTextInBox(text, storedMatrixTransformations, facing, startX + (float) x, startY + (float) y, (float) w, (float) h, normalizeColor(toArgb(color)), (float) scale, bold, centered);
 	}
 
 	public void drawTexture(String identifier, double x, double y, double w, double h, double color) {
-		RenderCRTRailwaySign.renderJSTexture(new Identifier(identifier), storedMatrixTransformations, facing, startX + (float) x, startY + (float) y, (float) w, (float) h, (int) color);
+		RenderCRTRailwaySign.renderJSTexture(new Identifier(identifier), storedMatrixTransformations, facing, startX + (float) x, startY + (float) y, (float) w, (float) h, toArgb(color));
 	}
 
 	public void drawRect(double x, double y, double w, double h, double color) {
-		RenderCRTRailwaySign.renderJSRect(storedMatrixTransformations, facing, startX + (float) x, startY + (float) y, (float) w, (float) h, normalizeColor((int) color));
+		RenderCRTRailwaySign.renderJSRect(storedMatrixTransformations, facing, startX + (float) x, startY + (float) y, (float) w, (float) h, normalizeColor(toArgb(color)));
 	}
 
 	public void drawLine(double x1, double y1, double x2, double y2, double thickness, double color) {
-		RenderCRTRailwaySign.renderJSLine(storedMatrixTransformations, facing, startX + (float) x1, startY + (float) y1, startX + (float) x2, startY + (float) y2, (float) thickness, normalizeColor((int) color));
+		RenderCRTRailwaySign.renderJSLine(storedMatrixTransformations, facing, startX + (float) x1, startY + (float) y1, startX + (float) x2, startY + (float) y2, (float) thickness, normalizeColor(toArgb(color)));
+	}
+
+	/**
+	 * 把脚本传入的颜色统一解释为 32 位 ARGB。
+	 * <p>
+	 * 脚本里的颜色来源有三种：Java {@code long}（{@code getSelectedColors()[i]} / {@code getSelectedStationIds()[i]}）、
+	 * Java {@code int}（{@code getRouteColor(i)}）、以及 JS 自己算出的数字。
+	 * Nashorn 会把前两者转成 double 传给这里，若直接 {@code (int)} 强转，
+	 * 任何 ARGB（≥ 0x80000000）都会按 Java 的浮点→整型饱和规则变成 0x7FFFFFFF（颜色发白）。
+	 * 先转 {@code long} 再转 {@code int} 即可保留低 32 位，得到正确的 ARGB。
+	 */
+	private static int toArgb(double color) {
+		return (int) (long) color;
 	}
 
 	/**

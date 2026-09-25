@@ -13,6 +13,7 @@ public final class FiltersGroup {
     public static Filter CRT_TICKETS;
     //public static Filter CRT_OVERHEAD_LINES;
     public static Filter CRT_DOOR;
+    public static Filter CRT_ESCALATOR;
     public static Filter COMMON_BUILDING_Items;
     public static Filter ROAD_Items;
     public static Filter FENCE_Items;
@@ -27,17 +28,43 @@ public final class FiltersGroup {
                 .addItems(Items.CRT_FENCE9.get())
                 .addItems(Items.CRT_FENCE10.get())
                 .addItems(Items.CRT_FENCE_TICKET.get())
+                .addItems(Items.CRT_FENCE_TICKET_FLIPPED.get())
                 .addItems(Items.CRT_FENCE_LIFT_TIPS_1.get())
                 .addItems(Items.CRT_TEMP_FENCE_1.get());
 
         CRT_BUILDING_Items = FilterBuilder.registerFilter(ItemsGroup.CRT, Text.translatable("FiltersGroup.nanbin.crt_building_blocks"), () -> new ItemStack(Items.CRT_LOGO.get()))
                 .addItems(Items.CRT_LOGO.get())
                 .addItems(Items.CRT_LIFT_TIPS.get())
+                .addItems(Items.CRT_LIFT_TIPS_2.get())
                 .addItems(Items.CRT_LIFT_TIPS_3.get())
                 .addItems(Items.CRT_OLD_WALL1.get())
                 .addItems(Items.CRT_OLD_WALL2.get())
                 .addItems(Items.CRT_PLATFORM.get())
-                .addItems(Items.CRT_STATION_NAME_1.get());
+                .addItems(Items.CRT_STATION_NAME_1.get())
+                .addItems(Items.CRT_STATION_NAME_2.get())
+                .addItems(Items.ORDINARY_STATION_NAME.get())
+                .addItems(Items.CRT_STATION_INFO_1.get())
+                .addItems(Items.CRT_STATION_INFO_1_DOUBLE.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_3_ODD.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_3_EVEN.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_3_ODD.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_4_EVEN.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_4_ODD.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_5_EVEN.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_5_ODD.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_6_EVEN.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_6_ODD.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_7_EVEN.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_7_ODD.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_8_EVEN.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_8_ODD.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_9_EVEN.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_9_ODD.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_10_EVEN.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_10_ODD.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_11_EVEN.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_11_ODD.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_POLE.get());
 
 
         CRT_TICKETS = FilterBuilder.registerFilter(ItemsGroup.CRT, Text.translatable("FiltersGroup.nanbin.crt_tickets"), () -> new ItemStack(Items.CRT_TICKET_1_EXIT.get()))
@@ -48,18 +75,29 @@ public final class FiltersGroup {
                 .addItems(Items.CRT_TICKET_3_ENTER.get())
                 .addItems(Items.CRT_TICKET_3_EXIT.get())
                 .addItems(Items.CRT_TICKET_MACHINE_1.get());
+                //.addItems(Items.CRT_TICKET_MACHINE_2.get());
 
         //CRT_OVERHEAD_LINES = FilterBuilder.registerFilter(ItemsGroup.CRT, Text.translatable("FiltersGroup.nanbin.crt_overhead_lines"), () -> new ItemStack(new ItemConvertible(Items.CRT_LOGO.get())))
                 //.addItems(Items.CRT_RIGID_CATENARY_1.get());
+
+        //CRT_ESCALATOR = FilterBuilder.registerFilter(ItemsGroup.CRT, Text.translatable("FiltersGroup.nanbin.crt_escalator"), () -> new ItemStack(Items.CRT_ESCALATOR.get()))
+          //      .addItems(Items.CRT_ESCALATOR.get());
 
         CRT_DOOR = FilterBuilder.registerFilter(ItemsGroup.CRT, Text.translatable("FiltersGroup.nanbin.crt_door"), () -> new ItemStack(Items.CRT_APG_CAB_DOOR_NEW.get()))
                 //.addItems(Items.CRT_PSD_CAB_DOOR.get())
                 .addItems(Items.CRT_APG_CAB_DOOR_OLD.get())
                 .addItems(Items.CRT_APG_CAB_FENCE_OLD.get())
                 .addItems(Items.CRT_APG_CAB_FENCE_OLD_CONNECT.get())
-                .addItems(Items.CRT_APG_CAB_DOOR_NEW.get());
+                .addItems(Items.CRT_APG_CAB_DOOR_NEW.get())
+                .addItems(Items.CRT_APG_DOOR_1.get())
+                .addItems(Items.CRT_APG_GLASS_1.get())
+                .addItems(Items.CRT_APG_GLASS_END_1.get())
+                .addItems(Items.CRT_APG_DOOR_2.get())
+                .addItems(Items.CRT_APG_GLASS_2.get())
+                .addItems(Items.CRT_APG_GLASS_END_2.get());
 
         COMMON_BUILDING_Items = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS, Text.translatable("FiltersGroup.nanbin.common_building_blocks"), () -> new ItemStack(Items.NANBIN_BLUE_BLOCK.get()))
+                .addItems(Items.BUS_TICKET_PROCESSOR.get())
                 .addItems(Items.NANBIN_WHITE_BLOCK.get())
                 .addItems(Items.NANBIN_RED_BLOCK.get())
                 .addItems(Items.NANBIN_YELLOW_BLOCK.get())

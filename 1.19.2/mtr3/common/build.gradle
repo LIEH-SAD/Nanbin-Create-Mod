@@ -22,4 +22,5 @@ dependencies {
     // has access to the MTR classes at compile time.
     modImplementation "maven.modrinth:minecraft-transit-railway:FABRIC-1.19.2-3.2.2-hotfix-1"
     modApi("ziyue.filters:filters-fabric:1.0.0+1.19.2") {exclude(group: "net.fabricmc")}
+    compileOnly("org.openjdk.nashorn:nashorn-core:15.4")
 }

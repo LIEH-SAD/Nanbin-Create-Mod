@@ -1,6 +1,7 @@
 package com.Nanbin.Registry.RegBlock;
 
 import com.Nanbin.Registry.SoundEvents;
+import mtr.Items;
 import mtr.block.IBlock;
 import mtr.data.TicketSystem;
 import mtr.data.TicketSystem.EnumTicketBarrierOpen;
@@ -19,7 +20,10 @@ import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Property;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -38,6 +42,20 @@ public class BlockCRTTicketBarrier3 extends BlockDirectionalMapper {
     public BlockCRTTicketBarrier3(boolean isEntrance) {
         super(Settings.of(Material.METAL, MapColor.GRAY).requiresTool().strength(2.0F).luminance((state) -> 5).nonOpaque());
         this.isEntrance = isEntrance;
+        setDefaultState((BlockState)((BlockState)this.getDefaultState().with(TicketFault.FAULT, false)).with(OPEN, EnumTicketBarrierOpen.CLOSED));
+    }
+
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand interactionHand, BlockHitResult blockHitResult) {
+        if (player.isHolding(Items.BRUSH.get())) {
+            return IBlock.checkHoldingBrush(world, player, () -> toggleFault(world, pos, state, player));
+        }
+        return ActionResult.PASS;
+    }
+
+    private static void toggleFault(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+        boolean fault = !TicketFault.isFault(state);
+        world.setBlockState(pos, (BlockState)((BlockState)state.with(TicketFault.FAULT, fault)).with(OPEN, EnumTicketBarrierOpen.CLOSED), 3);
+        TicketFault.notifyToggle(player, fault);
     }
 
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
@@ -48,10 +66,14 @@ public class BlockCRTTicketBarrier3 extends BlockDirectionalMapper {
             if (open.isOpen() && playerPosRotated.z > (double)0.0F) {
                 world.setBlockState(pos, (BlockState)state.with(OPEN, EnumTicketBarrierOpen.CLOSED));
             } else if (!open.isOpen() && playerPosRotated.z < (double)0.0F) {
-                EnumTicketBarrierOpen newOpen = TicketSystem.passThrough(world, pos, (PlayerEntity)entity, this.isEntrance, !this.isEntrance, SoundEvents.CRT_TICKET.get(), SoundEvents.CRT_TICKET.get(), SoundEvents.CRT_TICKET.get(), SoundEvents.CRT_TICKET.get(), (SoundEvent)null, false);
-                world.setBlockState(pos, (BlockState)state.with(OPEN, newOpen));
-                if (newOpen != EnumTicketBarrierOpen.CLOSED && !world.getBlockTickScheduler().isQueued(pos, this)) {
-                    Utilities.scheduleBlockTick(world, pos, this, 40);
+                if (TicketFault.isFault(state)) {
+                    TicketFault.notifyInUse(world, (PlayerEntity)entity);
+                } else {
+                    EnumTicketBarrierOpen newOpen = TicketSystem.passThrough(world, pos, (PlayerEntity)entity, this.isEntrance, !this.isEntrance, SoundEvents.CRT_TICKET.get(), SoundEvents.CRT_TICKET.get(), SoundEvents.CRT_TICKET.get(), SoundEvents.CRT_TICKET.get(), (SoundEvent)null, false);
+                    world.setBlockState(pos, (BlockState)state.with(OPEN, newOpen));
+                    if (newOpen != EnumTicketBarrierOpen.CLOSED && !world.getBlockTickScheduler().isQueued(pos, this)) {
+                        Utilities.scheduleBlockTick(world, pos, this, 40);
+                    }
                 }
             }
         }
@@ -86,6 +108,6 @@ public class BlockCRTTicketBarrier3 extends BlockDirectionalMapper {
     }
 
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(new Property[]{FACING, OPEN});
+        builder.add(new Property[]{FACING, OPEN, TicketFault.FAULT});
     }
 }

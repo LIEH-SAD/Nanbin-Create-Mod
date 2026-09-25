@@ -13,6 +13,9 @@ public interface TranslationProvider {
     TranslationHolder BRUSH_USE = new TranslationHolder("tooltip.nanbin.brush_use");
     TranslationHolder APG_DOOR_SORT_FROM_LEFT = new TranslationHolder("tooltip.nanbin.apg_door_sort_from_left");
     TranslationHolder APG_DOOR_SORT_FROM_RIGHT = new TranslationHolder("tooltip.nanbin.apg_door_sort_from_right");
+    TranslationHolder TICKET_FAULT_IN_USE = new TranslationHolder("tips.nanbin.ticket_fault.in_use");
+    TranslationHolder TICKET_FAULT_ON = new TranslationHolder("tips.nanbin.ticket_fault.on");
+    TranslationHolder TICKET_FAULT_OFF = new TranslationHolder("tips.nanbin.ticket_fault.off");
     
     public static class TranslationHolder {
         public final String key;

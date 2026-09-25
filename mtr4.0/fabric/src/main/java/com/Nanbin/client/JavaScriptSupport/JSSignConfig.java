@@ -10,7 +10,7 @@ public final class JSSignConfig {
 	/** 全局 JS 样式标记前缀：放在每行第 0 格（signIds[i][0]），表示整块指示牌由该 JS 脚本渲染。 */
 	public static final String JS_STYLE_PREFIX = "crt_js_style_";
 	/** 脚本未配置 icon 时使用的默认图标。 */
-	public static final Identifier DEFAULT_ICON = new Identifier("nanbin", "textures/gui/js_icon.png");
+	public static final Identifier DEFAULT_ICON = new Identifier("nanbin", "textures/block/sign/js_icon.png");
 
 	private static final Map<String, String> SCRIPT_PATHS = new HashMap<>();
 	private static final Map<String, Identifier> SCRIPT_ICONS = new HashMap<>();

@@ -1,6 +1,7 @@
 {
   "FiltersGroup.nanbin.crt_fence": "Bloque de barandilla CRT",
   "FiltersGroup.nanbin.crt_building_blocks": "Bloques de construcción CRT",
+  "FiltersGroup.nanbin.crt_escalator": "Escaleras mecánicas CRT",
   "FiltersGroup.nanbin.crt_tickets": "Bloques de torniquete CRT",
   "FiltersGroup.nanbin.crt_overhead_lines": "Catenaria CRT",
   "FiltersGroup.nanbin.crt_door": "Bloque de puerta CRT",
@@ -120,6 +121,11 @@
   "tips.cabdoor.close": "Puerta final cerrada",
   "tips.cabdoor.has.low": "Permisos insuficientes para abrir la puerta",
   "tips.cabdoor.has.nokey": "Usa una llave para abrir la puerta final",
+  "tips.railway_sign_pole": "Cara actual del poste de señal: %s",
+  "direction.nanbin.north": "Norte",
+  "direction.nanbin.east": "Este",
+  "direction.nanbin.south": "Sur",
+  "direction.nanbin.west": "Oeste",
   "tooltip.nanbin.block.crt_temp_fence_1": "Barandilla temporal... quizás",
   "tooltip.nanbin.block.cab_door": "Usa llave de conducción avanzada o llave de modo creativo para abrir la puerta",
   "tooltip.nanbin.block.tall_fence": "Realmente alta",
@@ -128,5 +134,11 @@
   "gui.nanbin.road_name_2": "Nombre de calle en inglés",
   "gui.nanbin.road_name_3": "Calle anterior",
   "gui.nanbin.road_name_4": "Calle siguiente",
-  "gui.nanbin.road_name_save": "Guardar"
+  "gui.nanbin.road_name_save": "Guardar",
+  "tips.nanbin.ticket_fault.in_use": "Este dispositivo está fuera de servicio",
+  "tips.nanbin.ticket_fault.on": "Dispositivo puesto fuera de servicio",
+  "tips.nanbin.ticket_fault.off": "Dispositivo restaurado al servicio",
+  "item.nanbin.crt_escalator": "Escalera mecánica",
+  "block.nanbin.crt_escalator_side": "Escalera mecánica (panel lateral)",
+  "block.nanbin.crt_escalator_step": "Escalera mecánica (peldaños)"
 }

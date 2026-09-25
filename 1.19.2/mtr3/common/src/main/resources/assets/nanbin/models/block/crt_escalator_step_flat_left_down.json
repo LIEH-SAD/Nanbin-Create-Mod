@@ -1,0 +1,6 @@
+{
+	"parent": "nanbin:block/crt_escalator_step_flat_left_base",
+	"textures": {
+		"step": "nanbin:block/crt_escalator_step_down"
+	}
+}

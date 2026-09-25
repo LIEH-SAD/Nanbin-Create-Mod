@@ -1,6 +1,7 @@
 {
   "FiltersGroup.nanbin.crt_fence": "CRT 난간 블록",
   "FiltersGroup.nanbin.crt_building_blocks": "CRT 건축 블록",
+  "FiltersGroup.nanbin.crt_escalator": "CRT 에스컬레이터",
   "FiltersGroup.nanbin.crt_tickets": "CRT 개찰기 블록",
   "FiltersGroup.nanbin.crt_overhead_lines": "CRT 가공 전선",
   "FiltersGroup.nanbin.crt_door": "CRT 문 블록",
@@ -120,6 +121,11 @@
   "tips.cabdoor.close": "단문이 닫혔습니다",
   "tips.cabdoor.has.low": "문을 열 권한이 부족합니다",
   "tips.cabdoor.has.nokey": "열쇠를 사용해 단문을 여십시오",
+  "tips.railway_sign_pole": "현재 철도 신호 기둥 방향: %s",
+  "direction.nanbin.north": "북",
+  "direction.nanbin.east": "동",
+  "direction.nanbin.south": "남",
+  "direction.nanbin.west": "서",
   "tooltip.nanbin.block.crt_temp_fence_1": "임시 난간… 아마도",
   "tooltip.nanbin.block.cab_door": "고급 운전 키 또는 크리에이티브 키로 문을 여세요",
   "tooltip.nanbin.block.tall_fence": "정말 높은 울타리",
@@ -128,5 +134,11 @@
   "gui.nanbin.road_name_2": "영문 도로명",
   "gui.nanbin.road_name_3": "이전 도로",
   "gui.nanbin.road_name_4": "다음 도로",
-  "gui.nanbin.road_name_save": "저장"
+  "gui.nanbin.road_name_save": "저장",
+  "tips.nanbin.ticket_fault.in_use": "이 기기는 고장 상태여서 사용할 수 없습니다",
+  "tips.nanbin.ticket_fault.on": "기기를 고장 상태로 설정했습니다",
+  "tips.nanbin.ticket_fault.off": "기기의 고장 상태를 해제했습니다",
+  "item.nanbin.crt_escalator": "에스컬레이터",
+  "block.nanbin.crt_escalator_side": "에스컬레이터 (측판)",
+  "block.nanbin.crt_escalator_step": "에스컬레이터 (스텝)"
 }

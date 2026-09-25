@@ -6,8 +6,10 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.ClientPlayerEntity;
+import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.Text;
+import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
 import org.mtr.mod.client.MinecraftClientData;
@@ -25,7 +27,10 @@ public final class JSSignEngine {
 	private static final Map<String, Object> RESULT_CACHE = new HashMap<>();
 	private static final Map<String, ScriptEngine> ENGINE_CACHE = new HashMap<>();
 	private static final Map<String, JSSignInstance> INSTANCE_CACHE = new HashMap<>();
-	private static final ScriptEngineManager ENGINE_MANAGER = new ScriptEngineManager(JSSignEngine.class.getClassLoader());
+	// 懒加载：ScriptEngineManager 构造会通过 ServiceLoader 扫描脚本引擎，
+	// 若在 mod 类加载器下扫描异常会导致 JSSignEngine 类初始化失败（NoClassDefFoundError），
+	// 进而连累引用它的渲染器。因此延迟到首次需要时创建。
+	private static ScriptEngineManager engineManager;
 	/** ServiceLoader 发现失败时的直接实例化 fallback（Minecraft 特殊类加载器下 ServiceLoader 可能找不到服务文件）。 */
 	private static ScriptEngine nashornEngine; // lazily created
 	/** 每个脚本实际调用的数据接口类型（供数据选择屏幕按需显示按钮）。 */
@@ -63,8 +68,12 @@ public final class JSSignEngine {
 
 	/** 脚本实际调用的数据接口类型集合（可能为空，表示脚本未调用任何数据接口）。 */
 	public static Set<String> getUsedDataTypes(String scriptId) {
+		// ConcurrentHashMap 不接受 null key（会抛 NPE），未指定脚本时按「无记录」处理
+		if (scriptId == null) {
+			return Collections.emptySet();
+		}
 		final Set<String> used = USED_DATA_TYPES.get(scriptId);
-		return used == null ? java.util.Collections.emptySet() : new java.util.HashSet<>(used);
+		return used == null ? Collections.emptySet() : new HashSet<>(used);
 	}
 
 	/** 清空全部缓存时也清空数据接口使用记录。 */
@@ -180,7 +189,10 @@ public final class JSSignEngine {
 				if (nashornEngine == null) {
 					// 极端 fallback：标准 ServiceLoader 发现（默认 ES5，仅保证引擎可用）
 					Init.LOGGER.warn("Nashorn factory not available, falling back to ScriptEngineManager");
-					nashornEngine = ENGINE_MANAGER.getEngineByName("nashorn");
+					if (engineManager == null) {
+						engineManager = new ScriptEngineManager(JSSignEngine.class.getClassLoader());
+					}
+					nashornEngine = engineManager.getEngineByName("nashorn");
 				}
 			}
 			return nashornEngine;
@@ -205,7 +217,22 @@ public final class JSSignEngine {
 		}
 	}
 
+	/**
+	 * 加载脚本内容，支持两种 path 写法：
+	 * <ul>
+	 *     <li>资源位置 {@code namespace:path}（如 {@code nanbin:js/crt_station_entrance.js}）——
+	 *     通过客户端资源管理器读取 {@code assets/namespace/path}，因此可被资源包覆盖；</li>
+	 *     <li>类路径 {@code assets/nanbin/js/xxx.js}（旧写法，直接读类加载器中的资源）。</li>
+	 * </ul>
+	 */
 	private static String loadScript(String path) {
+		if (path.indexOf(':') >= 0) {
+			final String content = loadScriptAsIdentifier(path);
+			if (content == null) {
+				Init.LOGGER.warn("JS sign script not found in resource packs: {}", path);
+			}
+			return content;
+		}
 		try {
 			final String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
 			final InputStream stream = JSSignEngine.class.getClassLoader().getResourceAsStream(normalizedPath);
@@ -215,6 +242,33 @@ public final class JSSignEngine {
 			return new String(stream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
 		} catch (Exception e) {
 			Init.LOGGER.error("Failed to load script from path: {}", path, e);
+			return null;
+		}
+	}
+
+	/** 按资源位置读取脚本，取优先级最高的一份 {@code assets/<namespace>/<path>}（资源包 > mod 内置资源）。 */
+	private static String loadScriptAsIdentifier(String identifierString) {
+		try {
+			if (MinecraftClient.getInstance() == null) {
+				return null;
+			}
+			final Identifier identifier = Identifier.tryParse(identifierString);
+			if (identifier == null) {
+				Init.LOGGER.warn("Invalid JS sign script identifier: {}", identifierString);
+				return null;
+			}
+			final String assetsPrefix = "assets/" + identifier.getNamespace() + "/";
+			String scriptPath = identifier.getPath();
+			if (scriptPath.startsWith("/")) {
+				scriptPath = scriptPath.substring(1);
+			}
+			if (scriptPath.startsWith(assetsPrefix)) {
+				scriptPath = scriptPath.substring(assetsPrefix.length());
+			}
+			final String content = ResourceManagerHelper.readResource(new Identifier(identifier.getNamespace(), scriptPath));
+			return content == null || content.isEmpty() ? null : content;
+		} catch (Exception e) {
+			Init.LOGGER.error("Failed to load script from identifier: {}", identifierString, e);
 			return null;
 		}
 	}
@@ -768,9 +822,12 @@ public final class JSSignEngine {
 		}
 
 		private static void addColorIfRouteExists(LongAVLTreeSet colors, long colorValue, MinecraftClientData clientData) {
+			// selectedIds 中的线路色值 = route.getColor()（RGB，与 MTR 线路牌一致），
+			// 站台/站点推导出的颜色则带 alpha；这里统一按 RGB 比较，对外一律返回 ARGB。
+			final long rgb = colorValue & 0xFFFFFFL;
 			for (final SimplifiedRoute route : clientData.simplifiedRoutes) {
-				if ((route.getColor() | 0xFF000000L) == colorValue) {
-					colors.add(colorValue);
+				if ((route.getColor() & 0xFFFFFF) == rgb) {
+					colors.add(route.getColor() | 0xFF000000L);
 					return;
 				}
 			}
@@ -836,14 +893,23 @@ public final class JSSignEngine {
 		}
 
 		/**
-		 * 线路编号：优先使用服务端解析的编号（颜色/平台ID → 编号映射），
-		 * 缺失时回退从线路名提取第一串数字（如 "1号线|Line 1" → "1"，环线 → 空串）。
+		 * 线路编号。
+		 * <p>
+		 * 编号映射表的键随屏幕类型不同：RailwaySign / 出口屏为线路颜色（RGB），
+		 * StationInfo 系列为站台 ID。因此先按传入值精确查询，再依次按 RGB、ARGB 兜底，
+		 * 两种屏幕都能用同一个接口取值。都查不到时回退从线路名提取第一串数字（如 "1号线|Line 1" → "1"，环线 → 空串）。
 		 */
 		public String getRouteNumber(long key) {
 			markUsed("route");
 			final Map<Long, String> numberMap = context.getRouteNumberMap();
 			if (numberMap != null) {
-				final String number = numberMap.get(key & 0xFFFFFFL);
+				String number = numberMap.get(key);
+				if (number == null || number.isEmpty()) {
+					number = numberMap.get(key & 0xFFFFFFL);
+				}
+				if (number == null || number.isEmpty()) {
+					number = numberMap.get(key | 0xFF000000L);
+				}
 				if (number != null && !number.isEmpty()) {
 					return number;
 				}

@@ -1,27 +1,25 @@
 package com.Nanbin.client.Screen;
 
 import com.Nanbin.Init;
+import com.Nanbin.client.ClientData.RoadNameClipboard;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
 import com.Nanbin.client.Drawing.CustomFontTextureCache.FittedTextTexture;
 import com.Nanbin.client.Drawing.CustomFontTextureCache.FontType;
 import com.Nanbin.packet.ClientPacketHelper;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Matrix4f;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class RoadNameScreen extends Screen {
 
@@ -44,7 +42,8 @@ public class RoadNameScreen extends Screen {
 	private static final int FIELD_MAX_LENGTH = 64;
 
 	private final BlockPos blockPos;
-	private final String[] initialTexts;
+	/** 屏幕当前显示的文本，随复制/粘贴/清空/撤回更新，屏幕重新初始化时据此恢复，避免被 initialTexts 覆盖。 */
+	private String[] currentTexts;
 	private final TextFieldWidget[] textFields = new TextFieldWidget[4];
 
 	private int textureX;
@@ -57,12 +56,17 @@ public class RoadNameScreen extends Screen {
 	public RoadNameScreen(BlockPos blockPos, String[] initialTexts) {
 		super(Text.translatable("gui.nanbin.road_name"));
 		this.blockPos = blockPos;
-		this.initialTexts = initialTexts != null && initialTexts.length >= 4 ? initialTexts : new String[]{"", "", "", ""};
+		this.currentTexts = initialTexts != null && initialTexts.length >= 4 ? initialTexts.clone() : new String[]{"", "", "", ""};
 	}
 
 	@Override
 	protected void init() {
 		super.init();
+
+		// 屏幕重新初始化（如窗口尺寸变化）时，先保留用户已输入的内容
+		if (textFields[0] != null) {
+			getTexts();
+		}
 
 		textureHeight = (int) (this.height * 0.5F);
 		textureWidth = textureHeight * 2;
@@ -75,18 +79,19 @@ public class RoadNameScreen extends Screen {
 		textureY = (this.height - textureHeight) / 2;
 
 		fieldX = textureX + textureWidth + 20;
-		fieldWidth = Math.max(this.width - fieldX - MARGIN, 120);
+		fieldWidth = Math.max(this.width - fieldX - MARGIN - 40, 120);
 
 		int fieldY = 40;
 		for (int i = 0; i < textFields.length; i++) {
 			final TextFieldWidget textField = new TextFieldWidget(this.textRenderer, fieldX, fieldY, fieldWidth, TEXT_FIELD_HEIGHT, Text.translatable("gui.nanbin.road_name_" + (i + 1)));
 			textField.setMaxLength(FIELD_MAX_LENGTH);
-			textField.setText(i < initialTexts.length ? initialTexts[i] : "");
+			textField.setText(i < currentTexts.length ? currentTexts[i] : "");
 			textFields[i] = textField;
 			addDrawableChild(textField);
 			fieldY += ROW_SPACING;
 		}
 
+		// 保存按钮：把四个文本框内容发回服务器并关闭
 		final ButtonWidget saveButton = new ButtonWidget(fieldX, fieldY + 6, fieldWidth, TEXT_FIELD_HEIGHT, Text.translatable("gui.nanbin.road_name_save"), button -> {
 			final String[] texts = new String[4];
 			for (int i = 0; i < textFields.length; i++) {
@@ -96,6 +101,58 @@ public class RoadNameScreen extends Screen {
 			this.close();
 		});
 		addDrawableChild(saveButton);
+
+		// 复制 / 粘贴 / 清空 / 撤回四个便捷按钮
+		final int buttonX = this.width - 35;
+		final int buttonY = 60;
+
+		final ButtonWidget undoButton = new ButtonWidget(buttonX, buttonY + 90, 30, 20, Text.translatable("gui.nanbin.undo"), button -> {
+			final String[] texts = getTexts();
+			RoadNameClipboard.undo(blockPos, texts);
+			setTexts(texts);
+			button.active = RoadNameClipboard.canUndo(blockPos);
+		});
+		undoButton.active = RoadNameClipboard.canUndo(blockPos);
+
+		final ButtonWidget copyButton = new ButtonWidget(buttonX, buttonY, 30, 20, Text.translatable("gui.nanbin.copy"), button -> RoadNameClipboard.copy(getTexts()));
+
+		final ButtonWidget pasteButton = new ButtonWidget(buttonX, buttonY + 30, 30, 20, Text.translatable("gui.nanbin.paste"), button -> {
+			final String[] texts = getTexts();
+			RoadNameClipboard.paste(blockPos, texts);
+			setTexts(texts);
+			undoButton.active = RoadNameClipboard.canUndo(blockPos);
+		});
+		pasteButton.active = RoadNameClipboard.canPaste();
+
+		final ButtonWidget clearButton = new ButtonWidget(buttonX, buttonY + 60, 30, 20, Text.translatable("gui.nanbin.clear"), button -> MinecraftClient.getInstance().setScreen(new RailwaySignClearConfirmScreen(this, Text.translatable("gui.nanbin.clear.question"), () -> {
+			final String[] texts = getTexts();
+			RoadNameClipboard.clear(blockPos, texts);
+			setTexts(texts);
+			undoButton.active = RoadNameClipboard.canUndo(blockPos);
+		})));
+
+		addDrawableChild(copyButton);
+		addDrawableChild(pasteButton);
+		addDrawableChild(clearButton);
+		addDrawableChild(undoButton);
+	}
+
+	/** 收集四个文本框的当前内容。 */
+	private String[] getTexts() {
+		final String[] texts = new String[textFields.length];
+		for (int i = 0; i < textFields.length; i++) {
+			texts[i] = textFields[i].getText();
+		}
+		currentTexts = texts.clone();
+		return texts;
+	}
+
+	/** 将内容写回四个文本框，并同步记录为当前文本。 */
+	private void setTexts(String[] texts) {
+		currentTexts = texts == null ? new String[]{"", "", "", ""} : texts.clone();
+		for (int i = 0; i < Math.min(textFields.length, currentTexts.length); i++) {
+			textFields[i].setText(currentTexts[i]);
+		}
 	}
 
 	@Override
