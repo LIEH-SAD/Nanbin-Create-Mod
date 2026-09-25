@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "nanbin:item/crtfence_8"
+  },
+  "render_type": "translucent"
+}

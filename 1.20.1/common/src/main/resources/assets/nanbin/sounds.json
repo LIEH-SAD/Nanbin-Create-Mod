@@ -1,0 +1,18 @@
+{
+	"crt_ticket": {
+		"sounds": [
+			{
+				"name": "nanbin:crt_ticket",
+				"pitch": 1
+			}
+		]
+	},
+	"crt_ticket_error": {
+		"sounds": [
+			{
+				"name": "nanbin:crt_ticket",
+				"pitch": 0.7
+			}
+		]
+	}
+}

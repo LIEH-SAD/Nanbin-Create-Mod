@@ -1,0 +1,23 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "nanbin:block/metal",
+		"particle": "nanbin:block/metal"
+	},
+	"elements": [
+		{
+			"name": "Center post",
+			"from": [7, 0, 7],
+			"to": [9, 16, 9],
+			"faces": {
+				"north": {"uv": [6, 0, 10, 16], "texture": "#0"},
+				"east": {"uv": [6, 0, 10, 16], "texture": "#0"},
+				"south": {"uv": [6, 0, 10, 16], "texture": "#0"},
+				"west": {"uv": [6, 0, 10, 16], "texture": "#0"},
+				"up": {"uv": [6, 6, 10, 10], "texture": "#0", "cullface": "up"},
+				"down": {"uv": [6, 6, 10, 10], "texture": "#0", "cullface": "down"}
+			}
+		}
+	]
+}

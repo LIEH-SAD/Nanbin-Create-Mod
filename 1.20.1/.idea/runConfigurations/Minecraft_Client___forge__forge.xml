@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" factoryName="Application" name="Minecraft Client (:forge)" type="Application">
+    <option name="MAIN_CLASS_NAME" value="dev.architectury.transformer.TransformerRuntime"/>
+    <module name="nanbin.forge.main"/>
+    <option name="PROGRAM_PARAMETERS" value=""/>
+    <option name="VM_PARAMETERS" value="-Djava.net.preferIPv6Addresses=system -p C:\Users\Sadli\.gradle\caches\modules-2\files-2.1\cpw.mods\securejarhandler\2.1.10\51e6a22c6c716beb11e244bf5b8be480f51dd6b5\securejarhandler-2.1.10.jar;C:\Users\Sadli\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-commons\9.9.1\ab35de4c537184a09339069f1a3b3aacf2289149\asm-commons-9.9.1.jar;C:\Users\Sadli\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-util\9.9.1\e51f5b0ae0b0c1960687ae970a2a3434d39d8abb\asm-util-9.9.1.jar;C:\Users\Sadli\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-analysis\9.9.1\1ab8d9316ef7a67240087919a708246c37ed1660\asm-analysis-9.9.1.jar;C:\Users\Sadli\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm-tree\9.9.1\b6b1b3366296163b4b1f540731aad0a2baa484d8\asm-tree-9.9.1.jar;C:\Users\Sadli\.gradle\caches\modules-2\files-2.1\org.ow2.asm\asm\9.9.1\2ceea6ab43bcae1979b2a6d85fc0ca429877e5ab\asm-9.9.1.jar;C:\Users\Sadli\.gradle\caches\modules-2\files-2.1\net.minecraftforge\JarJarFileSystems\0.3.19\2464eb7d6b9ddb9db36a82cf8a95193e5c6fe020\JarJarFileSystems-0.3.19.jar --add-modules ALL-MODULE-PATH --add-opens java.base/java.util.jar=cpw.mods.securejarhandler --add-opens java.base/java.lang.invoke=cpw.mods.securejarhandler --add-exports java.base/sun.security.util=cpw.mods.securejarhandler --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Darchitectury.main.class=D:\NCMOD1.20.1\ymtr\Nanbin\forge\.gradle\architectury\.main_class -Darchitectury.runtime.transformer=D:\NCMOD1.20.1\ymtr\Nanbin\forge\.gradle\architectury\.transforms -Darchitectury.properties=D:\NCMOD1.20.1\ymtr\Nanbin\forge\.gradle\architectury\.properties -Djdk.attach.allowAttachSelf=true -javaagent:D:\NCMOD1.20.1\ymtr\Nanbin\.gradle\architectury\architectury-transformer-agent.jar -Dfabric.dli.config=D:\NCMOD1.20.1\ymtr\Nanbin\.gradle\loom-cache\projects\forge\launch.cfg -Dfabric.dli.env=client -Dfabric.dli.main=cpw.mods.bootstraplauncher.BootstrapLauncher"/>
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/forge\run/"/>
+    <method v="2">
+      <option enabled="true" name="Make"/>
+    </method>
+    <envs>
+      <env name="MOD_CLASSES" value="main%%D:\NCMOD1.20.1\ymtr\Nanbin\forge\build\resources\main;main%%D:\NCMOD1.20.1\ymtr\Nanbin\forge\build\classes\java\main;main%%D:\NCMOD1.20.1\ymtr\Nanbin\forge\out\production\classes;main%%D:\NCMOD1.20.1\ymtr\Nanbin\forge\out\production\resources"/><env name="MCP_MAPPINGS" value="loom.stub"/>
+    </envs>
+    <shortenClasspath name="ARGS_FILE"/>
+  <classpathModifications/></configuration>
+</component>

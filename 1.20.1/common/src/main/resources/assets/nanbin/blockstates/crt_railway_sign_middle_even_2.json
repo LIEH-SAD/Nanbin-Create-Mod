@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"facing=north": { "model": "nanbin:block/crt_railway_sign_middle_even_2" },
+		"facing=east": { "model": "nanbin:block/crt_railway_sign_middle_even_2", "y": 90 },
+		"facing=south": { "model": "nanbin:block/crt_railway_sign_middle_even_2", "y": 180 },
+		"facing=west": { "model": "nanbin:block/crt_railway_sign_middle_even_2", "y": 270 }
+	}
+}

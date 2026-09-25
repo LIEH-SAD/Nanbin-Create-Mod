@@ -1,0 +1,8 @@
+{
+    "modmenu.descriptionTranslation.filters": "物品栏筛选。",
+    "button.filters.scroll_up": "上一个",
+    "filter.filters.uncategorized": "未分类",
+    "button.filters.scroll_down": "下一个",
+    "button.filters.enable_all": "全部启用",
+    "button.filters.disable_all": "全部禁用"
+}

@@ -1,0 +1,24 @@
+architectury {
+    common rootProject.enabled_platforms.split(',')
+}
+
+dependencies {
+    // We depend on Fabric Loader here to use the Fabric @Environment annotations,
+    // which get remapped to the correct annotations on each platform.
+    // Do NOT use other classes from Fabric Loader.
+    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+
+    // Architectury API. This is optional, and you can comment it out if you don't need it.
+    modImplementation "dev.architectury:architectury:$rootProject.architectury_api_version"
+
+    // YMTR（mod id: mtr）的 Fabric 包里 mtr/screen/WidgetShorterSlider.class 同时含有
+    // renderButton(Lnet/minecraft/class_332;IIF)V（Mojang 名，死代码）和
+    // method_48579(Lnet/minecraft/class_332;IIF)V（Intermediary 名，重映射后同样叫 renderButton）。
+    // 两者重映射后同名，Loom 的 remapper 会直接报 "Mapping target name conflicts detected"
+    // 并中止整个构建，所以这里改用 libs/ 下去掉重复方法的官方包。
+    // 重新生成方式见 tools/MtrJarPatcher.java（升级 YMTR 版本后需要重跑）。
+    modImplementation files(rootProject.file("libs/MTR-fabric-1.20.1-3.6.3-patched.jar"))
+    modApi("ziyue.filters:filters-fabric:1.0.0+1.20.1") {exclude(group: "net.fabricmc")}
+
+    compileOnly("org.openjdk.nashorn:nashorn-core:15.4")
+}
