@@ -1,0 +1,57 @@
+architectury {
+    common rootProject.enabled_platforms.split(',')
+}
+
+// 版本相关源码（"一端开发、多兼容" 的逃生舱）。
+// 绝大多数代码在两个 Minecraft 版本上都能共用，只有极少数 API 的签名不兼容，
+// 例如 Item#use 的返回值（1.21.1 是 TypedActionResult<ItemStack>，1.21.4 是 ActionResult）、
+// Block#getStateForNeighborUpdate / updateShape 的参数表。
+// 这类类放到 common/src/versioned/<minecraft_version>/java，按版本二选一编译：
+//     gradlew build                                  -> 用 1.21.1 目录
+//     gradlew build -Pminecraft_version=1.21.4       -> 用 1.21.4 目录
+// 同名类只能存在于其中一边，否则会重复定义。
+// MTR 的「附加库」在两端分发方式不同：NeoForge 直接打进 MTR 的 jar，
+// Fabric 则放在 META-INF/jars/ 里交给 Fabric Loader 加载（elementa / kotlin-stdlib / universalcraft）。
+// 这里把嵌套 jar 拆出来补进编译期 classpath，否则编译不到 org.mtr.libraries.gg.essential.*——
+// 也就是 MTR 自己的那批界面（PlatformListSelectorScreen / WindowBase 等）。
+// 把嵌套 jar 拆到 build 目录之外（clean 会删 build，而 Loom 的 modCompileOnly 需要在
+// 「配置期」就看到真实文件来建立重映射任务，所以这里在配置期解包一次、之后复用）。
+// 只在编译期使用：运行期两端分别由 Fabric 的 JIJ 与 NeoForge 打散的 jar 提供。
+def mtrNestedJarsDir = new File(rootDir, '.mtr-nested-jars')
+if (!mtrNestedJarsDir.exists()) {
+    mtrNestedJarsDir.mkdirs()
+    new java.util.zip.ZipFile(rootProject.mtrJarFile('fabric')).withCloseable { zip ->
+        zip.entries().findAll { it.name.startsWith('META-INF/jars/') && it.name.endsWith('.jar') }.each { entry ->
+            def target = new File(mtrNestedJarsDir, entry.name.substring('META-INF/jars/'.length()))
+            target.withOutputStream { out -> zip.getInputStream(entry).withCloseable { it.transferTo(out) } }
+        }
+    }
+}
+
+def versionedJavaDir = "src/versioned/${rootProject.minecraftVersion}/java"
+if (file(versionedJavaDir).exists()) {
+    sourceSets.main.java.srcDir versionedJavaDir
+}
+
+dependencies {
+    // We depend on Fabric Loader here to use the Fabric @Environment annotations,
+    // which get remapped to the correct annotations on each platform.
+    // Do NOT use other classes from Fabric Loader.
+    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+    // filters：创作标签页筛选（两端都有实现，这里只要编译期可见，运行期由各平台提供）
+    modCompileOnly "ziyue.filters:filters-fabric:$rootProject.filters_version"
+
+    // Minecraft Transit Railway (MTR 4.1.x)。公共代码只引用 org.mtr.* 里的 API，
+    // 这些类名不参与 Minecraft 映射重命名，因此编译期用 fabric 版 jar 即可，
+    // 运行时各平台由对应 loader 的 MTR jar 提供。
+    modImplementation files(rootProject.mtrJarFile('fabric'))
+
+    // JS支持（支持库）
+    compileOnly "org.openjdk.nashorn:nashorn-core:15.4"
+
+    // MTR 自带的界面库（见上面的说明）
+    // 用 modCompileOnly 而不是 compileOnly：嵌套 jar 是 intermediary 映射的，
+    // 必须交给 Loom 重映射到本项目的命名映射，否则会看到 class_437 这类中介名。
+    // 另外要用 fileTree 列出具体的 jar：javac 不会去扫描目录里的 jar。
+    modCompileOnly fileTree(mtrNestedJarsDir) { include '*.jar' }
+}

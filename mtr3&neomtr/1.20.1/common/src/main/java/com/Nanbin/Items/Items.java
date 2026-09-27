@@ -19,7 +19,7 @@ import net.minecraft.registry.RegistryKeys;
 public class Items {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Init.MOD_ID, RegistryKeys.ITEM);
 
-    public static final RegistrySupplier<Item> PHONE = ITEMS.register("phone", () -> new ItemPhone(new Item.Settings().maxCount(1).arch$tab(CreativeModeTabs.CORE.get())));
+    public static final RegistrySupplier<Item> PHONE = ITEMS.register("phone", () -> new ItemPhone(new Item.Settings().maxCount(1).arch$tab(ItemsGroup.USING_STATION_BUILDING_BLOCKS)));
     public static final RegistrySupplier<Item> CRT_LOGO = ITEMS.register("crt_logo", () -> new BlockItem(Blocks.CRT_LOGO.get(), new Item.Settings().arch$tab(ItemsGroup.CRT)));
     public static final RegistrySupplier<Item> CRT_PLATFORM = ITEMS.register("crt_platform", () -> new BlockItem(Blocks.CRT_PLATFORM.get(), new Item.Settings().arch$tab(ItemsGroup.CRT)));
     public static final RegistrySupplier<Item> CRT_TICKET_1_ENTER = ITEMS.register("crt_barrier_entrance_1", () -> new BlockItem(Blocks.CRT_TICKET_1_ENTER.get(), new Item.Settings().arch$tab(ItemsGroup.CRT)));

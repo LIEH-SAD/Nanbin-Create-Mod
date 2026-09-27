@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nanbin:block/gray_tactile_paving", "y": 180, "uvlock": true },
+    "facing=east":  { "model": "nanbin:block/gray_tactile_paving", "y": 270, "uvlock": true },
+    "facing=south": { "model": "nanbin:block/gray_tactile_paving", "y": 0, "uvlock": true },
+    "facing=west":  { "model": "nanbin:block/gray_tactile_paving", "y": 90, "uvlock": true }
+  }
+}

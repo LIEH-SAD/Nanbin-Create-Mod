@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "nanbin",
+  "version": "${version}",
+  "name": "Nanbin Create Mod",
+  "description": "Thanks for jh233's help!",
+  "authors": [
+    "Nanbin Studio"
+  ],
+  "contributors": [
+    "LIEH-SAD",
+    "jh233"
+  ],
+  "contact": {
+    "homepage": "https://lieh-sad.github.io/nanbin/",
+    "sources": "https://github.com/LIEH-SAD/Nanbin-Create-Mod"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.Nanbin.fabric.NanbinFabric"
+    ],
+    "client": [
+      "com.Nanbin.fabric.NanbinClientFabric"
+    ],
+    "modmenu": [
+      "com.Nanbin.fabric.ModmenuConfig"
+    ]
+  },
+  "mixins": [
+    "nanbin.mixins.json",
+    "nanbin-fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=21",
+    "fabric-api": "*",
+    "mtr": ">=${mtr_version}"
+  }
+}

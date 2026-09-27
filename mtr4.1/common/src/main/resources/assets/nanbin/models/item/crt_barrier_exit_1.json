@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "nanbin:item/crt_barrier_exit_1"
+  },
+  "render_type": "translucent"
+}

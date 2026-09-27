@@ -1,0 +1,64 @@
+{
+	"variants": {
+		"facing=north,half=lower,fault=false": {
+			"model": "nanbin:block/crt_ticket_machine_2_base"
+		},
+		"facing=north,half=upper,fault=false": {
+			"model": "nanbin:block/crt_ticket_machine_2_top"
+		},
+		"facing=north,half=lower,fault=true": {
+			"model": "nanbin:block/crt_ticket_machine_2_base"
+		},
+		"facing=north,half=upper,fault=true": {
+			"model": "nanbin:block/crt_ticket_machine_2_fault_top"
+		},
+		"facing=east,half=lower,fault=false": {
+			"model": "nanbin:block/crt_ticket_machine_2_base",
+			"y": 90
+		},
+		"facing=east,half=upper,fault=false": {
+			"model": "nanbin:block/crt_ticket_machine_2_top",
+			"y": 90
+		},
+		"facing=east,half=lower,fault=true": {
+			"model": "nanbin:block/crt_ticket_machine_2_base",
+			"y": 90
+		},
+		"facing=east,half=upper,fault=true": {
+			"model": "nanbin:block/crt_ticket_machine_2_fault_top",
+			"y": 90
+		},
+		"facing=south,half=lower,fault=false": {
+			"model": "nanbin:block/crt_ticket_machine_2_base",
+			"y": 180
+		},
+		"facing=south,half=upper,fault=false": {
+			"model": "nanbin:block/crt_ticket_machine_2_top",
+			"y": 180
+		},
+		"facing=south,half=lower,fault=true": {
+			"model": "nanbin:block/crt_ticket_machine_2_base",
+			"y": 180
+		},
+		"facing=south,half=upper,fault=true": {
+			"model": "nanbin:block/crt_ticket_machine_2_fault_top",
+			"y": 180
+		},
+		"facing=west,half=lower,fault=false": {
+			"model": "nanbin:block/crt_ticket_machine_2_base",
+			"y": 270
+		},
+		"facing=west,half=upper,fault=false": {
+			"model": "nanbin:block/crt_ticket_machine_2_top",
+			"y": 270
+		},
+		"facing=west,half=lower,fault=true": {
+			"model": "nanbin:block/crt_ticket_machine_2_base",
+			"y": 270
+		},
+		"facing=west,half=upper,fault=true": {
+			"model": "nanbin:block/crt_ticket_machine_2_fault_top",
+			"y": 270
+		}
+	}
+}
