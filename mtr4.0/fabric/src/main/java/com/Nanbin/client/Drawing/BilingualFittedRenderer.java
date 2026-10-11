@@ -11,10 +11,8 @@ import java.util.List;
 import static com.Nanbin.InitClient.LOGGER;
 
 /**
- * Renders bilingual (CJK + Latin) text into a tightly-fitted texture.
- * - CJK segments are concatenated into a single large line and never wrap (only scale proportionally).
- * - Latin segments are concatenated into a smaller-font line, which may wrap into at most 2 lines.
- * The texture is tightly bounded to its content so the caller can scale it proportionally to fit a display box.
+ * Renders bilingual (CJK + Latin) text into a texture tightly bounded to its content.
+ * CJK never wraps; Latin uses a smaller font and wraps to at most 2 lines.
  */
 public final class BilingualFittedRenderer {
 
@@ -22,25 +20,19 @@ public final class BilingualFittedRenderer {
 	}
 
 	/**
-	 * @param text            already-extracted visible text (no pipe rules), "|" splits CJK/Latin segments
-	 * @param rawFont         the loaded font (e.g. Alibaba)
-	 * @param fontSize        CJK font size (pixels, before resolution scaling); Latin = fontSize * latinFontRatio
-	 * @param latinFontRatio  ratio of Latin font size to CJK font size (e.g. 0.4)
-	 * @param maxWidth        max width in pixels used for wrapping the Latin line (up to 2 lines)
-	 * @param textColor       text color
+	 * @param text     already-extracted visible text (no pipe rules); "|" splits CJK / Latin segments
+	 * @param fontSize CJK font size in pixels before resolution scaling; Latin = fontSize * latinFontRatio
+	 * @param maxWidth max width in pixels for wrapping the Latin line (up to 2 lines)
 	 */
 	public static NativeImage render(String text, Font rawFont, int fontSize, float latinFontRatio, int maxWidth, Color textColor) {
 		return render(text, rawFont, fontSize, latinFontRatio, maxWidth, textColor, 0.04F);
 	}
 
 	/**
-	 * @param text            already-extracted visible text (no pipe rules), "|" splits CJK/Latin segments
-	 * @param rawFont         the loaded font (e.g. Alibaba)
-	 * @param fontSize        CJK font size (pixels, before resolution scaling); Latin = fontSize * latinFontRatio
-	 * @param latinFontRatio  ratio of Latin font size to CJK font size (e.g. 0.4)
-	 * @param maxWidth        max width in pixels used for wrapping the Latin line (up to 2 lines)
-	 * @param textColor       text color
-	 * @param gapRatio        gap between CJK and Latin lines as a ratio of fontSize (0 = tightly packed)
+	 * @param text     already-extracted visible text (no pipe rules); "|" splits CJK / Latin segments
+	 * @param fontSize CJK font size in pixels before resolution scaling; Latin = fontSize * latinFontRatio
+	 * @param maxWidth max width in pixels for wrapping the Latin line (up to 2 lines)
+	 * @param gapRatio gap between CJK and Latin lines, as a ratio of fontSize (0 = tightly packed)
 	 */
 	public static NativeImage render(String text, Font rawFont, int fontSize, float latinFontRatio, int maxWidth, Color textColor, float gapRatio) {
 		try {
@@ -50,7 +42,6 @@ public final class BilingualFittedRenderer {
 			final Font cjkFont = rawFont.deriveFont(Font.PLAIN, (float) cjkFontSize);
 			final Font latinFont = rawFont.deriveFont(Font.PLAIN, (float) latinFontSize);
 
-			// Split into CJK / Latin
 			final String[] segments = text.split("\\|", -1);
 			final StringBuilder cjkBuilder = new StringBuilder();
 			final StringBuilder latinBuilder = new StringBuilder();
@@ -75,10 +66,8 @@ public final class BilingualFittedRenderer {
 				return null;
 			}
 
-			// Wrap Latin into at most 2 lines
 			final List<String> latinLines = hasLatin ? wrapLatin(latin, latinFont, maxWidth) : Collections.emptyList();
 
-			// Measure content
 			final int cjkW = hasCjk ? FontRenderUtils.getStringWidth(cjk, cjkFont) : 0;
 			final int cjkAscent = hasCjk ? FontRenderUtils.getAscent(cjkFont) : 0;
 			final int cjkDescent = hasCjk ? FontRenderUtils.getDescent(cjkFont) : 0;

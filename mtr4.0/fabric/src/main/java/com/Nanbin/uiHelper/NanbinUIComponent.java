@@ -26,7 +26,6 @@ public abstract class NanbinUIComponent {
 	protected int y;
 	protected int width;
 
-	/** 组件自身高度（像素）。 */
 	public abstract int getHeight();
 
 	/** 由 {@link NanbinUIScreen} 调用的排版入口。 */
@@ -99,7 +98,6 @@ public abstract class NanbinUIComponent {
 		return lerpColor(HOVER_BASE_COLOR, HOVER_ACTIVE_COLOR, amount);
 	}
 
-	/** 逐通道线性插值两个 ARGB 颜色。 */
 	private static int lerpColor(int from, int to, float t) {
 		final float amount = Math.max(0.0F, Math.min(1.0F, t));
 		final int a = lerpChannel(from >>> 24, to >>> 24, amount);
@@ -113,7 +111,6 @@ public abstract class NanbinUIComponent {
 		return Math.round(from + (to - from) * t);
 	}
 
-	/** 鼠标是否位于组件正上方。 */
 	public final boolean isMouseOver(double mouseX, double mouseY) {
 		return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < getBottom();
 	}

@@ -7,10 +7,9 @@ import org.mtr.mod.render.StoredMatrixTransformations;
 
 /**
  * JS 指示牌每帧绘制的上下文（ctx）。
- * <p>
- * 坐标系与世界坐标一致：x 在 [0, getWidth()]，y 在 [0, getHeight()]，
- * getWidth()/getHeight() 返回指示牌实际渲染的宽高（世界单位），
- * 如 RailwaySign 高 0.5、宽 格数 × 0.5；格数与单格尺寸可用 getCellCount()/getCellSize() 获取。
+ * 坐标系与世界坐标一致：x ∈ [0, getWidth()]，y ∈ [0, getHeight()]，均为世界单位；
+ * getWidth()/getHeight() 是实际渲染宽高（如 RailwaySign 高 0.5、宽 = 格数 × 0.5），
+ * 格数与单格尺寸见 getCellCount()/getCellSize()。
  */
 public final class JSDrawContext {
 
@@ -32,7 +31,6 @@ public final class JSDrawContext {
 		this.backgroundColor = backgroundColor;
 	}
 
-	/** 格数（整块指示牌的格子数量）。 */
 	public int getCellCount() {
 		return cellCount;
 	}
@@ -70,20 +68,14 @@ public final class JSDrawContext {
 
 	/**
 	 * 把脚本传入的颜色统一解释为 32 位 ARGB。
-	 * <p>
-	 * 脚本里的颜色来源有三种：Java {@code long}（{@code getSelectedColors()[i]} / {@code getSelectedStationIds()[i]}）、
-	 * Java {@code int}（{@code getRouteColor(i)}）、以及 JS 自己算出的数字。
-	 * Nashorn 会把前两者转成 double 传给这里，若直接 {@code (int)} 强转，
-	 * 任何 ARGB（≥ 0x80000000）都会按 Java 的浮点→整型饱和规则变成 0x7FFFFFFF（颜色发白）。
-	 * 先转 {@code long} 再转 {@code int} 即可保留低 32 位，得到正确的 ARGB。
+	 * 脚本里的颜色来自 Java long/int，Nashorn 会转成 double 传进来；直接 (int) 强转会让 ≥ 0x80000000 的 ARGB
+	 * 按浮点→整型饱和规则变成 0x7FFFFFFF（颜色发白），故先转 long 再转 int 取回低 32 位。
 	 */
 	private static int toArgb(double color) {
 		return (int) (long) color;
 	}
 
-	/**
-	 * 旧接口兼容：把 execute 返回的结果（单个 {@link JSSignResult} 或数组）逐格绘制到本上下文。
-	 */
+	/** 旧接口兼容：把 execute 返回的结果（单个 {@link JSSignResult} 或数组）逐格绘制到本上下文。 */
 	public void drawResults(Object result) {
 		final JSSignEngine.JSSignResult[] results = JSSignEngine.toCellResults(result, cellCount);
 		for (int i = 0; i < cellCount; i++) {

@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * 指示牌内容的客户端剪贴板。复制时保存行数、格子数与整体排版（signIds）以及选中的线路（selectedIds），
- * 只有行数和格数都相同的指示牌才能粘贴。同时维护按方块位置区分的撤回历史。
+ * 只有行数和格数都相同的指示牌才能粘贴；同时维护按方块位置区分的撤回历史。
  * 支持单行（String[]）与多行（String[][]）两种数据。
  */
 public class SignClipboard {
@@ -30,7 +30,6 @@ public class SignClipboard {
 		copy(1, length, new String[][]{signIds}, single(selectedIds));
 	}
 
-	/** 多行指示牌复制。 */
 	public static void copy(int lines, int length, String[][] signIds, List<LongAVLTreeSet> selectedIds) {
 		SignClipboard.lines = lines;
 		SignClipboard.length = length;

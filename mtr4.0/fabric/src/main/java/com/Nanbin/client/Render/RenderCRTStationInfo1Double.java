@@ -28,9 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * StationInfo2 双面版本渲染器。正面和背面各自独立渲染，数据不共用。
- */
+/** 双面版站牌渲染器：正面与背面各自独立渲染，数据不共用。 */
 public class RenderCRTStationInfo1Double extends BlockEntityRenderer<BlockCRTStationInfo1Double.BlockEntity> implements IBlock, IGui, IDrawing {
 
 	private static final FontType FONT_TYPE = FontType.ALIBABA;

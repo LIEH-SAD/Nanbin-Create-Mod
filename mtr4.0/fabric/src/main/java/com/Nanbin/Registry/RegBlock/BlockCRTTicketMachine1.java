@@ -1,5 +1,6 @@
 package com.Nanbin.Registry.RegBlock;
 
+import com.Nanbin.Registry.RegBlock.flag.TicketFault;
 import com.Nanbin.mapping.TicketMachineHelper;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.tool.HolderBase;
@@ -13,6 +14,8 @@ import java.util.List;
 public class BlockCRTTicketMachine1 extends BlockDirectionalDoubleBlockBase {
     public BlockCRTTicketMachine1(BlockSettings blockSettings) {
         super(blockSettings);
+        // 布尔属性默认值为 true，必须显式把默认状态改为未故障，否则新放置的售票机默认就是故障状态。
+        setDefaultState2(getDefaultState2().with(new Property<>(TicketFault.FAULT.data), false));
     }
 
     @Nonnull

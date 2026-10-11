@@ -20,33 +20,17 @@ import java.util.List;
 /**
  * NanbinUI 屏幕接口。
  *
- * <p>其他屏幕只要继承本类并规定大标题，然后按顺序调用 {@link #addTitle(MutableText)} /
- * {@link #addConfig(MutableText, Runnable)} 把组件加进来，就自动获得统一风格的界面：
- * 小标题（#787878 不透明条 + 纯白文字）、配置项（20% 不透明度 #000000，悬停淡入到
- * 40% 不透明度 #FFFFFF，0.2 秒）、以及位于它们右侧的滚动条。
- * 整个界面宽高均为屏幕的 1/2 并居中显示。
+ * <p>子类继承本类并指定大标题后，按顺序调用 {@link #addTitle(MutableText)} /
+ * {@link #addConfig(MutableText, Runnable)} 加入组件，即可获得统一风格的界面：小标题
+ * （#787878 不透明条 + 纯白文字）、配置项（20% 不透明度 #000000，悬停淡入到 40%
+ * 不透明度 #FFFFFF，0.2 秒），以及右侧滚动条。面板宽高均为屏幕的 1/2 并居中。
  *
- * <p>大标题只是一个文本，完全由调用方指定（构造器参数，可以是 {@code TextHelper.literal}
- * 或可翻译文本）；需要动态标题时覆写 {@link #getTitle2()} 即可。
+ * <p>组件可在构造器里添加，也可覆写 {@link #buildComponents()}（只在第一次 init 时执行一次）；
+ * 需要动态标题时覆写 {@link #getTitle2()}。
  *
- * <p>组件可以在构造器里添加，也可以覆写 {@link #buildComponents()}（只在第一次 init 时执行一次）。
- *
- * <p>内容区用 {@code RenderSystem} 的剪刀（scissor）裁剪，滚动时组件不会溢出面板。
- * 虽然 MTR 映射层没有暴露 scissor，但 {@code com.mojang.blaze3d.*} 属于 Mojang 命名空间，
- * Fabric(yarn) 与 Forge(official) 都不会重映射它，因此两个加载器都能直接调用。
- *
- * <pre>{@code
- * public class DemoConfigScreen extends NanbinUIScreen {
- *     public DemoConfigScreen(Screen parent) {
- *         super(TextHelper.literal("示例配置"), parent);
- *         addTitle(TextHelper.literal("第一栏"));                 // 小标题，可加多项
- *         addConfig(TextHelper.literal("配置项 A"), this::doA);   // 配置项
- *         addConfig(TextHelper.literal("配置项 B"));              // 无点击回调的纯展示项
- *         addTitle(TextHelper.literal("第二栏"));
- *         addConfig(TextHelper.literal("配置项 C"), this::doC);
- *     }
- * }
- * }</pre>
+ * <p>内容区用 {@code RenderSystem} 的剪刀裁剪。MTR 映射层没有暴露 scissor，但
+ * {@code com.mojang.blaze3d.*} 属于 Mojang 命名空间，Fabric(yarn) 与 Forge(official)
+ * 都不会重映射，因此两个加载器都能直接调用。
  */
 public class NanbinUIScreen extends ScreenExtension {
 
@@ -54,9 +38,8 @@ public class NanbinUIScreen extends ScreenExtension {
 	public static final int HEADER_HEIGHT = 16;
 	public static final int HEADER_GAP = 6;
 	public static final int SCROLLBAR_GAP = 4;
-	/** 面板底色，默认完全透明（不遮挡游戏画面），可由子类覆写 {@link #getPanelBackgroundColor()}。 */
+	/** 面板底色，默认完全透明；子类可覆写 {@link #getPanelBackgroundColor()}。 */
 	public static final int PANEL_BACKGROUND_COLOR = 0x00000000;
-	/** 大标题文字颜色。 */
 	public static final int HEADER_TEXT_COLOR = 0xFFFFFFFF;
 
 	private static final double SCROLL_STEP = 16.0;
@@ -89,9 +72,8 @@ public class NanbinUIScreen extends ScreenExtension {
 		this.parent = parent;
 	}
 
-	// ---------------------------------------------------------------- 组件接口
+	// 组件接口
 
-	/** 按顺序加入一个小标题（可加入多项）。 */
 	public NanbinUITitle addTitle(MutableText text) {
 		return addComponent(new NanbinUITitle(text));
 	}
@@ -100,7 +82,6 @@ public class NanbinUIScreen extends ScreenExtension {
 		return addTitle(TextHelper.literal(text));
 	}
 
-	/** 按顺序加入一个纯展示的配置项。 */
 	public NanbinUIConfigItem addConfig(MutableText label) {
 		return addConfig(label, null);
 	}
@@ -109,7 +90,6 @@ public class NanbinUIScreen extends ScreenExtension {
 		return addConfig(TextHelper.literal(label), null);
 	}
 
-	/** 按顺序加入一个可点击的配置项。 */
 	public NanbinUIConfigItem addConfig(MutableText label, @Nullable Runnable onClick) {
 		return addComponent(new NanbinUIConfigItem(label, onClick));
 	}
@@ -119,8 +99,8 @@ public class NanbinUIScreen extends ScreenExtension {
 	}
 
 	/**
-	 * 按顺序加入一个文本框类型的配置项（label 为 null 时文本框占满整行）。
-	 * 只能在 {@link #buildComponents()} 之后调用（需要已初始化的文本渲染器）。
+	 * label 为 null 时文本框占满整行；只能在 {@link #buildComponents()} 之后调用
+	 * （需要已初始化的文本渲染器）。
 	 */
 	public NanbinUITextFieldItem addTextField(@Nullable MutableText label, String value, int maxLength) {
 		return addComponent(new NanbinUITextFieldItem(getTextRendererMapped(), label, value, maxLength));
@@ -169,11 +149,10 @@ public class NanbinUIScreen extends ScreenExtension {
 		return panelHeight;
 	}
 
-	/** 子类可覆写，用于在第一次初始化时批量添加组件。 */
+	/** 子类可覆写，用于第一次初始化时批量添加组件。 */
 	protected void buildComponents() {
 	}
 
-	/** 面板底色，默认透明。 */
 	protected int getPanelBackgroundColor() {
 		return PANEL_BACKGROUND_COLOR;
 	}
@@ -185,8 +164,6 @@ public class NanbinUIScreen extends ScreenExtension {
 	protected void drawBackground(GraphicsHolder graphicsHolder) {
 		renderBackground(graphicsHolder);
 	}
-
-	// ---------------------------------------------------------------- 生命周期
 
 	@Override
 	protected void init2() {
@@ -214,8 +191,6 @@ public class NanbinUIScreen extends ScreenExtension {
 	public boolean isPauseScreen2() {
 		return false;
 	}
-
-	// ---------------------------------------------------------------- 排版
 
 	/** 面板宽高均为屏幕的 1/2 并居中；组件按加入顺序自上而下排列。 */
 	private void layout() {
@@ -257,8 +232,6 @@ public class NanbinUIScreen extends ScreenExtension {
 	private int getViewHeight() {
 		return Math.max(0, contentY2 - contentY1);
 	}
-
-	// ---------------------------------------------------------------- 渲染
 
 	@Override
 	public void render(GraphicsHolder graphicsHolder, int mouseX, int mouseY, float delta) {
@@ -304,8 +277,6 @@ public class NanbinUIScreen extends ScreenExtension {
 		final float textX = panelX + (panelWidth - getTextRendererMapped().getWidth(label)) / 2.0F;
 		graphicsHolder.drawText(label, (int) textX, panelY + (HEADER_HEIGHT - 8) / 2, HEADER_TEXT_COLOR, true, GraphicsHolder.getDefaultLight());
 	}
-
-	// ---------------------------------------------------------------- 输入
 
 	@Override
 	public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {

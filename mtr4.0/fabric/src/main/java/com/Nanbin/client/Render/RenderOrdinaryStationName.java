@@ -36,10 +36,9 @@ public class RenderOrdinaryStationName extends BlockEntityRenderer<BlockOrdinary
 
 	private static final boolean USE_CUSTOM_FONT = true;
 
-	// ---- CRT 告示牌渲染数据：白底黑字，ALIBABA 字体，等比缩放 ----
 	private static final FontType FONT_TYPE = FontType.ALIBABA;
 	private static final FontType FONT_TYPE_2 = FontType.SOURCE_SANS_3; // 圆内文字字体（仅纯数字用 Source Sans 3，其余用主字体 FONT_TYPE）
-	private static final boolean WHITE_BACKGROUND = true;          // 默认白色背景
+	private static final boolean WHITE_BACKGROUND = true;
 	private static final int FONT_SIZE = 81;
 	private static final float TOP_BAR_END = 0F;          // 无顶条（白底）
 	private static final float TEXT_END = 0.62F;          // 文字区底缘（相对 H）
@@ -47,7 +46,6 @@ public class RenderOrdinaryStationName extends BlockEntityRenderer<BlockOrdinary
 	private static final float MIDDLE_BAR_END = 0F;
 	private static final float MIDDLE_BAR_WIDTH = 0F;
 	private static final float BOTTOM_BAR_START = 1F;     // 无底条
-	// ---- 文字排版参数：翻译小一些、汉文不动、间距统一，超框优先等比缩放 ----
 	private static final float LATIN_FONT_RATIO = 0.5F;   // 拉丁行字号 = FONT_SIZE * ratio
 	private static final float GAP_RATIO = 0.02F;         // 中/拉行距 = FONT_SIZE * ratio
 	private static final float VERTICAL_BIAS = 0.55F;     // 文字块垂直偏置
@@ -55,7 +53,6 @@ public class RenderOrdinaryStationName extends BlockEntityRenderer<BlockOrdinary
 	private static final float TEXT_MARGIN_DEFAULT = 0.10F;
 	private static final float TEXT_MARGIN_MEDIUM = 0.20F;
 	private static final float TEXT_MARGIN_SHORT = 0.30F;
-	// ---- 圆参数（线路/站台徽标） ----
 	private static final float CIRCLE_CENTER_Y_OFFSET = 0.36F; // 圆心在文字区下方
 	private static final float CIRCLE_RADIUS_H_RATIO = 0.09F;
 	private static final float CIRCLE_RADIUS_W_RATIO = 0.13F;
@@ -74,7 +71,6 @@ public class RenderOrdinaryStationName extends BlockEntityRenderer<BlockOrdinary
 
 	@Override
 	public void render(BlockOrdinaryStationName.BlockEntity entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
-		// 定时强制刷新字体纹理缓存，确保站名、间距等显示最新效果
 		final long now = System.currentTimeMillis();
 		if (now - lastRefreshTime >= REFRESH_INTERVAL_MS) {
 			lastRefreshTime = now;
@@ -90,7 +86,7 @@ public class RenderOrdinaryStationName extends BlockEntityRenderer<BlockOrdinary
 		final Direction facing = IBlock.getStatePropertySafe(state, BlockStationNameBase.FACING);
 		final int shadingColor = RenderRouteBase.getShadingColor(facing, entity.getColor(state));
 
-		// Centre the transformation on the block, applying yOffset
+		// Centre the transformation on the block
 		final StoredMatrixTransformations baseMatrix = new StoredMatrixTransformations(
 				pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5
 		);

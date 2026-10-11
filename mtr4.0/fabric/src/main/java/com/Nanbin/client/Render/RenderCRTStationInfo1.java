@@ -30,16 +30,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * StationInfo1 顶部 0.5F 单面站名渲染器。
- * 只在结构的最左上 UPPER 方块渲染一次：把灰色矩形 + 本站名（中文 + 英文）+ 线路上一站名
- * 合成一张纹理后，绘制在 3 块宽 × 0.5 块高的顶部条带上。
- * 中文用阿里巴巴字体大号单行（只能等比缩放），英文用很小的字号并可换行成最多两行后整体等比缩放。
+ * StationInfo1 顶部 0.5F 单面站名渲染器（3 块宽 × 0.5 块高）。
+ * 灰底条带 + 本站名（中文大号单行、英文小号最多两行）+ 上一站名 + 右侧线路指示合成一张纹理，
+ * 只在最左上 UPPER 方块绘制一次，避免 9 个方块重复渲染。
  */
 public class RenderCRTStationInfo1 extends BlockEntityRenderer<BlockCRTStationInfo1.BlockEntity> implements IBlock, IGui, IDrawing {
 
 	private static final FontType FONT_TYPE = FontType.ALIBABA;
 	private static final int FONT_SIZE = 60;
-	/** 英文行字号 = 中文行字号 × ratio，英文要比中文小很多。 */
+	/** 英文行字号 = 中文行字号 × ratio */
 	private static final float LATIN_FONT_RATIO = 0.45F;
 	/** 本站名中/拉两行间距 = fontSize × ratio */
 	private static final float GAP_RATIO = 0.04F;
@@ -53,9 +52,8 @@ public class RenderCRTStationInfo1 extends BlockEntityRenderer<BlockCRTStationIn
 	/** 绘制面 Z 偏移（正面）。面板碰撞箱 z 为 6..10，半厚 2px = 0.125，文字画在模型表面之外 */
 	private static final float Z_FACE = -(0.125F + 0.003125F);
 
-	// ---- 左侧半格灰色实心矩形 + 上一站名 ----
 	private static final int RECT_COLOR = 0xFF929498;
-	/** 矩形长 0.9F，宽 0.1F（9:1），左缘距模型边缘 0.2F（原 0.1F 再右移一格 0.1F） */
+	/** 矩形长 0.9F × 宽 0.1F（9:1），左缘距模型边缘 0.2F */
 	private static final float RECT_LENGTH = 0.9F;
 	private static final float RECT_HEIGHT = 0.1F;
 	private static final float RECT_EDGE_GAP = 0.2F;
@@ -101,7 +99,6 @@ public class RenderCRTStationInfo1 extends BlockEntityRenderer<BlockCRTStationIn
 
 	@Override
 	public void render(BlockCRTStationInfo1.BlockEntity entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
-		// MTR 的 Render 加载早于 BlockEntity，且字体纹理被缓存不会随数据变化自动失效，每秒强制刷新一次
 		final long now = System.currentTimeMillis();
 		if (now - lastRefreshTime >= REFRESH_INTERVAL_MS) {
 			lastRefreshTime = now;
@@ -118,7 +115,6 @@ public class RenderCRTStationInfo1 extends BlockEntityRenderer<BlockCRTStationIn
 			return;
 		}
 
-		// 只在最左上 UPPER 方块渲染，避免 9 个方块重复绘制
 		final IBlock.EnumSide side = IBlock.getStatePropertySafe(state, IBlock.SIDE_EXTENDED);
 		final IBlock.DoubleBlockHalf half = IBlock.getStatePropertySafe(state, IBlock.HALF);
 		if (side != IBlock.EnumSide.LEFT || half != IBlock.DoubleBlockHalf.UPPER) {
@@ -140,7 +136,6 @@ public class RenderCRTStationInfo1 extends BlockEntityRenderer<BlockCRTStationIn
 			graphics.rotateZDegrees(180);
 		});
 
-		// 单面：只画正面
 		final StoredMatrixTransformations matrix = baseMatrix.copy();
 		matrix.add(graphics -> graphics.translate(0, 0, Z_FACE));
 
@@ -176,8 +171,7 @@ public class RenderCRTStationInfo1 extends BlockEntityRenderer<BlockCRTStationIn
 			graphicsHolderNew.pop();
 		});
 
-		// 网络图片区：紧贴线路图右边，宽 2.6F × 高 1.2F，与线路图同高。URL 非空时异步下载并渲染（发光）。
-		// 未下载完成前不画（保持透明），下载完成后自动出现。
+		// 网络图片区：紧贴线路图右边，与线路图同高。URL 非空时异步下载，未完成前保持透明。
 		final String imageUrl = entity.getUrl();
 		if (!imageUrl.isEmpty()) {
 			WebImageCache.instance.request(imageUrl);
@@ -198,11 +192,10 @@ public class RenderCRTStationInfo1 extends BlockEntityRenderer<BlockCRTStationIn
 			graphicsHolderNew.pop();
 		});
 
-		// 双格指示牌内容：紧贴线路色矩形右边（左缘 -0.9，顶 1.45），每格 0.2F、格子间无间隔，
-		// 两层对应双层指示牌（行 0/1），透明背景、黑色文字。每格按 signId 复用 drawSignCRT 渲染。
+		// 双格指示牌内容：紧贴线路色矩形右边（左缘 -0.9，顶 1.45），格子间无间隔；
+		// 两层对应双层指示牌（行 0/1），透明背景黑字，每格按 signId 复用 drawSignCRT 渲染。
 		final String[][] signIds = entity.getSignIds();
 		if (signIds != null) {
-			// Skip rendering when all cells are empty
 			boolean allEmpty = true;
 			for (final String[] lineIds : signIds) {
 				if (lineIds != null) {
@@ -275,14 +268,7 @@ public class RenderCRTStationInfo1 extends BlockEntityRenderer<BlockCRTStationIn
 		}
 	}
 
-	/**
-	 * 根据保存的站台选择（selectedIds 第 0 行）确定线路，取该线路当前站的前一站站名。
-	 * 选中平台不在任何线路、或位于线路首站（且非环线）时返回 null。
-	 */
-	/**
-	 * 根据保存的站台选择（selectedIds 第 0 行）确定线路，取该线路当前站的后一站站名。
-	 * 选中平台不在任何线路、或位于线路末站（且非环线）时返回 null。
-	 */
+	/** 取选中线路当前站的后一站站名；当前站不在任何线路、或已是末站（且非环线）时返回 null。 */
 	private String findNextStationName(BlockCRTStationInfo1.BlockEntity entity) {
 		try {
 			final LongAVLTreeSet firstLineSelected = getFirstLineSelected(entity);
@@ -337,6 +323,7 @@ public class RenderCRTStationInfo1 extends BlockEntityRenderer<BlockCRTStationIn
 		return selectedIds.get(0);
 	}
 
+	/** 取选中线路当前站的前一站站名；当前站不在任何线路、或已是首站（且非环线）时返回 null。 */
 	private String findPreviousStationName(BlockCRTStationInfo1.BlockEntity entity) {
 		try {
 			final LongAVLTreeSet firstLineSelected = getFirstLineSelected(entity);

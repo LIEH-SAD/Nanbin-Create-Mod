@@ -12,11 +12,10 @@ import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 /**
- * 文本框类型的配置项：样式与 {@link NanbinUIConfigItem} 一致
- * （常态 20% 不透明度 #000000，悬停或聚焦时淡入到 40% 不透明度 #FFFFFF），
- * 但内容是一个可以直接输入的内嵌文本框，而不是二级菜单。
+ * 文本框配置项：样式与 {@link NanbinUIConfigItem} 一致（常态 20% 不透明度 #000000，
+ * 悬停或聚焦时淡入到 40% 不透明度 #FFFFFF），但内容是可输入的内嵌文本框，而不是二级菜单。
  *
- * <p>文本框不在屏幕的自动渲染列表里（避免盖住行底色），而是由本组件在内容区里自己绘制；
+ * 文本框不在屏幕的自动渲染列表里（避免盖住行底色），由本组件自行绘制；
  * 输入由 {@link NanbinUIScreen#registerInputChild} 登记的控件负责。
  */
 public class NanbinUITextFieldItem extends NanbinUIComponent {
@@ -53,17 +52,14 @@ public class NanbinUITextFieldItem extends NanbinUIComponent {
 
 	/**
 	 * 输入框为空时显示的灰色占位文本。
-	 *
-	 * <p>注意：{@code setSuggestion2} 是"跟随光标"的补全提示，
-	 * 输入内容后会紧跟在文字后面一起画出来，不能直接当占位符用；
-	 * 这里只在内容为空时才把它交给控件。
+	 * {@code setSuggestion2} 是跟随光标的补全提示，输入内容后会跟在文字后面一起画出，
+	 * 不能直接当占位符用；这里只在内容为空时才把它交给控件。
 	 */
 	public NanbinUITextFieldItem setSuggestion(@Nullable String suggestion) {
 		this.suggestion = suggestion;
 		return this;
 	}
 
-	/** 文本变化时的回调。 */
 	public NanbinUITextFieldItem setChangedListener(@Nullable Consumer<String> listener) {
 		this.textField.setChangedListener2(listener);
 		return this;

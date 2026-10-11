@@ -40,7 +40,6 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 	private static final boolean USE_CUSTOM_FONT = true;
 	private static final boolean WHITE_BACKGROUND = false;
 
-	// ---- 本站名牌渲染数据：字体、字号与布局比例（相对纹理高 H） ----
 	private static final FontType FONT_TYPE = FontType.SOURCE_HAN;
 	private static final int FONT_SIZE = 85;
 	private static final FontType FONT_TYPE_2 = FontType.SOURCE_SANS_3; // 圆内文字字体（仅纯数字用 Source Sans 3，其余用主字体 FONT_TYPE）
@@ -50,7 +49,6 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 	private static final float MIDDLE_BAR_END = 0F;
 	private static final float MIDDLE_BAR_WIDTH = 0F;
 	private static final float BOTTOM_BAR_START = 0.70F;  // 底条上缘（相对 H）
-	// ---- 文字排版参数 ----
 	private static final float LATIN_FONT_RATIO = 0.5F;    // 拉丁行字号 = FONT_SIZE * ratio
 	private static final float GAP_RATIO = 0.02F;          // 中/拉行距 = FONT_SIZE * ratio
 	private static final float VERTICAL_BIAS = 0.65F;      // 文字块垂直偏置
@@ -58,7 +56,6 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 	private static final float TEXT_MARGIN_DEFAULT = 0.04F;
 	private static final float TEXT_MARGIN_MEDIUM = 0.12F;
 	private static final float TEXT_MARGIN_SHORT = 0.20F;
-	// ---- 圆参数 ----
 	private static final float CIRCLE_CENTER_Y_OFFSET = 0F;   // 圆心相对基准位置的下移量 = H * ratio
 	private static final float CIRCLE_RADIUS_H_RATIO = 0.10F; // 圆半径上限 = H * ratio
 	private static final float CIRCLE_RADIUS_W_RATIO = 0.14F; // 圆半径上限 = W * ratio
@@ -161,7 +158,7 @@ public class RenderCRTStationName1 extends BlockEntityRenderer<BlockCRTStationNa
 			graphicsHolder.pop();
 		});
 
-		// ===== 调试：解析状态变化时输出一次日志（不再每秒刷屏） =====
+		// 解析状态变化时输出一次日志，避免每帧刷屏
 		final String stationColorHex = String.format("#%06X", stationColor);
 		final Platform debugPlatform = (savedPlatformId != 0) ? MinecraftClientData.getInstance().platformIdMap.get(savedPlatformId) : null;
 

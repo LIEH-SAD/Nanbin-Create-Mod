@@ -27,10 +27,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * JS 样式数据选择屏幕：点击编辑按钮后打开，动态列出当前站点可用的数据类别
- * （站台 / 车站 / 线路 / 出口 / 自定义文本），分别打开对应的选择器供脚本读取。
- * 只显示脚本实际调用的数据接口对应的按钮；脚本未调用任何数据接口时显示全部。
- * 选完后点击“保存”统一提交。
+ * JS 样式数据选择屏幕：点击编辑按钮后打开，列出当前站点可用的数据类别
+ * （站台 / 车站 / 线路 / 出口 / 自定义文本），分别打开对应选择器供脚本读取。
+ * 只显示脚本实际调用的数据接口对应的按钮，未调用任何接口时显示全部；“保存”统一提交。
  */
 public class JSSignDataScreen extends ScreenExtension implements IGui {
 
@@ -175,7 +174,6 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 			final int buttonY = startY + i * (BUTTON_HEIGHT + SPACING);
 			final int centerX = width / 2;
 
-			// Check if the button is within the visible area
 			if (buttonY + BUTTON_HEIGHT > TOP_PADDING && buttonY < height - BOTTOM_RESERVED) {
 				IDrawing.setPositionAndWidth(button, centerX - BUTTON_WIDTH / 2, buttonY, BUTTON_WIDTH);
 				button.visible = true;
@@ -209,7 +207,6 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 
 		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.nanbin.js_data.title").getString(), width / 2, 15, ARGB_WHITE);
 
-		// Draw scroll indicators
 		if (scrollIndex > 0) {
 			graphicsHolder.drawCenteredText("↑", width / 2, TOP_PADDING - 13, ARGB_GRAY);
 		}
@@ -217,7 +214,6 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 			graphicsHolder.drawCenteredText("↓", width / 2, height - BOTTOM_RESERVED + 13, ARGB_GRAY);
 		}
 
-		// Draw scrollbar
 		if (getMaxScroll() > 0) {
 			final int scrollbarX = width - SCROLLBAR_WIDTH - 4;
 			final int scrollbarY = TOP_PADDING;
@@ -228,8 +224,8 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 			// GuiDrawing 必须先 begin/finish，否则 drawRectangle 因 matrix 未初始化而变成空操作
 			final GuiDrawing scrollbarDrawing = new GuiDrawing(graphicsHolder);
 			scrollbarDrawing.beginDrawingRectangle();
-			scrollbarDrawing.drawRectangle(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_WIDTH, scrollbarY + scrollbarHeight, 0xFF000000); // Scrollbar background
-			scrollbarDrawing.drawRectangle(scrollbarX, thumbY, scrollbarX + SCROLLBAR_WIDTH, thumbY + thumbHeight, SCROLLBAR_COLOR); // Scrollbar thumb
+			scrollbarDrawing.drawRectangle(scrollbarX, scrollbarY, scrollbarX + SCROLLBAR_WIDTH, scrollbarY + scrollbarHeight, 0xFF000000);
+			scrollbarDrawing.drawRectangle(scrollbarX, thumbY, scrollbarX + SCROLLBAR_WIDTH, thumbY + thumbHeight, SCROLLBAR_COLOR);
 			scrollbarDrawing.finishDrawingRectangle();
 		}
 	}
@@ -245,14 +241,14 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 
 	@Override
 	public boolean mouseClicked2(double mouseX, double mouseY, int button) {
-		if (button == 0 && getMaxScroll() > 0) { // Left click
+		if (button == 0 && getMaxScroll() > 0) {
 			final int scrollbarX = width - SCROLLBAR_WIDTH - 4;
 			final int scrollbarY = TOP_PADDING;
 			final int scrollbarHeight = getVisibleHeight();
 
 			if (mouseX >= scrollbarX && mouseX < scrollbarX + SCROLLBAR_WIDTH && mouseY >= scrollbarY && mouseY < scrollbarY + scrollbarHeight) {
 				isScrolling = true;
-				return true; // Consume the event
+				return true;
 			}
 		}
 		return super.mouseClicked2(mouseX, mouseY, button);
@@ -260,7 +256,7 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 
 	@Override
 	public boolean mouseReleased2(double mouseX, double mouseY, int button) {
-		if (button == 0) { // Left click released
+		if (button == 0) {
 			isScrolling = false;
 		}
 		return super.mouseReleased2(mouseX, mouseY, button);
@@ -277,7 +273,7 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 			final double scrollRatio = (newThumbY - scrollbarY) / (scrollbarHeight - thumbHeight);
 			scrollIndex = (int) Math.round(getMaxScroll() * Math.max(0, Math.min(1, scrollRatio)));
 			updateButtonPositions();
-			return true; // Consume the event
+			return true;
 		}
 		return super.mouseDragged2(mouseX, mouseY, button, deltaX, deltaY);
 	}

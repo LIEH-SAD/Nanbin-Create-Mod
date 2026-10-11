@@ -22,7 +22,7 @@ function render(ctx, state, sign) {
 function dispose(ctx, state, sign) {
 }
 
-// ---------------- 线路屏：线路色块 + 线路名 ----------------
+// 线路屏：线路色块 + 线路名
 
 function renderRoute(ctx, sign) {
     var w = sign.getWidth();
@@ -53,7 +53,7 @@ function renderRoute(ctx, sign) {
     }
 }
 
-// ---------------- 出口屏：出口编号 + 目的地 ----------------
+// 出口屏：出口编号 + 目的地
 
 function renderExit(ctx, sign) {
     var w = sign.getWidth();
@@ -87,7 +87,7 @@ function renderExit(ctx, sign) {
     }
 }
 
-// ---------------- 站台屏 ----------------
+// 站台屏
 
 function renderPlatform(ctx, sign) {
     var w = sign.getWidth();
@@ -113,7 +113,7 @@ function renderPlatform(ctx, sign) {
         .draw(ctx);
 }
 
-// ---------------- 车站屏 ----------------
+// 车站屏
 
 function renderStation(ctx, sign) {
     var w = sign.getWidth();
@@ -139,7 +139,7 @@ function renderStation(ctx, sign) {
         .draw(ctx);
 }
 
-// ---------------- 自定义文本屏 / 其它 ----------------
+// 自定义文本屏 / 其它
 
 function renderCustom(ctx, sign) {
     var w = sign.getWidth();
@@ -163,7 +163,7 @@ function renderCustom(ctx, sign) {
         .draw(ctx);
 }
 
-// ---------------- 公共辅助函数 ----------------
+// 公共辅助函数
 
 // 数据接口返回的是 Java 数组（String[] / long[]），它没有 Array.prototype 上的方法，
 // 不能用 join / map / forEach / slice。这里手工拼接；也可以用 Java.from(arr) 转成 JS 数组。

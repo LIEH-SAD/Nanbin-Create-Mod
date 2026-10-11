@@ -17,15 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.Nanbin.InitClient.LOGGER;
 
 /**
- * 网络图片加载器：在后台线程用 HttpURLConnection 下载图片字节流，
- * 再用 ImageIO.read 解析（原生支持 PNG / JPEG / BMP 三大格式），
- * 最后回到渲染线程注册为动态纹理并缓存，供方块渲染使用。
+ * 网络图片加载器：后台线程用 HttpURLConnection 下载字节流，ImageIO 解析（PNG / JPEG / BMP），
+ * 再回到渲染线程注册为动态纹理并缓存，供方块渲染使用。
  *
- * 用法（渲染器中）：
- * <pre>
- * WebImageCache.instance.request(url);        // 触发异步下载（内部去重，可每帧调用）
- * Identifier id = WebImageCache.instance.get(url); // 未下载完成时返回 null
- * </pre>
+ * 渲染器中：{@code request(url)} 可每帧调用（内部去重），{@code get(url)} 未下载完成时返回 null。
  */
 public class WebImageCache {
 
@@ -66,7 +61,7 @@ public class WebImageCache {
 		if (imageCache.containsKey(url) || loadingUrls.contains(url)) {
 			return;
 		}
-		// 失败冷却期内不重试，避免每帧反复下载刷屏报错（最多每分钟一次）
+		// 失败冷却期内不重试
 		final Long lastFailedTime = failedUrls.get(url);
 		if (lastFailedTime != null && System.currentTimeMillis() - lastFailedTime < RETRY_INTERVAL_MS) {
 			return;
@@ -86,7 +81,6 @@ public class WebImageCache {
 		}
 	}
 
-	/** 记录失败时间戳，进入冷却期。 */
 	private void recordFailure(String url) {
 		failedUrls.put(url, System.currentTimeMillis());
 	}

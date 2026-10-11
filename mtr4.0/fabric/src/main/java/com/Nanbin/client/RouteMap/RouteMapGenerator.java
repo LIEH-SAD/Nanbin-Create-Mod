@@ -59,15 +59,15 @@ public class RouteMapGenerator implements IGui {
     }
 
     /**
-     * 解析服务指定站台的线路信息（主题色、线路色、线路编号）。
-     * 与线路颜色同源：simplifiedRoutes 采用增量更新，不会像 platform.routes 那样每次 sync 被清空重建。
-     * 编号优先用服务端同步到方块实体的真实 routeNumber，其次完整 Route 的 routeNumber，
-     * 都没有时按 MTR 名称规则从 simplifiedRoute.getName() 推导，保证编号与颜色同时可获取。
+     * 解析指定站台的线路信息（主题色、线路色、线路编号）。
+     * 数据源用 simplifiedRoutes：它是增量更新，不像 platform.routes 那样每次 sync 被清空重建。
+     * 编号优先级：服务端同步到方块实体的 routeNumber → 完整 Route 的 routeNumber →
+     * 按 MTR 名称规则从 simplifiedRoute.getName() 推导。
      *
-     * @param platformId         保存的站台 ID，0 表示未配置
-     * @param fallbackColor      无线路数据时的回退颜色（通常为站名颜色）
-     * @param syncedRouteNumber  服务端同步到方块实体的线路编号，可能为 null 或空串
-     * @return 解析结果，themeColor/routeColor/routeNumber 在数据缺失时回退
+     * @param platformId        保存的站台 ID，0 表示未配置
+     * @param fallbackColor     无线路数据时的回退颜色（通常为站名颜色）
+     * @param syncedRouteNumber 服务端同步到方块实体的线路编号，可能为 null 或空串
+     * @return themeColor/routeColor/routeNumber 在数据缺失时回退
      */
     public static ResolvedRouteData resolveRouteData(long platformId, int fallbackColor, String syncedRouteNumber) {
         int themeColor = fallbackColor;
@@ -98,7 +98,6 @@ public class RouteMapGenerator implements IGui {
                             }
                         }
                         if (route != null) {
-                            // 完整 Route 可用时，优先使用其真实的线路编号字段
                             final String realNumber = route.getRouteNumber();
                             if (realNumber != null && !realNumber.isEmpty()) {
                                 routeNumber = realNumber;
@@ -138,13 +137,122 @@ public class RouteMapGenerator implements IGui {
         }
         // MTR 规则：|| 之后的内容隐藏，只取第一部分
         final String primary = routeName.split("\\|\\|", -1)[0];
-        // 取主要段（第一个 | 之前），即线路名称的显式部分
         final int separatorIndex = primary.indexOf('|');
         final String mainSegment = separatorIndex >= 0 ? primary.substring(0, separatorIndex) : primary;
         return mainSegment.trim();
     }
 
+    /**
+     * 圆徽里只放纯线路编号：MTR 的编号字段为空时会退回线路名（如「8线」「1号线」），
+     * 这里剥掉「号线／线」后缀；本来就没有后缀的编号原样保留。
+     */
+    public static String cleanRouteNumber(String routeNumber) {
+        if (routeNumber == null) {
+            return "";
+        }
+        final String trimmed = routeNumber.trim();
+        if (trimmed.endsWith("号线")) {
+            return trimmed.substring(0, trimmed.length() - 2);
+        }
+        return trimmed.length() > 1 && trimmed.endsWith("线") ? trimmed.substring(0, trimmed.length() - 1) : trimmed;
+    }
+
     public record ResolvedRouteData(int themeColor, int routeColor, String routeNumber) { }
+
+    /**
+     * 吊板门上方站牌所需的显示数据，全部由站台 ID 解析（数据源与 RenderCRTStationName1 同源）。
+     *
+     * @param previousStationName 线路上一站名，线路首站（非环线）时为 null
+     * @param nextStationName     线路下一站名，线路末站（非环线）时为 null
+     * @param lineColor           线路颜色；无线路数据时回退为站色
+     */
+    public record PSDStationData(String stationName, String previousStationName, String nextStationName, String routeNumber, String stationNumber, int lineColor) { }
+
+    /**
+     * 解析吊板门上方站牌所需数据。站名/车站编号取自站台与所属车站，
+     * 前/后一站取自 platformId 所在 simplifiedRoute 的前后索引（环线首尾相接）。
+     *
+     * @return 站台不存在时返回 null（渲染器据此不绘制站牌）
+     */
+    public static PSDStationData resolvePSDStationData(long platformId) {
+        if (platformId == 0) {
+            return null;
+        }
+        try {
+            final MinecraftClientData clientData = MinecraftClientData.getInstance();
+            final Platform platform = clientData.platformIdMap.get(platformId);
+            if (platform == null) {
+                return null;
+            }
+
+            final Station station = platform.area;
+            final String stationName = station == null ? "" : station.getName();
+            final String stationNumber = platform.getName() == null ? "" : platform.getName();
+            String previousStationName = null;
+            String nextStationName = null;
+            String routeNumber = "";
+            boolean hasRealNumber = false;
+            int lineColor = station == null ? 0 : station.getColor();
+
+            for (final SimplifiedRoute simplifiedRoute : clientData.simplifiedRoutes) {
+                final int index = simplifiedRoute.getPlatformIndex(platformId);
+                if (index < 0) {
+                    continue;
+                }
+
+                lineColor = simplifiedRoute.getColor();
+                routeNumber = deriveRouteNumberFromName(simplifiedRoute.getName());
+                final boolean circular = simplifiedRoute.getCircularState() != Route.CircularState.NONE;
+                final int stationCount = simplifiedRoute.getPlatforms().size();
+
+                if (index > 0) {
+                    previousStationName = simplifiedRoute.getPlatforms().get(index - 1).getStationName();
+                } else if (index == 0 && circular && stationCount > 0) {
+                    // 环线：首站的前一站是末站
+                    previousStationName = simplifiedRoute.getPlatforms().get(stationCount - 1).getStationName();
+                }
+
+                if (index + 1 < stationCount) {
+                    nextStationName = simplifiedRoute.getPlatforms().get(index + 1).getStationName();
+                } else if (circular && stationCount > 0) {
+                    // 环线：末站的后一站是首站
+                    nextStationName = simplifiedRoute.getPlatforms().get(0).getStationName();
+                }
+
+                Route fullRoute = clientData.routeIdMap.get(simplifiedRoute.getId());
+                if (fullRoute == null) {
+                    for (final Route candidate : clientData.routes) {
+                        if (candidate.getId() == simplifiedRoute.getId()) {
+                            fullRoute = candidate;
+                            break;
+                        }
+                    }
+                }
+                if (fullRoute != null && fullRoute.getRouteNumber() != null && !fullRoute.getRouteNumber().isEmpty()) {
+                    routeNumber = fullRoute.getRouteNumber();
+                    hasRealNumber = true;
+                }
+                break;
+            }
+
+            // 兜底：routeIdMap/data.routes 尚未同步时，用 platform.routes 里真实的线路编号字段
+            // （与 RenderCRTStationName 的 resolveRouteData 同源，避免圆徽只拿到「8线」这类线路名）
+            if (!hasRealNumber && platform.routes != null) {
+                for (final Route fallbackRoute : platform.routes) {
+                    final String fallbackNumber = fallbackRoute.getRouteNumber();
+                    if (fallbackNumber != null && !fallbackNumber.isEmpty()) {
+                        routeNumber = fallbackNumber;
+                        break;
+                    }
+                }
+            }
+
+            return new PSDStationData(stationName, previousStationName, nextStationName, routeNumber, stationNumber, lineColor);
+        } catch (Exception e) {
+            InitClient.LOGGER.error("RouteMapGenerator: Error resolving PSD sign data for platform {}", platformId, e);
+            return null;
+        }
+    }
 
     protected record StationPosition(float x, float y, boolean isCommon) { }
 

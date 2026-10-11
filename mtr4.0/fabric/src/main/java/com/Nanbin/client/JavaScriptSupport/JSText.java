@@ -13,8 +13,7 @@ public final class JSText {
 	}
 
 	/**
-	 * 测量文本按当前渲染规则渲染后的自然宽度（世界单位）。
-	 * height 为文字框高度（如 sign.getHeight()），多行文本返回最宽行宽度。
+	 * 测量文本渲染后的自然宽度（世界单位）。height 为文字框高度，多行文本返回最宽行宽度。
 	 */
 	public double measure(String text, double height) {
 		return RenderCRTRailwaySign.measureTextWidth(text, (float) height);
@@ -66,7 +65,6 @@ public final class JSText {
 			return this;
 		}
 
-		/** 便捷方法：加粗文字。 */
 		public JSTextBuilder bold() {
 			this.bold = true;
 			return this;
@@ -77,7 +75,7 @@ public final class JSText {
 			return this;
 		}
 
-		/** 便捷方法：文字在框内水平+垂直居中（中英文混合时按字形宽度对齐），等价于 centered(true)。 */
+		/** 水平+垂直居中（中英文按字形宽度对齐），等价于 centered(true)。 */
 		public JSTextBuilder centered() {
 			this.centered = true;
 			return this;

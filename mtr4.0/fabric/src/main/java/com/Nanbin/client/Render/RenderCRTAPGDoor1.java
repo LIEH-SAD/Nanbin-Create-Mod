@@ -2,6 +2,7 @@ package com.Nanbin.client.Render;
 
 import com.Nanbin.InitClient;
 import com.Nanbin.Registry.RegBlock.*;
+import com.Nanbin.Registry.RegBlock.flag.APGDoorNumbering;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Position;
@@ -33,22 +34,16 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
     private static final ModelAPGDoorLight CRT_APG_LIGHT_1 = new ModelAPGDoorLight();
     private static final ModelAPGDoorGround CRT_APG_GROUND_LIGHT_1 = new ModelAPGDoorGround();
     private static final ModelSingleCube CRT_APG_DOOR_LOCKED_1 = new ModelSingleCube(6, 6, 5, 20, 1, 3, 3, 0);
-    /** 屏蔽门编号铭牌：线路色正方形 + 白色编号，位于右门页平台侧外立面右侧、中上部。
-     *  ModelSingleCube 的 z 经 z-8 映射，z=2 → 本地 z∈[-6,-5]，即贴住门页背板(z=-6)并向平台侧凸出。
-     *  length/height=3 → 3/16 格小方块；depth=0.1 → 1/10 格厚。 */
     private static final ModelSingleCube CRT_APG_DOOR_NUMBER_1 = new ModelSingleCube(16, 16, 10, 4, 2, 3, 3, 0.1F);
 
     private static final double ARRIVAL_WARNING_BLINK_PERIOD = 40.0;
     private static final double DOOR_MOVING_BLINK_PERIOD = 20.0;
     private static final long ARRIVAL_WARNING_TIME_MS = 60000;
     private static final int PLATFORM_SEARCH_RANGE = 3;
-    /** 门编号结果缓存时长：编号沿墙扫描开销较大（最多 512×2 格），避免每帧全量扫描。 */
     private static final long DOOR_NUMBER_CACHE_TTL_MS = 1000;
 
     private final Map<BlockPos, Double> previousOpenMap = new HashMap<>();
-    /** doorPos -> {number, cacheTimeMillis}。 */
     private final Map<BlockPos, long[]> doorNumberCache = new HashMap<>();
-    /** doorPos -> {lineColor, cacheTimeMillis}。 */
     private final Map<BlockPos, long[]> doorColorCache = new HashMap<>();
 
     public RenderCRTAPGDoor1(Argument dispatcher, int type) {
@@ -92,8 +87,6 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
         return false;
     }
 
-    /** 判断门是否位于站台沿线（按站台两端坐标的 XZ 包围盒判定，含 PLATFORM_SEARCH_RANGE 裕量）。
-     *  原实现只比较站台中点，导致长站台只有中间的门能匹配到站台。 */
     private boolean isNearPlatform(BlockPos doorPos, Platform platform) {
         final Position position1 = platform.getRandomPosition();
         final Position position2 = platform.getOtherPosition(position1);
@@ -104,7 +97,6 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
         return doorPos.getX() >= minX && doorPos.getX() <= maxX && doorPos.getZ() >= minZ && doorPos.getZ() <= maxZ;
     }
 
-    /** 带 TTL 缓存的门编号：避免每帧沿墙全量扫描（最多 512×2 格），最多每秒重算一次。 */
     private int getDoorNumberCached(World world, BlockPos blockPos) {
         final long now = System.currentTimeMillis();
         final long[] cached = doorNumberCache.get(blockPos);
@@ -119,7 +111,6 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
         return number;
     }
 
-    /** 解析门所在站台线路的颜色（RGB）；无线路时返回灰色。 */
     private int getDoorLineColor(BlockPos doorPos) {
         try {
             final MinecraftClientData clientData = MinecraftClientData.getInstance();
@@ -139,7 +130,6 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
         return 0xFF929498;
     }
 
-    /** 带 TTL 缓存的线路色：避免每帧遍历全部站台与线路。 */
     private int getDoorLineColorCached(BlockPos doorPos) {
         final long now = System.currentTimeMillis();
         final long[] cached = doorColorCache.get(doorPos);
@@ -154,7 +144,6 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
         return color;
     }
 
-    /** 在右门页外立面渲染屏蔽门编号铭牌（随门页开合移动）。 */
     private void renderDoorNumberPlate(World world, BlockPos blockPos, StoredMatrixTransformations storedMatrixTransformations, int light, int overlay) {
         final int doorNumber = getDoorNumberCached(world, blockPos);
         if (doorNumber > 0) {
@@ -225,7 +214,7 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
                             MainRenderer.scheduleRender(new Identifier(String.format("nanbin:textures/block/crt_apg_door_light_%s_old.png", lightTexture)), false, renderLayer, (graphicsHolderNew, offset) -> {
                                 storedMatrixTransformationsLight.transform(graphicsHolderNew, offset);
                                 graphicsHolderNew.translate((double) -0.50F, (double) 0.0F, (double) 0.0F);
-                                graphicsHolderNew.scale(0.5F, 1.0F, 1.0F);
+                                //graphicsHolderNew.scale(0.5F, 1.0F, 1.0F);
                                 CRT_APG_LIGHT_1.render(graphicsHolderNew, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
                                 graphicsHolderNew.pop();
                             });
@@ -298,7 +287,7 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
 
             private ModelAPGDoorLight() {
                 super(8, 8);
-                this.bone.setTextureUVOffset(0, 4).addCuboid(-8.0F, -1.5F, -5.2F, 4, 1, 1, 0.05F, false);
+                this.bone.setTextureUVOffset(0, 4).addCuboid(-8.0F, -1.5F, -5.2F, 3, 1, 1, 0.05F, false);
                 this.buildModel();
             }
 
@@ -310,9 +299,6 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
             }
         }
 
-    /**
-     * Ground lightning for 1st-gen APG door (flash).
-     */
     private static class ModelAPGDoorGround extends EntityModelExtension<EntityAbstractMapping> {
         private final ModelPartExtension bone = this.createModelPart();
 

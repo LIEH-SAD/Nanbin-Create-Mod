@@ -9,9 +9,6 @@ import static org.mtr.mod.block.BlockPSDAPGDoorBase.END;
 import static org.mtr.mod.block.BlockPSDAPGDoorBase.UNLOCKED;
 import static org.mtr.mod.block.IBlock.HALF;
 
-/**
- * @since 1.1.1
- */
 public interface BlockFlagDoorSingle
 {
     boolean isLeft();

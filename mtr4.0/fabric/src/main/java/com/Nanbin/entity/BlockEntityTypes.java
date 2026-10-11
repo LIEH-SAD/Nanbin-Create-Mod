@@ -35,6 +35,8 @@ public class BlockEntityTypes {
     public static final BlockEntityTypeRegistryObject<BlockBusTicketProcessor.BlockEntity> BUS_TICKET_PROCESSOR;
     public static final BlockEntityTypeRegistryObject<BlockCRTStationInfo1.BlockEntity> CRT_STATION_INFO_1;
     public static final BlockEntityTypeRegistryObject<BlockCRTStationInfo1Double.BlockEntity> CRT_STATION_INFO_1_DOUBLE;
+    public static final BlockEntityTypeRegistryObject<BlockCRTPSDDoor1.BlockEntity> CRT_PSD_DOOR_1;
+    public static final BlockEntityTypeRegistryObject<BlockCRTPSDTop1.BlockEntity> CRT_PSD_TOP_1;
 
     static {
         CRT_STATION_NAME_1 = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "crt_station_name_1"), BlockCRTStationName1.BlockEntity::new, Blocks.CRT_STATION_NAME_1::get);
@@ -65,6 +67,8 @@ public class BlockEntityTypes {
         BUS_TICKET_PROCESSOR = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "bus_ticket_processor"), BlockBusTicketProcessor.BlockEntity::new, Blocks.BUS_TICKET_PROCESSOR::get);
         CRT_STATION_INFO_1 = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "crt_station_info_1"), BlockCRTStationInfo1.BlockEntity::new, Blocks.CRT_STATION_INFO_1::get);
         CRT_STATION_INFO_1_DOUBLE = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "crt_station_info_1_double"), BlockCRTStationInfo1Double.BlockEntity::new, Blocks.CRT_STATION_INFO_1_DOUBLE::get);
+        CRT_PSD_DOOR_1 = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "crt_psd_door_1"), BlockCRTPSDDoor1.BlockEntity::new, Blocks.CRT_PSD_DOOR_1::get);
+        CRT_PSD_TOP_1 = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "crt_psd_top_1"), BlockCRTPSDTop1.BlockEntity::new, Blocks.CRT_PSD_TOP_1::get);
     }
 
     public static BlockEntityTypeRegistryObject<BlockCRTRailwaySign.BlockEntityCRTRailwaySign> getRailwaySignType(int length, boolean isOdd) {

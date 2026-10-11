@@ -5,6 +5,7 @@ import com.Nanbin.ItemsGroup.ItemsGroup;
 import com.Nanbin.Registry.RegItem.ItemCRTAPG1;
 import com.Nanbin.Registry.RegItem.ItemCRTAPG2;
 import com.Nanbin.Registry.RegItem.ItemCRTEscalator;
+import com.Nanbin.Registry.RegItem.ItemCRTPSD1;
 import com.Nanbin.Registry.RegItem.ItemPhone;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.Item;
@@ -23,6 +24,9 @@ public class Items {
     public final static ItemRegistryObject CRT_APG_DOOR_2;
     public final static ItemRegistryObject CRT_APG_GLASS_2;
     public final static ItemRegistryObject CRT_APG_GLASS_END_2;
+    public final static ItemRegistryObject CRT_PSD_GLASS_1;
+    public final static ItemRegistryObject CRT_PSD_GLASS_END_1;
+    public final static ItemRegistryObject CRT_PSD_DOOR_1;
     public final static ItemRegistryObject CRT_ESCALATOR;
 
     static {
@@ -33,6 +37,9 @@ public class Items {
         CRT_APG_DOOR_2 = Init.REGISTRY.registerItem(new Identifier(MOD_ID, "crt_apg_door_2"), (itemSettings) ->  new Item(new ItemCRTAPG2(Blocks.CRT_APG_DOOR_2, itemSettings)), ItemsGroup.CRT);
         CRT_APG_GLASS_2 = Init.REGISTRY.registerItem(new Identifier(MOD_ID, "crt_apg_glass_2"), (itemSettings) ->  new Item(new ItemCRTAPG2(Blocks.CRT_APG_GLASS_2, itemSettings)), ItemsGroup.CRT);
         CRT_APG_GLASS_END_2 = Init.REGISTRY.registerItem(new Identifier(MOD_ID, "crt_apg_glass_end_2"), (itemSettings) ->  new Item(new ItemCRTAPG2(Blocks.CRT_APG_GLASS_END_2, itemSettings)), ItemsGroup.CRT);
+        CRT_PSD_GLASS_1 = Init.REGISTRY.registerItem(new Identifier(MOD_ID, "crt_psd_glass_1"), (itemSettings) -> new Item(new ItemCRTPSD1(Blocks.CRT_PSD_GLASS_1, itemSettings, false)), ItemsGroup.CRT);
+        CRT_PSD_GLASS_END_1 = Init.REGISTRY.registerItem(new Identifier(MOD_ID, "crt_psd_glass_end_1"), (itemSettings) -> new Item(new ItemCRTPSD1(Blocks.CRT_PSD_GLASS_END_1, itemSettings, false)), ItemsGroup.CRT);
+        CRT_PSD_DOOR_1 = Init.REGISTRY.registerItem(new Identifier(MOD_ID, "crt_psd_door_1"), (itemSettings) -> new Item(new ItemCRTPSD1(Blocks.CRT_PSD_DOOR_1, itemSettings, true)), ItemsGroup.CRT);
         CRT_ESCALATOR = Init.REGISTRY.registerItem(new Identifier(MOD_ID, "crt_escalator"), (itemSettings) -> new Item(new ItemCRTEscalator(itemSettings)), ItemsGroup.CRT);
     }
 

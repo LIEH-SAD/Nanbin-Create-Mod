@@ -19,8 +19,7 @@ public final class FontRenderUtils {
 	}
 
 	/**
-	 * Gets the current texture height based on MTR dynamic texture resolution setting.
-	 * Resolution range: 0-7, linear growth: 128, 256, 384, 512, 640, 768, 896, 1024
+	 * Resolution range 0-7; height grows linearly: 128, 256, 384, 512, 640, 768, 896, 1024.
 	 */
 	public static int getTextureHeight() {
 		final int resolution = Config.getClient().getDynamicTextureResolution();
@@ -28,9 +27,8 @@ public final class FontRenderUtils {
 	}
 
 	/**
-	 * Gets the current scale factor based on dynamic texture resolution.
-	 * Calibrated so that scale = 1.0 at original 512px texture height.
-	 * Resolution 0 (128px): 0.25x, Resolution 3 (512px): 1.0x, Resolution 7 (1024px): 2.0x
+	 * Calibrated so that scale = 1.0 at the original 512px texture height.
+	 * Resolution 0 (128px): 0.25x, 3 (512px): 1.0x, 7 (1024px): 2.0x.
 	 */
 	public static float getResolutionScale() {
 		return (float) getTextureHeight() / 512.0F;

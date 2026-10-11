@@ -5,11 +5,10 @@ import java.util.Map;
 
 /**
  * 从 nanbin:signs.json 中解析出来的、随告示牌标志一起注册的自定义文字样式。
- * <p>
  * MTR 原版 {@code SignResource} 只识别 id/textureResource/backgroundColor/customText/
- * flipTexture/flipCustomText/small，因此 textColor/textSize/textBold 由
- * {@link com.Nanbin.mixin.CustomResourceLoaderMixin} 单独读取并存放到这里，
- * 渲染器（RenderCRTRailwaySign）据此调整线路编号等纯文字格子的显示。
+ * flipTexture/flipCustomText/small，故 textColor/textSize/textBold 由
+ * {@link com.Nanbin.mixin.CustomResourceLoaderMixin} 单独读取后存到这里，
+ * 供渲染器（RenderCRTRailwaySign）调整线路编号等纯文字格子的显示。
  */
 public final class SignTextStyleConfig {
 
@@ -31,10 +30,7 @@ public final class SignTextStyleConfig {
 		return STYLES.get(signId);
 	}
 
-	/**
-	 * 解析 "#RRGGBB" / "#AARRGGBB"（也允许不带 #）为 ARGB int。
-	 * 6 位十六进制补全为不透明（0xFFRRGGBB）；解析失败返回 0（表示未设置）。
-	 */
+	/** 解析 "#RRGGBB" / "#AARRGGBB"（# 可省）为 ARGB int；6 位补成不透明，解析失败返回 0（未设置）。 */
 	public static int parseColor(String color) {
 		if (color == null || color.isEmpty()) {
 			return 0;
@@ -57,7 +53,6 @@ public final class SignTextStyleConfig {
 		public final int textColor;
 		/** 字号倍率，1.0 表示默认（线路编号默认填满整格）。 */
 		public final float textSize;
-		/** 是否加粗。 */
 		public final boolean textBold;
 
 		public SignTextStyle(int textColor, float textSize, boolean textBold) {

@@ -59,7 +59,6 @@ public class CustomResourceLoaderMixin {
 				}
 			});
 
-			// 加载 JS 指示牌配置
 			JSSignLoader.reload();
 		} catch (ReflectiveOperationException | RuntimeException e) {
 			throw new RuntimeException("Failed to register Nanbin custom railway signs", e);

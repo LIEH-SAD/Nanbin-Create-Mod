@@ -2,6 +2,7 @@ package com.Nanbin.client.Render;
 
 import com.Nanbin.InitClient;
 import com.Nanbin.Registry.RegBlock.*;
+import com.Nanbin.Registry.RegBlock.flag.APGDoorNumbering;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
 import org.mtr.core.data.Platform;
 import org.mtr.core.data.Position;
@@ -32,22 +33,15 @@ public class RenderCRTAPGDoor2<T extends BlockCRTAPGDoor2.BlockEntityBase> exten
     private static final ModelAPGDoorLight CRT_APG_LIGHT_2 = new ModelAPGDoorLight();
     private static final ModelAPGDoorGround CRT_APG_GROUND_LIGHT_2 = new ModelAPGDoorGround();
     private static final ModelSingleCube CRT_APG_DOOR_LOCKED_2 = new ModelSingleCube(6, 6, 5, 10, 1, 6, 6, 0);
-    /** 屏蔽门编号铭牌：线路色正方形 + 白色编号，位于右门页平台侧外立面右侧、中上部。
-     *  ModelSingleCube 的 z 经 z-8 映射，z=2 → 本地 z∈[-6,-5]，即贴住门页背板(z=-6)并向平台侧凸出。
-     *  length/height=3 → 3/16 格小方块；depth=0.1 → 1/10 格厚。 */
     private static final ModelSingleCube CRT_APG_DOOR_NUMBER_2 = new ModelSingleCube(16, 16, 10, 4, 2, 3, 3, 0.1F);
-
     private static final double ARRIVAL_WARNING_BLINK_PERIOD = 40.0;
     private static final double DOOR_MOVING_BLINK_PERIOD = 20.0;
     private static final long ARRIVAL_WARNING_TIME_MS = 60000;
     private static final int PLATFORM_SEARCH_RANGE = 3;
-    /** 门编号结果缓存时长：编号沿墙扫描开销较大（最多 512×2 格），避免每帧全量扫描。 */
     private static final long DOOR_NUMBER_CACHE_TTL_MS = 1000;
 
     private final Map<BlockPos, Double> previousOpenMap = new HashMap<>();
-    /** doorPos -> {number, cacheTimeMillis}。 */
     private final Map<BlockPos, long[]> doorNumberCache = new HashMap<>();
-    /** doorPos -> {lineColor, cacheTimeMillis}。 */
     private final Map<BlockPos, long[]> doorColorCache = new HashMap<>();
 
     public RenderCRTAPGDoor2(Argument dispatcher, int type) {
@@ -233,8 +227,7 @@ public class RenderCRTAPGDoor2<T extends BlockCRTAPGDoor2.BlockEntityBase> exten
                         }
                     }
                     if (!half) {
-                        // Use different textures for left/right sides to avoid flipping issues
-                        // Demand Users Choose CRT Platform to avoid textures error
+                        // Left/right use separate textures to avoid mirroring artifacts; the ground light needs a CRT platform block below.
                         Block block = world.getBlockState(blockPos.offset(Direction.DOWN)).getBlock();
                         if (block.data instanceof BlockCRTPlatform) {
                             String groundTexture = side ? "crt_ground_light_off.png" : "crt_ground_light_off_flipped.png";
@@ -298,17 +291,13 @@ public class RenderCRTAPGDoor2<T extends BlockCRTAPGDoor2.BlockEntityBase> exten
             }
         }
 
-    /**
-     * Ground lightning for 2nd-gen APG door (no flash).
-     * A flat 1x1 block square (16x1x16 pixels) rendered on the floor at the bottom of the door.
-     * Texture file is reserved at nanbin:textures/block/crt_apg_ground_light.png.
-     */
+    /** Flat 1x1 ground light for the 2nd-gen APG door (no flash); texture reserved at nanbin:textures/block/crt_apg_ground_light.png. */
     private static class ModelAPGDoorGround extends EntityModelExtension<EntityAbstractMapping> {
         private final ModelPartExtension bone = this.createModelPart();
 
         private ModelAPGDoorGround() {
             super(16, 16);
-            this.bone.setTextureUVOffset(0, 0).addCuboid(-8.0F, 0.0F, -8.0F, 16, 1, 16, 0.0F, false);
+            this.bone.setTextureUVOffset(0, 0).addCuboid(-8.0F, 0.0F, -8.0F, 16, 9, 16, 0.0F, false);
             this.buildModel();
         }
 

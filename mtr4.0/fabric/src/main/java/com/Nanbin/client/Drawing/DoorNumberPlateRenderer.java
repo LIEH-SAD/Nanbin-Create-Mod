@@ -33,11 +33,9 @@ public final class DoorNumberPlateRenderer {
 			g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 			g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
 
-			// 线路色正方形
 			g.setColor(new Color(lineColor | 0xFF000000, true));
 			g.fillRect(0, 0, S, S);
 
-			// 白色编号，水平/垂直居中并缩放到留边内
 			final String text = Integer.toString(number);
 			Font font = rawFont.deriveFont(Font.PLAIN, Math.max(1, Math.round(S * fontScale)));
 			int w = FontRenderUtils.getStringWidth(text, font);

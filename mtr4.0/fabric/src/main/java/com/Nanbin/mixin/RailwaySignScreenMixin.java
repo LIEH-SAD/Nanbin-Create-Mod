@@ -29,8 +29,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 加入特点的贴图
- * 加入直观方便的工具
+ * 扩展 MTR 的 {@link RailwaySignScreen}：加入复制／粘贴／清空／撤销按钮，并支持用 JS 脚本整屏渲染指示牌内容。
  */
 @Mixin(value = RailwaySignScreen.class, remap = false)
 public abstract class RailwaySignScreenMixin {
@@ -145,7 +144,7 @@ public abstract class RailwaySignScreenMixin {
 		}
 	}
 
-	//神秘小按钮
+	// 复制／粘贴／清空／撤销按钮
 	@Inject(method = "init2", at = @At("TAIL"))
 	private void nanbin$addCopyPasteButtons(CallbackInfo ci) {
 		final ScreenExtension screen = (ScreenExtension) (Object) this;
@@ -176,7 +175,7 @@ public abstract class RailwaySignScreenMixin {
 		screen.addChild(new ClickableWidget(nanbin$clearButton));
 		screen.addChild(new ClickableWidget(nanbin$undoButton));
 
-		// 屏幕底部 JS 样式选择按钮，完全覆盖版本
+		// 屏幕底部通栏的 JS 样式选择按钮
 		nanbin$jsStyleButton = new ButtonWidgetExtension(0, screen.height - 20, screen.width, 20, nanbin$getJSStyleButtonMessage(), button -> nanbin$openJSStyleSelector());
 		screen.addChild(new ClickableWidget(nanbin$jsStyleButton));
 
@@ -222,7 +221,6 @@ public abstract class RailwaySignScreenMixin {
 		})));
 	}
 
-	/** Update edit control states based on JS style status. */
 	@Unique
 	private void nanbin$applyLockState() {
 		final boolean locked = nanbin$hasJSStyle();

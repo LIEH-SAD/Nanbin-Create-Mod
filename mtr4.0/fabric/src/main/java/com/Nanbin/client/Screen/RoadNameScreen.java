@@ -27,7 +27,6 @@ public class RoadNameScreen extends MTRScreenBase implements IGui {
 	private static final int COLOR_TEXT_MAIN = 0xFFFFFFFF;
 	private static final int COLOR_TEXT_CORNER = 0xFF0059C6;
 
-	/** 默认字号 */
 	private static final int FONT_SIZE_MAIN = 98;
 	private static final int FONT_SIZE_SUB = 46;
 	private static final int FONT_SIZE_CORNER = 46;
@@ -40,7 +39,7 @@ public class RoadNameScreen extends MTRScreenBase implements IGui {
 
 	private final BlockPos blockPos;
 	private final String[] initialTexts;
-	/** 屏幕当前显示的文本，随复制/粘贴/清空/撤回更新，屏幕重新初始化时据此恢复，避免被 initialTexts 覆盖。 */
+	/** 随复制/粘贴/清空/撤回更新；重新初始化界面时用它恢复，避免被 initialTexts 覆盖。 */
 	private String[] currentTexts;
 	private final TextFieldWidgetExtension[] textFields = new TextFieldWidgetExtension[4];
 
@@ -86,7 +85,6 @@ public class RoadNameScreen extends MTRScreenBase implements IGui {
 			fieldY += ROW_SPACING;
 		}
 
-		// 保存按钮：把四个文本框内容发回服务器并关闭
 		final ButtonWidgetExtension saveButton = new ButtonWidgetExtension(fieldX, fieldY + 6, fieldWidth , TEXT_FIELD_HEIGHT, TextHelper.translatable("gui.nanbin.save"), button -> {
 			final String[] texts = new String[4];
 			for (int i = 0; i < textFields.length; i++) {
@@ -97,7 +95,7 @@ public class RoadNameScreen extends MTRScreenBase implements IGui {
 		});
 		addChild(new ClickableWidget(saveButton));
 
-		//便捷按钮
+		// 便捷按钮
 		final int buttonX = this.width - 35;
 		final int buttonY = 60;
 
@@ -132,7 +130,6 @@ public class RoadNameScreen extends MTRScreenBase implements IGui {
 		addChild(new ClickableWidget(undoButton));
 	}
 
-	/** 收集四个文本框的当前内容。 */
 	private String[] getTexts() {
 		final String[] texts = new String[textFields.length];
 		for (int i = 0; i < textFields.length; i++) {
@@ -142,7 +139,6 @@ public class RoadNameScreen extends MTRScreenBase implements IGui {
 		return texts;
 	}
 
-	/** 将内容写回四个文本框，并同步记录为当前文本。 */
 	private void setTexts(String[] texts) {
 		currentTexts = texts == null ? new String[]{"", "", "", ""} : texts.clone();
 		for (int i = 0; i < Math.min(textFields.length, currentTexts.length); i++) {
@@ -157,7 +153,6 @@ public class RoadNameScreen extends MTRScreenBase implements IGui {
 		}
 	}
 
-	/** 获取第 index 个文本框的内容（0-3），供后续保存/渲染使用。 */
 	public String getText(int index) {
 		if (index < 0 || index >= textFields.length) {
 			return "";
@@ -197,9 +192,9 @@ public class RoadNameScreen extends MTRScreenBase implements IGui {
 		guiDrawing.drawTexture(textureX, textureY, textureX + textureWidth, textureY + textureHeight, 0F, 0F, 1F, 1F);
 		guiDrawing.finishDrawingTexture();
 
-		// 显示框 1：白色，居中于整个贴图，默认 48，文本过大自动等比缩小
+		// 显示框 1：白色，居中于整个贴图
 		drawDisplay(guiDrawing, textFields[0].getText2(), 0.5F, 0.35F, 0.92F, 0.40F, FONT_SIZE_MAIN, COLOR_TEXT_MAIN, 0);
-		// 显示框 2：白色，位于显示框 1 下方避免重叠，默认 16，文本过大自动等比缩小
+		// 显示框 2：白色，位于显示框 1 下方避免重叠
 		drawDisplay(guiDrawing, textFields[1].getText2(), 0.5F, 0.55F, 0.90F, 0.20F, FONT_SIZE_SUB, COLOR_TEXT_MAIN, 0);
 		// 显示框 3：蓝色，贴图左下角（底部白条区域）；文字左边距贴图左边 0.04F
 		drawDisplay(guiDrawing, textFields[2].getText2(), 0.04F, 0.9375F, 0.92F, 0.12F, FONT_SIZE_CORNER, COLOR_TEXT_CORNER, -1);
@@ -208,10 +203,9 @@ public class RoadNameScreen extends MTRScreenBase implements IGui {
 	}
 
 	/**
-	 * 将文本渲染成紧贴内容的贴图，并以 (centerX, centerY) 为中心等比缩放到最大 maxW x maxH 的显示框内。
-	 * 文本较短时保持默认字号，文本过大时自动等比缩小。
+	 * 文本过长时等比缩小，不会放大（maxW/maxH 是不超过 1 的比例）。
 	 *
-	 * @param alignX 水平对齐方式：0=居中（centerX 为文字中心），-1=左对齐（centerX 为文字左边），1=右对齐（centerX 为文字右边）
+	 * @param alignX 0=居中（centerX 为文字中心），-1=左对齐（centerX 为文字左边），1=右对齐（centerX 为文字右边）
 	 */
 	private void drawDisplay(GuiDrawing guiDrawing, String text, float centerX, float centerY, float maxW, float maxH, int fontSize, int color, int alignX) {
 		if (text.isEmpty()) {
@@ -230,11 +224,11 @@ public class RoadNameScreen extends MTRScreenBase implements IGui {
 		final float cy = textureY + textureHeight * centerY;
 		final float x;
 		if (alignX == -1) {
-			x = cx;             // 左对齐：centerX 表示文字左边
+			x = cx;
 		} else if (alignX == 1) {
-			x = cx - w;          // 右对齐：centerX 表示文字右边
+			x = cx - w;
 		} else {
-			x = cx - w / 2.0F;   // 居中
+			x = cx - w / 2.0F;
 		}
 		final float y = cy - h / 2.0F;
 

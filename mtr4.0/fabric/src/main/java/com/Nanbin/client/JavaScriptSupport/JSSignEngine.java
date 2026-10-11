@@ -27,12 +27,11 @@ public final class JSSignEngine {
 	private static final Map<String, Object> RESULT_CACHE = new HashMap<>();
 	private static final Map<String, ScriptEngine> ENGINE_CACHE = new HashMap<>();
 	private static final Map<String, JSSignInstance> INSTANCE_CACHE = new HashMap<>();
-	// 懒加载：ScriptEngineManager 构造会通过 ServiceLoader 扫描脚本引擎，
-	// 若在 mod 类加载器下扫描异常会导致 JSSignEngine 类初始化失败（NoClassDefFoundError），
-	// 进而连累引用它的渲染器。因此延迟到首次需要时创建。
+	// 懒加载：ScriptEngineManager 构造时经 ServiceLoader 扫描引擎，在 mod 类加载器下可能抛异常，
+	// 使 JSSignEngine 类初始化失败（NoClassDefFoundError）并连累引用它的渲染器，所以延迟到首次使用再建。
 	private static ScriptEngineManager engineManager;
 	/** ServiceLoader 发现失败时的直接实例化 fallback（Minecraft 特殊类加载器下 ServiceLoader 可能找不到服务文件）。 */
-	private static ScriptEngine nashornEngine; // lazily created
+	private static ScriptEngine nashornEngine;
 	/** 每个脚本实际调用的数据接口类型（供数据选择屏幕按需显示按钮）。 */
 	private static final Map<String, Set<String>> USED_DATA_TYPES = new java.util.concurrent.ConcurrentHashMap<>();
 	/** 自定义文本在 selectedIds 中的编码标记（bit 62，避免与站点/站台ID、线路颜色冲突）。 */
@@ -58,7 +57,6 @@ public final class JSSignEngine {
 		RESULT_CACHE.clear();
 	}
 
-	/** 记录脚本使用了某种数据接口（站台/车站/线路/出口/文本）。 */
 	public static void markDataUsed(String scriptId, String type) {
 		if (scriptId == null || type == null) {
 			return;
@@ -66,7 +64,6 @@ public final class JSSignEngine {
 		USED_DATA_TYPES.computeIfAbsent(scriptId, key -> java.util.concurrent.ConcurrentHashMap.newKeySet()).add(type);
 	}
 
-	/** 脚本实际调用的数据接口类型集合（可能为空，表示脚本未调用任何数据接口）。 */
 	public static Set<String> getUsedDataTypes(String scriptId) {
 		// ConcurrentHashMap 不接受 null key（会抛 NPE），未指定脚本时按「无记录」处理
 		if (scriptId == null) {
@@ -209,7 +206,6 @@ public final class JSSignEngine {
 			final Object factory = factoryClass.getDeclaredConstructor().newInstance();
 			// --language=es6：开启 const/let/箭头函数/class 等现代语法（Nashorn 15.4 默认仅 ES5）
 			final ScriptEngine engine = (ScriptEngine) factoryClass.getMethod("getScriptEngine", String[].class).invoke(factory, (Object) new String[]{"--language=es6"});
-			Init.LOGGER.info("Nashorn engine created via NashornScriptEngineFactory (ES6)");
 			return engine;
 		} catch (Exception e) {
 			Init.LOGGER.warn("Failed to create Nashorn engine via factory", e);
@@ -1084,8 +1080,6 @@ public final class JSSignEngine {
 			return 0;
 		}
 
-		// ---- 站台接口（站台编号） ----
-
 		/** 选中站台的数量（selectedIds 中站台 ID 的个数）。 */
 		public int getPlatformCount() {
 			markUsed("platform");
@@ -1135,8 +1129,6 @@ public final class JSSignEngine {
 			}
 			return builder.length() > 0 ? builder.toString() : trimmed;
 		}
-
-		// ---- 自定义文本接口 ----
 
 		/** 读取本屏玩家输入的自定义文本（空字符串表示未设置）。 */
 		public String getCustomText() {

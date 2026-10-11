@@ -1,5 +1,6 @@
 package com.Nanbin.Registry.RegBlock;
 
+import com.Nanbin.Registry.RegBlock.flag.TicketFault;
 import com.Nanbin.Registry.SoundEvents;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockExtension;
@@ -23,6 +24,8 @@ public class BlockNRTTicketBarrier1 extends BlockExtension implements DirectionH
     public BlockNRTTicketBarrier1(boolean isEntrance) {
         super(Blocks.createDefaultBlockSettings(true, (blockState) -> 5).nonOpaque());
         this.isEntrance = isEntrance;
+        // 布尔属性默认值为 true，必须显式把默认状态改为未故障，否则新放置的闸机默认就是故障状态。
+        setDefaultState2(getDefaultState2().with(new Property<>(TicketFault.FAULT.data), false));
     }
 
     @Nonnull

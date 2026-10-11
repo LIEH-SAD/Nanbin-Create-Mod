@@ -75,8 +75,7 @@ public class RenderRoadNameBlock extends BlockEntityRenderer<BlockRoadName.Block
 
 	@Override
 	public void render(BlockRoadName.BlockEntity entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
-		// MTR 的 Render 加载早于 BlockEntity，且字体纹理被缓存不会随数据变化自动失效，
-		// 因此每秒强制刷新一次缓存，确保文字显示最新内容。
+		// 字体纹理缓存不会随数据变化自动失效，按 REFRESH_INTERVAL_MS 定期清理。
 		final long now = System.currentTimeMillis();
 		if (now - lastRefreshTime >= REFRESH_INTERVAL_MS) {
 			lastRefreshTime = now;
@@ -98,7 +97,6 @@ public class RenderRoadNameBlock extends BlockEntityRenderer<BlockRoadName.Block
 		if (texts == null || texts.length < 4) {
 			return;
 		}
-		// 仅当内容变化时记录一次，避免每帧刷屏
 		final String stateKey = pos.toShortString() + "|" + facing + "|" + String.join("|", texts);
 		if (!stateKey.equals(lastRenderStateKey)) {
 			lastRenderStateKey = stateKey;
@@ -138,7 +136,7 @@ public class RenderRoadNameBlock extends BlockEntityRenderer<BlockRoadName.Block
 		}
 	}
 
-	/** 复制数组并互换 index 2（左下角）与 index 3（右下角）的文字内容 */
+	/** 互换 index 2（左下角）与 index 3（右下角）。 */
 	private static String[] swapCornerTexts(String[] texts) {
 		final String[] swapped = texts.clone();
 		final String temp = swapped[2];
@@ -173,13 +171,13 @@ public class RenderRoadNameBlock extends BlockEntityRenderer<BlockRoadName.Block
 		final float x;
 		switch (DISPLAY_ALIGN[index]) {
 			case -1:
-				x = anchorX;          // 左对齐：anchorX 为文字左边
+				x = anchorX;
 				break;
 			case 1:
-				x = anchorX - w;      // 右对齐：anchorX 为文字右边
+				x = anchorX - w;
 				break;
 			default:
-				x = anchorX - w / 2.0F; // 居中
+				x = anchorX - w / 2.0F;
 				break;
 		}
 		final float y = centerY - h / 2.0F;

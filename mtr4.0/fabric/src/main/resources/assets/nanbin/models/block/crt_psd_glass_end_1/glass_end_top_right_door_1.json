@@ -1,0 +1,10 @@
+{
+	"parent": "mtr:block/psd_glass_end_top_right_door_1",
+	"textures": {
+		"bottom": "mtr:block/transparent",
+		"top": "mtr:block/black",
+		"front": "nanbin:block/crt_psd_glass_1_top",
+		"back": "nanbin:block/crt_psd_glass_1_top_back",
+		"red": "mtr:block/psd_red_top"
+	}
+}

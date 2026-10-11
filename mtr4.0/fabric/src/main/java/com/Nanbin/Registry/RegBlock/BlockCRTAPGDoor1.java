@@ -1,6 +1,7 @@
 package com.Nanbin.Registry.RegBlock;
 
 import com.Nanbin.Init;
+import com.Nanbin.Registry.RegBlock.flag.APGDoorNumbering;
 import com.Nanbin.entity.BlockEntityTypes;
 import com.Nanbin.mapping.TranslationProvider;
 import org.mtr.core.data.Data;

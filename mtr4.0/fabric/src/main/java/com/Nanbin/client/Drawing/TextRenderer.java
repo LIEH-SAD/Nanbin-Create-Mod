@@ -8,11 +8,8 @@ import java.awt.image.BufferedImage;
 import static com.Nanbin.InitClient.LOGGER;
 
 /**
- * Renders text in two rows:
- * - Top row: CJK segments concatenated (fontSize), centered
- * - Bottom row: Latin segments concatenated (fontSize/2), centered
- * - Small gap between rows
- * - Uniformly scaled down if either row exceeds texture bounds
+ * Renders CJK on the top row and Latin on a smaller bottom row, both centered,
+ * shrinking the whole block uniformly if it overflows the texture.
  */
 public final class TextRenderer {
 
@@ -31,7 +28,6 @@ public final class TextRenderer {
 				return null;
 			}
 
-			// Split by "|" and classify segments into CJK and Latin groups
 			final String[] segments = text.split("\\|", -1);
 			final StringBuilder cjkLine = new StringBuilder();
 			final StringBuilder latinLine = new StringBuilder();
@@ -50,7 +46,6 @@ public final class TextRenderer {
 
 			if (!hasCjk && !hasLatin) return null;
 
-			// Scale font sizes proportionally with texture resolution
 			final float resolutionScale = FontRenderUtils.getResolutionScale();
 			final int scaledCjkFontSize = Math.round(fontSize * resolutionScale);
 			final int scaledLatinFontSize = Math.max(Math.round(fontSize * 0.6F * resolutionScale), Math.round(8 * resolutionScale));
@@ -98,14 +93,12 @@ public final class TextRenderer {
 					(float) textureHeight / (float) totalContentHeight
 			));
 
-			// Render both rows centered into one texture
 			final BufferedImage img = new BufferedImage(textureWidth, textureHeight, BufferedImage.TYPE_INT_ARGB);
 			final Graphics2D g = img.createGraphics();
 			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 			g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
 
-			// Vertically center the two-row block
 			final float scaledContentHeight = totalContentHeight * scale;
 			final float baseY = (textureHeight - scaledContentHeight) / 2.0F / scale;
 

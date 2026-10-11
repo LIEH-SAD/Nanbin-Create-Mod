@@ -118,7 +118,6 @@ public class BlockRoadName extends BlockExtension implements DirectionHelper, Bl
             super(BlockEntityTypes.BLOCK_ROAD_NAME.get(), pos, state);
         }
 
-        /** 获取四个文本框的内容（索引 0-3）。 */
         public String[] getTexts() {
             return new String[]{text1, text2, text3, text4};
         }
@@ -143,7 +142,6 @@ public class BlockRoadName extends BlockExtension implements DirectionHelper, Bl
             markDirty2();
         }
 
-        /** 获取另外两个方块的坐标。 */
         private BlockPos[] getOtherPositions() {
             final Direction facing = IBlock.getStatePropertySafe(this.getCachedState2(), FACING);
             final IBlock.EnumSide side = IBlock.getStatePropertySafe(this.getCachedState2(), SIDE_EXTENDED);

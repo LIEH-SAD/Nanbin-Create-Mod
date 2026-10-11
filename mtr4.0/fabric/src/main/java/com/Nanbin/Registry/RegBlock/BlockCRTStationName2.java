@@ -1,6 +1,7 @@
 package com.Nanbin.Registry.RegBlock;
 
 import com.Nanbin.Init;
+import com.Nanbin.Registry.RegBlock.base.BlockStationNameBase;
 import com.Nanbin.entity.BlockEntityTypes;
 import com.Nanbin.mapping.IBlockExtension;
 import com.Nanbin.mapping.TranslationProvider;
@@ -99,10 +100,7 @@ public class BlockCRTStationName2 extends BlockStationNameBase implements Direct
             markDirty2();
         }
 
-        /**
-         * 服务端专用：反射访问 MTR 的 Simulator，按 platformId 找到服务该站台的完整 Route，
-         * 取出真实的线路编号（routeNumber）并缓存。MTR 客户端数据没有该字段，只能从服务端获取。
-         */
+        /** 反射访问 MTR 的 Simulator，按 platformId 找到服务该站台的完整 Route 并取 routeNumber；该字段只存在于服务端数据。 */
         private void updateRouteNumberFromServer() {
             if (getWorld2() == null || getWorld2().isClient()) {
                 return;

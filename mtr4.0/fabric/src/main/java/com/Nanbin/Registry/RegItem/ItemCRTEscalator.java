@@ -1,6 +1,8 @@
 package com.Nanbin.Registry.RegItem;
 
 import com.Nanbin.Blocks.Blocks;
+import com.Nanbin.Registry.RegBlock.BlockCRTEscalatorSide;
+import com.Nanbin.Registry.RegBlock.BlockCRTEscalatorStep;
 import com.Nanbin.mapping.TranslationProvider;
 import org.mtr.mapping.holder.ActionResult;
 import org.mtr.mapping.holder.BlockPos;
@@ -30,8 +32,8 @@ import static org.mtr.mod.item.ItemPSDAPGBase.blocksNotReplaceable;
  * 在已有扶梯的末端继续放置会自动反向衔接，从而延长整段扶梯；
  * 平台（landing）、斜坡（slope）与上下过渡段由方块自身按相邻方块判定。
  *
- * @see com.Nanbin.Registry.RegBlock.Escalator.BlockCRTEscalatorStep
- * @see com.Nanbin.Registry.RegBlock.Escalator.BlockCRTEscalatorSide
+ * @see BlockCRTEscalatorStep
+ * @see BlockCRTEscalatorSide
  */
 public class ItemCRTEscalator extends ItemExtension implements IBlock {
 

@@ -64,8 +64,6 @@ public final class JSSignConfig {
 		return SCRIPT_PATHS.containsKey(scriptId);
 	}
 
-	// ---- 全局 JS 样式标记 ----
-
 	public static boolean isJSStyle(String signId) {
 		return signId != null && signId.startsWith(JS_STYLE_PREFIX);
 	}

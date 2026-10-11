@@ -33,9 +33,8 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
     }
 
     /**
-     * 放置告示牌时，在中间段放置 CRT 版中间方块（替代原版 RAILWAY_SIGN_MIDDLE）：
-     * 单数格（isOdd=true）最中间一格为 middle_odd；双格（isOdd=false）最中间两格
-     * 分别为 middle_even_1、middle_even_2；其余均为 middle_common。
+     * 放置时在中间段用 CRT 版中间方块替换原版 RAILWAY_SIGN_MIDDLE：奇数长度取正中一格（odd），
+     * 偶数长度取正中两格（even_1 / even_2），其余为 common。
      */
     @Override
     public void onPlaced2(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
@@ -101,11 +100,9 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
     }
 
     /**
-     * MTR 原版 BlockRailwaySign.BlockEntity 的私有静态 getType 只支持长度 2-7，
-     * 长度 8-11 会回退为长度 2 的 MTR 类型，导致方块实体类型与 CRT 方块不匹配：
-     * 渲染时不会被分发到 CRT 渲染器，存档重载后还会按错误的类型 id 重建、丢失全部告示牌数据。
-     * 此子类在构造函数内通过反射把 Minecraft 的 type 字段修正为 CRT 自己注册的方块实体类型，
-     * 使长度 3-11 的告示牌都能使用 CRT 渲染器，并沿用 MTR 的 RailwaySignScreen / 数据包。
+     * MTR 父类的私有静态 getType 只支持长度 2-7，8-11 会回退成长度 2 的类型且无法覆写，
+     * 于是方块实体类型与 CRT 方块不匹配：CRT 渲染器不生效，存档重载后还会按错误类型重建并丢数据。
+     * 故在此子类构造函数内用反射把 Minecraft 的 type 字段改成 CRT 注册的类型，继续复用 MTR 的屏幕与数据包。
      */
     public static class BlockEntityCRTRailwaySign extends BlockRailwaySign.BlockEntity {
 
@@ -125,12 +122,7 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
             fixBlockEntityType();
         }
 
-        /**
-         * MTR 父类 BlockRailwaySign.BlockEntity 的构造函数通过私有静态 getType(length, isOdd)
-         * 解析方块实体类型，该函数只支持长度 2-7，长度 8-11 会回退成长度 2 的类型，且无法被子类覆写。
-         * 这里在构造函数内（对象发布前）通过反射把 Minecraft BlockEntity.type 字段修正为 CRT 自己注册的类型，
-         * 否则 CRT 渲染器永远不会被调用，且存档重载后方块实体会按错误的类型重建。
-         */
+        /** 在构造函数（对象发布前）修正父类写错的 type 字段，否则 CRT 渲染器不会被调用。 */
         private void fixBlockEntityType() {
             try {
                 final Object rawType = blockEntityType.get().data;
@@ -309,15 +301,14 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
         }
 
         /**
-         * 服务端专用：反射访问 MTR 的 Simulator，找到告示牌所在站点，收集所选颜色对应的
-         * 完整 Route 的线路编号（routeNumber）。客户端数据没有该字段，只能从服务端获取。
+         * 服务端专用：反射访问 MTR 的 Simulator，在告示牌所在站点解析所选颜色对应的 routeNumber。
+         * 客户端数据没有该字段，只能服务端解析后随 NBT 同步。
          */
         private void updateRouteNumbersFromServer() {
             routeNumbers.clear();
             if (getWorld2() == null || getWorld2().isClient()) {
                 return;
             }
-            // 收集全局选择与所有格子独立选择的颜色，统一解析线路编号
             final LongAVLTreeSet allColors = new LongAVLTreeSet(getSelectedIds());
             if (cellColors != null) {
                 for (final long[] cellArr : cellColors) {

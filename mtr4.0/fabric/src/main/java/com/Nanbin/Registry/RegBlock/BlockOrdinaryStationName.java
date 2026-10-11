@@ -1,6 +1,7 @@
 package com.Nanbin.Registry.RegBlock;
 
 import com.Nanbin.Init;
+import com.Nanbin.Registry.RegBlock.base.BlockStationNameBase;
 import com.Nanbin.entity.BlockEntityTypes;
 import com.Nanbin.mapping.IBlockExtension;
 import com.Nanbin.mapping.TranslationProvider;

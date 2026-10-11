@@ -12,9 +12,8 @@ import javax.annotation.Nullable;
 
 /**
  * 配置项组件。
- *
- * <p>视觉规格：常态为 20% 不透明度的 #000000；当鼠标位于其正上方时淡入为
- * 40% 不透明度的 #FFFFFF，离开时淡出回常态，单程动画时长 0.2 秒（4 tick）。
+ * 常态为 20% 不透明度的 #000000；鼠标悬停时淡入为 40% 不透明度的 #FFFFFF，离开时淡出回常态，
+ * 单程动画时长 0.2 秒（4 tick）。
  */
 public class NanbinUIConfigItem extends NanbinUIComponent {
 
@@ -54,7 +53,6 @@ public class NanbinUIConfigItem extends NanbinUIComponent {
 		return label;
 	}
 
-	/** 是否绑定了点击回调。 */
 	public boolean isClickable() {
 		return onClick != null;
 	}
@@ -93,7 +91,7 @@ public class NanbinUIConfigItem extends NanbinUIComponent {
 		int textX = x + TEXT_INSET;
 		if (icon != null) {
 			final int iconY = y + (HEIGHT - ICON_SIZE) / 2;
-			// 参考实现会先把着色器颜色重置为白色，避免图标被上一步的着色器颜色染上颜色
+			// 必须先重置着色器颜色，否则图标会被上一步的着色器颜色染色
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			final GuiDrawing iconDrawing = new GuiDrawing(graphicsHolder);
 			iconDrawing.beginDrawingTexture(icon);

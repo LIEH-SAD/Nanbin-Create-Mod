@@ -14,13 +14,6 @@ import java.util.List;
 
 import static org.mtr.mod.item.ItemPSDAPGBase.blocksNotReplaceable;
 
-/**
- * @author LIEH-SAD
- * @see BlockCRTAPGDoor1
- * @see BlockCRTAPGGlass1
- * @see BlockCRTAPGGlassEnd1
- */
-
 public class ItemCRTAPG1 extends ItemExtension implements IBlock
 {
     public final Block block;

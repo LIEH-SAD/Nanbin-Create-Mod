@@ -53,5 +53,8 @@ public class RenderLayerReg {
         BlockRenderLayerHelper.putBlock(Blocks.CRT_FENCE_LIFT_TIPS_1, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.NRT_TICKET_1_ENTER, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.NRT_TICKET_1_EXIT, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.CRT_PSD_DOOR_1, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.CRT_PSD_GLASS_1, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.CRT_PSD_GLASS_END_1, RenderLayer.getCutout());
     }
 }

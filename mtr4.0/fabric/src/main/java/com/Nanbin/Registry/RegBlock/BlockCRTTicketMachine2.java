@@ -1,5 +1,6 @@
 package com.Nanbin.Registry.RegBlock;
 
+import com.Nanbin.Registry.RegBlock.flag.TicketFault;
 import com.Nanbin.mapping.TicketMachineHelper;
 import org.mtr.mapping.holder.ActionResult;
 import org.mtr.mapping.holder.BlockHitResult;
@@ -30,6 +31,8 @@ public class BlockCRTTicketMachine2 extends BlockDirectionalDoubleBlockBase {
 
     public BlockCRTTicketMachine2(BlockSettings blockSettings) {
         super(blockSettings);
+        // 布尔属性默认值为 true，必须显式把默认状态改为未故障，否则新放置的售票机默认就是故障状态。
+        setDefaultState2(getDefaultState2().with(new Property<>(TicketFault.FAULT.data), false));
     }
 
     @Nonnull
@@ -50,7 +53,7 @@ public class BlockCRTTicketMachine2 extends BlockDirectionalDoubleBlockBase {
         return ActionResult.SUCCESS;
     }
 
-    /** 服务端：上下两格一并切换故障状态，故障期间售票机停止服务。 */
+    /** 服务端调用：上下两格一并切换故障状态。 */
     private static void toggleFault(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         final boolean fault = !TicketFault.isFault(state);
         world.setBlockState(pos, state.with(new Property<>(TicketFault.FAULT.data), fault), 3);

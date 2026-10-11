@@ -4,7 +4,7 @@ function create(ctx, state, sign) {
 function render(ctx, state, sign) {
     var names = sign.getStationNames();
 
-    //先画背景
+    // 背景
     Rect.create()
         .pos(0, 0)
         .size(sign.getWidth(), sign.getHeight())
