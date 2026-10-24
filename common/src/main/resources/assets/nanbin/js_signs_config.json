@@ -1,0 +1,28 @@
+{
+  "scripts": [
+    {
+      "id": "crt_station_entrance",
+      "path": "nanbin:js/crt_station_entrance.js",
+      "icon": "nanbin:textures/block/sign/crt_railway.png",
+      "name": "js_sign.nanbin.crt_station_entrance"
+    },
+    {
+      "id": "example_clock",
+      "path": "nanbin:js/example_clock.js",
+      "icon": "nanbin:textures/block/sign/crt_station_name.png",
+      "name": "js_sign.nanbin.example_clock"
+    },
+    {
+      "id": "example_station_info",
+      "path": "nanbin:js/example_station_info.js",
+      "icon": "nanbin:textures/block/sign/crt_route_number.png",
+      "name": "js_sign.nanbin.example_station_info"
+    },
+    {
+      "id": "example_multi_screen",
+      "path": "nanbin:js/example_multi_screen.js",
+      "icon": "nanbin:textures/block/sign/crt_route_name.png",
+      "name": "js_sign.nanbin.example_multi_screen"
+    }
+  ]
+}

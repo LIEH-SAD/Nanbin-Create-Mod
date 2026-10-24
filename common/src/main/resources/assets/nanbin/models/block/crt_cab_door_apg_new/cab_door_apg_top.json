@@ -1,0 +1,75 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"ambientocclusion": false,
+	"textures": {
+		"1": "nanbin:block/metal",
+		"2": "nanbin:block/cab_door_apg_top",
+		"4": "nanbin:block/sign/no_crossing",
+		"sidetriangle": "nanbin:block/cab_door_apg_triangle",
+		"particle": "nanbin:block/black"
+	},
+	"elements": [
+		{
+			"from": [2, 0, 0],
+			"to": [4, 8, 16],
+			"faces": {
+				"north": {"uv": [12, 8, 14, 16], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [0, 8, 16, 16], "texture": "#2"},
+				"south": {"uv": [2, 8, 4, 16], "texture": "#1", "cullface": "south"},
+				"west": {"uv": [16, 8, 0, 16], "texture": "#2"}
+			}
+		},
+		{
+			"from": [0.835, 8.8, 0],
+			"to": [3, 9, 16],
+			"rotation": {"angle": 22.5, "axis": "z", "origin": [3, 9, 8]},
+			"faces": {
+				"north": {"uv": [13, 7, 15.165, 7.2], "texture": "#1", "cullface": "north"},
+				"south": {"uv": [0.835, 7, 3, 7.2], "texture": "#1", "cullface": "south"},
+				"up": {"uv": [0.835, 0, 3, 16], "texture": "#1"}
+			}
+		},
+		{
+			"from": [1, 8, 0],
+			"to": [4, 8.172, 16],
+			"faces": {
+				"north": {"uv": [12, 7.828, 15, 8], "texture": "#1"},
+				"south": {"uv": [1, 7.828, 4, 8], "texture": "#1"},
+				"west": {"uv": [0, 7.828, 16, 8], "texture": "#1"},
+				"down": {"uv": [1, 0, 4, 16], "texture": "#1"}
+			}
+		},
+		{
+			"from": [3, 8, 0],
+			"to": [4, 9, 16],
+			"faces": {
+				"north": {"uv": [12, 7, 13, 8], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [0, 7, 16, 8], "texture": "#1"},
+				"south": {"uv": [3, 7, 4, 8], "texture": "#1", "cullface": "south"},
+				"up": {"uv": [3, 0, 4, 16], "texture": "#1"}
+			}
+		},
+		{
+			"from": [1, 8, 0],
+			"to": [3, 9, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 8], "texture": "#sidetriangle", "cullface": "north"},
+				"south": {"uv": [16, 0, 0, 8], "texture": "#sidetriangle", "cullface": "south"}
+			}
+		},
+		{
+			"from": [4, 0, 12],
+			"to": [4, 3, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [4, 0, 12]},
+			"faces": {
+				"north": {"uv": [2, 1, 2, 4], "texture": "#particle"},
+				"east": {"uv": [2.88, 0, 13.36, 16], "texture": "#4"},
+				"south": {"uv": [0, 1, 0, 4], "texture": "#particle"},
+				"west": {"uv": [0, 1, 2, 4], "texture": "#particle"},
+				"up": {"uv": [0, 0, 0, 2], "texture": "#particle"},
+				"down": {"uv": [0, 0, 0, 2], "texture": "#particle"}
+			}
+		}
+	]
+}
