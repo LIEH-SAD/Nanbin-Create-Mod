@@ -1,8 +1,0 @@
-{
-  "variants": {
-    "facing=north": { "model": "nanbin:block/soundproofnet", "y": 0, "uvlock": true },
-    "facing=east":  { "model": "nanbin:block/soundproofnet", "y": 90, "uvlock": true },
-    "facing=south": { "model": "nanbin:block/soundproofnet", "y": 180, "uvlock": true },
-    "facing=west":  { "model": "nanbin:block/soundproofnet", "y": 270, "uvlock": true }
-  }
-}

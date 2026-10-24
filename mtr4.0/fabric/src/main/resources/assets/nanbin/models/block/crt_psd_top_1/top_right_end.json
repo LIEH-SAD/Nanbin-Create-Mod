@@ -1,7 +1,0 @@
-{
-	"parent": "mtr:block/psd_top_right_end",
-	"textures": {
-		"main": "mtr:block/psd_top",
-		"light": "mtr:block/light_off"
-	}
-}

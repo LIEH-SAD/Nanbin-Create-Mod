@@ -1,6 +1,0 @@
-{
-	"parent": "mtr:block/psd_top_left_edge",
-	"textures": {
-		"particle": "mtr:block/psd_top_edge"
-	}
-}

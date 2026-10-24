@@ -1,9 +1,0 @@
-{
-	"parent": "mtr:block/psd_glass_left_base",
-	"textures": {
-		"bottom": "mtr:block/black",
-		"top": "mtr:block/transparent",
-		"front": "nanbin:block/crt_psd_glass_1_bottom",
-		"back": "nanbin:block/crt_psd_glass_1_bottom_back"
-	}
-}
