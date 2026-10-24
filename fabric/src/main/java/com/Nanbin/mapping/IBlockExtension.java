@@ -1,0 +1,131 @@
+package com.Nanbin.mapping;
+
+import org.mtr.mapping.holder.*;
+import org.mtr.mod.block.IBlock;
+
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+/**
+ * Some methods similar to methods in IBlock.
+ *
+ * @see IBlock
+ * @since 1.0.0-beta-1
+ */
+
+public interface IBlockExtension
+{
+    EnumProperty<BlockThirdProperty> THIRD = EnumProperty.of("third", BlockThirdProperty.class);
+    EnumProperty<EnumGlassMode> GLASS_MODE = EnumProperty.of("mode", EnumGlassMode.class);
+
+    /**
+     * Replace block with air.
+     *
+     * @param pos block's position
+     * @author ZiYueCommentary
+     * @since 1.0.0-beta-1
+     */
+    static void breakBlock(World world, BlockPos pos) {
+        if (world.isClient()) return;
+
+        world.setBlockState(pos, Blocks.getAirMapped().getDefaultState());
+    }
+
+    /**
+     * Specify a block, if a block in pos is a specified block, then replace it with air.
+     *
+     * @param pos   block's position
+     * @param block specified block
+     * @author ZiYueCommentary
+     * @since 1.0.0-beta-1
+     */
+    static void breakBlock(World world, BlockPos pos, Block block) {
+        if (world.isClient()) return;
+
+        if (isBlock(world.getBlockState(pos), block)) {
+            world.setBlockState(pos, Blocks.getAirMapped().getDefaultState());
+        }
+    }
+
+    static boolean isBlock(BlockState state, Block block) {
+        return state.getBlock().data == block.data;
+    }
+
+    static ActionResult checkHoldingBrush(World world, PlayerEntity player, Runnable callback) {
+        return IBlock.checkHoldingItem(world, player, item -> callback.run(), null, org.mtr.mod.Items.BRUSH.get());
+    }
+
+    /*
+    static ActionResult checkHoldingPhoneOrIC(World world, PlayerEntity player, Runnable callback) {
+        return IBlock.checkHoldingItem(world, player, item -> callback.run(), null, Items.PHONE.get(), Items.IC_CARD.get());
+    }
+     */
+
+    static ActionResult checkHoldingBasicKey(World world, PlayerEntity player, Runnable callback) {
+        return IBlock.checkHoldingItem(world, player, item -> callback.run(), null, org.mtr.mod.Items.BRUSH.get());
+    }
+
+    static ActionResult checkHoldingAdvancedKey(World world, PlayerEntity player, Runnable callback) {
+        return IBlock.checkHoldingItem(world, player, item -> callback.run(), null, org.mtr.mod.Items.BRUSH.get());
+    }
+
+    static <T extends Enum<T> & StringIdentifiable> BlockState cycleBlockState(BlockState state, EnumProperty<T> property, Predicate<T> includes) {
+        return cycleBlockState(state, property, property.getValues().stream().filter(includes).collect(Collectors.toList()));
+    }
+
+    @SafeVarargs
+    static <T extends Enum<T> & StringIdentifiable> BlockState cycleBlockState(BlockState state, EnumProperty<T> property, T... includes) {
+        return cycleBlockState(state, property, Arrays.asList(includes));
+    }
+
+    static <T extends Enum<T> & StringIdentifiable> BlockState cycleBlockState(BlockState state, EnumProperty<T> property, List<T> includes) {
+        int index = includes.indexOf(IBlock.getStatePropertySafe(state, property));
+        if (index < 0 || (index == includes.size() - 1)) index = -1;
+        return state.with(new Property<>(property.data), includes.get(index + 1));
+    }
+
+    /**
+     * @author ZiYueCommentary
+     * @since 1.0.0-beta-1
+     */
+    enum BlockThirdProperty implements StringIdentifiable
+    {
+        LEFT("left"),
+        RIGHT("right"),
+        BOTH("both");
+
+        final String name;
+
+        BlockThirdProperty(String name) {
+            this.name = name;
+        }
+
+        @Nonnull
+        @Override
+        public String asString2() {
+            return name;
+        }
+    }
+
+    enum EnumGlassMode implements StringIdentifiable {
+        SINGLE("single"),
+        LEFT("left"),
+        MIDDLE("middle"),
+        RIGHT("right");
+
+        private final String name;
+
+        EnumGlassMode(String name) {
+            this.name = name;
+        }
+
+        @Nonnull
+        @Override
+        public String asString2() {
+            return name;
+        }
+    }
+}

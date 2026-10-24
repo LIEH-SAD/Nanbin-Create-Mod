@@ -1,0 +1,98 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+import org.mtr.mod.BuildTools
+
+plugins {
+    id "fabric-loom" version "1.10-SNAPSHOT"
+}
+
+final BuildTools buildTools = new BuildTools(minecraftVersion, "fabric", mtrVersion, project)
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraftVersion}"
+    mappings "net.fabricmc:yarn:${buildTools.getYarnVersion()}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${buildTools.getFabricVersion()}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${buildTools.getFabricApiVersion()}"
+    modApi "com.terraformersmc:modmenu:${buildTools.getModMenuVersion()}"
+    modApi("ziyue.filters:filters-fabric:${buildTools.getFiltersVersion()}") {
+        exclude(group: "net.fabricmc")
+    }
+    modImplementation "org.mtr:MTR-fabric:${mtrVersion}+${minecraftVersion}"
+
+    // Nashorn 引擎（org.openjdk.nashorn:nashorn-core）：fabric 环境不自带，需 include 打包进 mod。
+    // 依赖的 asm 由 Minecraft/fabric-loader 运行时提供（生产版本 json 自带 org.ow2.asm:9.9），无需打包。
+    def nashorn = [
+            "org.openjdk.nashorn:nashorn-core:15.4"
+    ]
+    nashorn.each { dep ->
+        compileOnly(dep)
+        // runtimeOnly 使 dev 环境（runClient / IntelliJ）运行时也能找到 Nashorn 类；
+        // include 负责把依赖打进 mod jar 的 META-INF/jars/（JarInJar）。
+        runtimeOnly(dep)
+        include(dep)
+    }
+}
+
+// 从 remapJar 的分析 classpath 中排除 include 的引擎 jar（mod 代码仅通过 javax.script + 反射间接使用，无需重映射）
+configurations {
+    includedJars {
+        canBeResolved = true
+        canBeConsumed = false
+        extendsFrom configurations.include
+    }
+}
+
+afterEvaluate {
+    def includedJarFiles = configurations.includedJars.resolvedConfiguration.resolvedArtifacts.collect { it.file }
+    tasks.named("remapJar").configure {
+        classpath.setFrom(classpath.files.findAll { f -> !includedJarFiles.contains(f) })
+    }
+}
+
+repositories {
+    maven { url = "https://maven.terraformersmc.com/" }
+}
+
+shadowJar {
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(buildTools.javaLanguageVersion))
+    }
+    withSourcesJar()
+}
+
+tasks.register("setupFiles") {
+    copy {
+        outputs.upToDateWhen { false }
+        from "src/main/fabric.mod.template.json"
+        into "src/main/resources"
+        filter(ReplaceTokens, tokens: [version: version, minecraftVersion: minecraftVersion])
+        rename "(.+).template.json", "\$1.json"
+    }
+}
+
+// 离线绘制测试：不开游戏把吊板线路图渲染成 PNG（build/draw-test），用于调比例/排版
+tasks.register("drawTest", JavaExec) {
+    group = "verification"
+    description = "把吊板线路图离线渲染成 PNG（fabric/build/draw-test）"
+    dependsOn tasks.named("testClasses")
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = "com.Nanbin.dev.LineMapDrawTest"
+    args = ["build/draw-test", "768"]
+}
+
+compileJava.dependsOn("setupFiles")
+
+build {
+    doLast {
+        buildTools.copyBuildFile()
+    }
+}
+
+remapJar {
+    dependsOn(shadowJar)
+    mustRunAfter(shadowJar)
+    inputFile = file(shadowJar.archivePath)
+    archiveFileName.set("Nanbin-${version}+${minecraftVersion}+fabric+mtr4.jar")
+}

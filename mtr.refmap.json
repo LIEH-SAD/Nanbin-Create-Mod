@@ -1,0 +1,26 @@
+{
+  "mappings": {
+    "org/mtr/mixin/ClientWorldRenderingMixin": {
+      "getEntities": "Lnet/minecraft/class_638;method_18112()Ljava/lang/Iterable;"
+    },
+    "org/mtr/mixin/PlayerRendererOffsetMixin": {
+      "getPositionOffset(Lnet/minecraft/client/network/AbstractClientPlayerEntity;F)Lnet/minecraft/util/math/Vec3d;": "Lnet/minecraft/class_1007;method_23206(Lnet/minecraft/class_742;F)Lnet/minecraft/class_243;"
+    },
+    "org/mtr/mixin/PlayerTeleportationStateAccessor": {
+      "inTeleportationState": "field_13985:Z"
+    }
+  },
+  "data": {
+    "named:intermediary": {
+      "org/mtr/mixin/ClientWorldRenderingMixin": {
+        "getEntities": "Lnet/minecraft/class_638;method_18112()Ljava/lang/Iterable;"
+      },
+      "org/mtr/mixin/PlayerRendererOffsetMixin": {
+        "getPositionOffset(Lnet/minecraft/client/network/AbstractClientPlayerEntity;F)Lnet/minecraft/util/math/Vec3d;": "Lnet/minecraft/class_1007;method_23206(Lnet/minecraft/class_742;F)Lnet/minecraft/class_243;"
+      },
+      "org/mtr/mixin/PlayerTeleportationStateAccessor": {
+        "inTeleportationState": "field_13985:Z"
+      }
+    }
+  }
+}

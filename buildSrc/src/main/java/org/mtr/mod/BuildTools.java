@@ -1,0 +1,160 @@
+package org.mtr.mod;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.jonafanho.apitools.ModId;
+import com.jonafanho.apitools.ModLoader;
+import com.jonafanho.apitools.ModProvider;
+import org.apache.commons.io.IOUtils;
+import org.gradle.api.Project;
+
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class BuildTools {
+    public final String minecraftVersion;
+    public final String loader;
+    public final int javaLanguageVersion;
+    private final Path path;
+    private final String version;
+    private final String mtrVersion;
+    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
+    public BuildTools(String minecraftVersion, String loader, String mtrVersion, Project project) throws IOException {
+        this.minecraftVersion = minecraftVersion;
+        this.loader = loader;
+        this.path = project.getProjectDir().toPath();
+        this.version = project.getVersion().toString();
+        this.mtrVersion = mtrVersion;
+        int majorVersion = Integer.parseInt(minecraftVersion.split("\\.")[1]);
+        javaLanguageVersion = majorVersion <= 16 ? 8 : majorVersion == 17 ? 16 : 17;
+
+        final Path accessWidenerPath = path.resolve("src/main/resources").resolve(loader.equals("fabric") ? "" : "META-INF");
+        Files.createDirectories(accessWidenerPath);
+        create(minecraftVersion, loader, accessWidenerPath.resolve(loader.equals("fabric") ? "msd.accesswidener" : "accesstransformer.cfg"));
+
+        final Path mixinPath = path.resolve("src/main/java/top/mcmtr/mixin");
+        Files.createDirectories(mixinPath);
+    }
+
+    public String getFabricVersion() {
+        try {
+            String fabricVersion = getJson("https://meta.fabricmc.net/v2/versions/loader/" + minecraftVersion).getAsJsonArray().get(0).getAsJsonObject().getAsJsonObject("loader").get("version").getAsString();
+            System.out.println("Fabric loader version: "+ fabricVersion);
+            return fabricVersion;
+        } catch (Exception e) {
+            final String fallbackVersion = "0.19.3";
+            System.out.println("Fabric loader version: " + fallbackVersion + " (fallback)");
+            return fallbackVersion;
+        }
+    }
+
+    public String getYarnVersion() {
+        try {
+            String yarnVersion =  getJson("https://meta.fabricmc.net/v2/versions/yarn/" + minecraftVersion).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
+            System.out.println("Yarn version: " + yarnVersion);
+            return yarnVersion;
+        } catch (Exception e) {
+            final String fallbackVersion = "1.20.4+build.3";
+            System.out.println("Yarn version: " + fallbackVersion + " (fallback)");
+            return fallbackVersion;
+        }
+    }
+
+    public String getFabricApiVersion() {
+        final String modIdString = "fabric-api";
+        try {
+            String fabricApiVersion = new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split(".jar")[0].replace(modIdString + "-", "");
+            System.out.println("Fabric API version: "+ fabricApiVersion);
+            return fabricApiVersion;
+        } catch (Exception e) {
+            final String fallbackVersion = "0.97.3+1.20.4";
+            System.out.println("Fabric API version: " + fallbackVersion + " (fallback)");
+            return fallbackVersion;
+        }
+    }
+
+    public String getModMenuVersion() {
+        if (minecraftVersion.equals("1.20.4")) {
+            return "9.0.0"; // TODO latest version not working
+        }
+        final String modIdString = "modmenu";
+        String modMenuVersion = new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split(".jar")[0].replace(modIdString + "-", "");
+        System.out.println("ModMenu version: " + modMenuVersion);
+        return modMenuVersion;
+    }
+
+    public String getFiltersVersion() {
+        return "1.0.0+" + minecraftVersion;
+    }
+
+    public String getForgeVersion() {
+        String forgeVersion = getJson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").getAsJsonObject().getAsJsonObject("promos").get(minecraftVersion + "-latest").getAsString();
+        System.out.println("Forge version: " + forgeVersion);
+        return forgeVersion;
+    }
+
+    public void copyBuildFile() throws IOException {
+        final Path directory = path.getParent().resolve("build/release");
+        Files.createDirectories(directory);
+        Files.copy(path.resolve(String.format("build/libs/Nanbin-%s+%s+%s+mtr4.jar", version, minecraftVersion, loader)), directory.resolve(String.format("Nanbin-%s+%s+%s+mtr4.jar", version, minecraftVersion, loader)), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private static JsonElement getJson(String url) {
+        for (int i = 0; i < 5; i++) {
+            try {
+                return JsonParser.parseString(IOUtils.toString(new URL(url), StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                logException(e);
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                logException(e);
+            }
+        }
+
+        return new JsonObject();
+    }
+
+    private static void logException(Exception e) {
+        LOGGER.log(Level.INFO, e.getMessage(), e);
+    }
+
+    public static void create(String minecraftVersion, String loader, Path path) throws IOException {
+        String content = null;
+        switch (String.format("%s-%s", minecraftVersion, loader)) {
+            case "1.16.5-fabric":
+            case "1.17.1-fabric":
+            case "1.18.2-fabric":
+            case "1.19.2-fabric":
+            case "1.19.4-fabric":
+            case "1.20.1-fabric":
+            case "1.20.4-fabric":
+                content = "accessWidener v2 named";
+                break;
+            case "1.16.5-forge":
+            case "1.17.1-forge":
+            case "1.18.2-forge":
+            case "1.19.2-forge":
+            case "1.19.4-forge":
+            case "1.20.1-forge":
+            case "1.20.4-forge":
+                content = "";
+                break;
+            default:
+                break;
+        }
+        if (content != null) {
+            Files.write(path, content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        }
+    }
+}

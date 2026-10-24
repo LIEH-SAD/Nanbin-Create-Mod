@@ -1,0 +1,49 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Nanbin Studio",
+	"textures": {
+		"0": "nanbin:block/metal",
+		"1": "nanbin:block/crt_ticket_machine_2_bottom",
+		"particle": "nanbin:block/metal"
+	},
+	"elements": [
+		{
+			"from": [1, 0, 0],
+			"to": [15, 16, 10],
+			"faces": {
+				"north": {"uv": [1, 0, 15, 16], "texture": "#0"},
+				"east": {"uv": [0, 0, 10, 16], "texture": "#0"},
+				"south": {"uv": [1, 0, 15, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 10, 16], "texture": "#0"},
+				"up": {"uv": [1, 0, 15, 10], "texture": "#0"},
+				"down": {"uv": [1, 0, 15, 10], "texture": "#0"}
+			}
+		},
+		{
+			"from": [1, 14, 10],
+			"to": [15, 16, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [1, 14, 10]},
+			"faces": {
+				"north": {"uv": [0, 0, 14, 2], "texture": "#0"},
+				"east": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"south": {"uv": [0, 0, 14, 2], "texture": "#0"},
+				"west": {"uv": [0, 0, 2, 2], "texture": "#0"},
+				"up": {"uv": [0, 0, 14, 2], "texture": "#0"},
+				"down": {"uv": [0, 0, 14, 2], "texture": "#0"}
+			}
+		},
+		{
+			"from": [1.5, 0, 10],
+			"to": [14.5, 13, 10.01],
+			"rotation": {"angle": 0, "axis": "y", "origin": [1, 0, 10]},
+			"faces": {
+				"north": {"uv": [0, 0, 13, 13], "texture": "#0"},
+				"east": {"uv": [1.99, 0, 2, 13], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"west": {"uv": [0, 0, 0.01, 13], "texture": "#0"},
+				"up": {"uv": [0, 0, 13, 0.01], "texture": "#0"},
+				"down": {"uv": [0, 1.99, 13, 2], "texture": "#0"}
+			}
+		}
+	]
+}

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "nanbin:block/metalfence", "y": 180, "uvlock": true },
+    "facing=east":  { "model": "nanbin:block/metalfence", "y": 270, "uvlock": true },
+    "facing=south": { "model": "nanbin:block/metalfence", "y": 0, "uvlock": true },
+    "facing=west":  { "model": "nanbin:block/metalfence", "y": 90, "uvlock": true }
+  }
+}

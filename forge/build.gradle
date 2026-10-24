@@ -1,0 +1,128 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+import org.mtr.mod.BuildTools
+
+plugins {
+	id "net.minecraftforge.gradle" version "6.+"
+	id "org.spongepowered.mixin" version "+"
+}
+
+repositories {
+    mavenCentral()
+}
+
+final BuildTools buildTools = new BuildTools(minecraftVersion, "forge", mtrVersion, project)
+
+minecraft {
+	mappings channel: "official", version: minecraftVersion
+	accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
+	runs {
+		configureEach {
+			property "forge.logging.markers", "REGISTRIES"
+			property "forge.logging.console.level", "debug"
+			mods {
+				nanbin {
+					source sourceSets.main
+				}
+			}
+		}
+		client {}
+		server { args "--nogui" }
+	}
+}
+
+sourceSets.main.resources { srcDir "src/generated/resources" }
+
+tasks.processResources {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	from("src/main/resources") {
+		into ""
+	}
+}
+
+jarJar.enable()
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraftVersion}-${buildTools.getForgeVersion()}"
+    annotationProcessor "org.spongepowered:mixin:+:processor"
+    implementation fg.deobf("org.mtr:MTR-forge:${mtrVersion}+${minecraftVersion}")
+    
+    implementation(fg.deobf("ziyue.filters:filters-forge:${buildTools.getFiltersVersion()}"))
+
+    // Nashorn 引擎：forge 1.20.1 环境自带 org.openjdk.nashorn:nashorn-core:15.4（含 asm），
+    // 因此这里不打包任何 JS 引擎，避免与环境中/其他 mod 的 nashorn/graal 模块冲突。
+}
+
+mixin {
+	config "nanbin.mixins.json"
+	debug.verbose = true
+	debug.export = true
+}
+
+java {
+	toolchain {
+		languageVersion.set(JavaLanguageVersion.of(buildTools.javaLanguageVersion))
+	}
+	withSourcesJar()
+}
+
+tasks.register("setupFiles") {
+	copy {
+		outputs.upToDateWhen { false }
+		from "src/main/mods.template.toml"
+		into "src/main/resources/META-INF"
+		filter(ReplaceTokens, tokens: [version: version, minecraftVersion: minecraftVersion, mtrVersion: mtrVersion])
+		rename "(.+).template.toml", "\$1.toml"
+	}
+
+	delete fileTree("src/main/java/com/Nanbin/Blocks")
+	delete fileTree("src/main/java/com/Nanbin/Items")
+	delete fileTree("src/main/java/com/Nanbin/ItemsGroup")
+	delete fileTree("src/main/java/com/Nanbin/Registry")
+	delete fileTree("src/main/java/com/Nanbin/entity")
+	delete fileTree("src/main/java/com/Nanbin/util")
+	delete fileTree("src/main/java/com/Nanbin/Init.java")
+	delete fileTree("src/main/java/com/Nanbin/InitClient.java")
+	delete fileTree("src/main/java/com/Nanbin/client")
+	delete fileTree("src/main/java/com/Nanbin/packet")
+	delete fileTree("src/main/resources/assets")
+	delete fileTree("src/main/resources/data")
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/java/com/Nanbin"
+		into "src/main/java/com/Nanbin"
+		exclude "**/NanbinClientFabric.java"
+		exclude "**/NanbinFabric.java"
+		exclude "**/ModmenuConfig.java"
+		exclude "**/mapping/**"
+	}
+
+	copy {
+		outputs.upToDateWhen { false }
+		from "../fabric/src/main/resources"
+		into "src/main/resources"
+		exclude "fabric.mod.json"
+		exclude "msd.accesswidener"
+	}
+}
+
+compileJava.dependsOn("setupFiles")
+
+build {
+	doLast {
+		buildTools.copyBuildFile()
+	}
+}
+
+shadowJar {
+	archiveFileName.set("Nanbin-${version}+${minecraftVersion}+forge+mtr4.jar")
+	finalizedBy "reobfShadowJar"
+	configurations = [project.configurations.shadow]
+	zip64 true
+}
+
+reobf {
+	shadowJar {}
+}
+
+assemble.dependsOn shadowJar
