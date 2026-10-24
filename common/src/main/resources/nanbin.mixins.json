@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.Nanbin.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+    "RailwaySignScreenMixin",
+    "RenderRailwaySignMixin"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

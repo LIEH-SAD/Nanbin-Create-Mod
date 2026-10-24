@@ -1,0 +1,28 @@
+{
+    "variants": {
+        "facing=north,half=lower,side=left": { "model": "nanbin:block/crt_station_info_1_left" },
+        "facing=east,half=lower,side=left":  { "model": "nanbin:block/crt_station_info_1_left", "y":  90 },
+        "facing=south,half=lower,side=left": { "model": "nanbin:block/crt_station_info_1_left", "y": 180 },
+        "facing=west,half=lower,side=left":  { "model": "nanbin:block/crt_station_info_1_left", "y": 270 },
+        "facing=north,half=lower,side=middle": { "model": "nanbin:block/crt_station_info_1_middle" },
+        "facing=east,half=lower,side=middle":  { "model": "nanbin:block/crt_station_info_1_middle", "y":  90 },
+        "facing=south,half=lower,side=middle": { "model": "nanbin:block/crt_station_info_1_middle", "y": 180 },
+        "facing=west,half=lower,side=middle":  { "model": "nanbin:block/crt_station_info_1_middle", "y": 270 },
+        "facing=north,half=lower,side=right": { "model": "nanbin:block/crt_station_info_1_right" },
+        "facing=east,half=lower,side=right":  { "model": "nanbin:block/crt_station_info_1_right", "y":  90 },
+        "facing=south,half=lower,side=right": { "model": "nanbin:block/crt_station_info_1_right", "y": 180 },
+        "facing=west,half=lower,side=right":  { "model": "nanbin:block/crt_station_info_1_right", "y": 270 },
+        "facing=north,half=upper,side=left": { "model": "nanbin:block/crt_station_info_1_left_top" },
+        "facing=east,half=upper,side=left":  { "model": "nanbin:block/crt_station_info_1_left_top", "y":  90 },
+        "facing=south,half=upper,side=left": { "model": "nanbin:block/crt_station_info_1_left_top", "y": 180 },
+        "facing=west,half=upper,side=left":  { "model": "nanbin:block/crt_station_info_1_left_top", "y": 270 },
+        "facing=north,half=upper,side=middle": { "model": "nanbin:block/crt_station_info_1_middle_top" },
+        "facing=east,half=upper,side=middle":  { "model": "nanbin:block/crt_station_info_1_middle_top", "y":  90 },
+        "facing=south,half=upper,side=middle": { "model": "nanbin:block/crt_station_info_1_middle_top", "y": 180 },
+        "facing=west,half=upper,side=middle":  { "model": "nanbin:block/crt_station_info_1_middle_top", "y": 270 },
+        "facing=north,half=upper,side=right": { "model": "nanbin:block/crt_station_info_1_right_top" },
+        "facing=east,half=upper,side=right":  { "model": "nanbin:block/crt_station_info_1_right_top", "y":  90 },
+        "facing=south,half=upper,side=right": { "model": "nanbin:block/crt_station_info_1_right_top", "y": 180 },
+        "facing=west,half=upper,side=right":  { "model": "nanbin:block/crt_station_info_1_right_top", "y": 270 }
+    }
+}
