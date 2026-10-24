@@ -1,0 +1,39 @@
+# Gradle / Architectury
+.gradle/
+build/
+out/
+.architectury-transformer/
+.mtr-nested-jars/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.launch
+
+# Minecraft run directories
+run/
+run-*/
+
+# Local MTR dependency jars (open-source lib is not redistributed here)
+libs/*.jar
+
+# Logs / temp
+*.log
+logs/
+crash-reports/
+*.tmp
+*.bak
+
+# OS
+.DS_Store
+Thumbs.db
+/.gitignore
+/build.gradle
+/gradle.properties
+/gradlew
+/gradlew.bat
+/settings.gradle
