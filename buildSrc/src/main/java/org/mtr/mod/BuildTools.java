@@ -9,6 +9,7 @@ import com.jonafanho.apitools.ModProvider;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -24,24 +25,32 @@ public class BuildTools {
     public final String loader;
     public final int javaLanguageVersion;
     private final Path path;
+    private final Path sourcePath;
+    private final Path outputPath;
     private final String version;
     private final String mtrVersion;
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public BuildTools(String minecraftVersion, String loader, String mtrVersion, Project project) throws IOException {
+        this(minecraftVersion, loader, mtrVersion, project, project.getProjectDir());
+    }
+
+    public BuildTools(String minecraftVersion, String loader, String mtrVersion, Project project, File sourceRoot) throws IOException {
         this.minecraftVersion = minecraftVersion;
         this.loader = loader;
         this.path = project.getProjectDir().toPath();
+        this.sourcePath = sourceRoot.toPath();
+        this.outputPath = project.getRootProject().getLayout().getBuildDirectory().get().getAsFile().toPath();
         this.version = project.getVersion().toString();
         this.mtrVersion = mtrVersion;
         int majorVersion = Integer.parseInt(minecraftVersion.split("\\.")[1]);
         javaLanguageVersion = majorVersion <= 16 ? 8 : majorVersion == 17 ? 16 : 17;
 
-        final Path accessWidenerPath = path.resolve("src/main/resources").resolve(loader.equals("fabric") ? "" : "META-INF");
+        final Path accessWidenerPath = sourcePath.resolve("src/main/resources").resolve(loader.equals("fabric") ? "" : "META-INF");
         Files.createDirectories(accessWidenerPath);
         create(minecraftVersion, loader, accessWidenerPath.resolve(loader.equals("fabric") ? "msd.accesswidener" : "accesstransformer.cfg"));
 
-        final Path mixinPath = path.resolve("src/main/java/top/mcmtr/mixin");
+        final Path mixinPath = sourcePath.resolve("src/main/java/top/mcmtr/mixin");
         Files.createDirectories(mixinPath);
     }
 
@@ -103,7 +112,7 @@ public class BuildTools {
     }
 
     public void copyBuildFile() throws IOException {
-        final Path directory = path.getParent().resolve("build/release");
+        final Path directory = outputPath.resolve("release");
         Files.createDirectories(directory);
         Files.copy(path.resolve(String.format("build/libs/Nanbin-%s+%s+%s+mtr4.jar", version, minecraftVersion, loader)), directory.resolve(String.format("Nanbin-%s+%s+%s+mtr4.jar", version, minecraftVersion, loader)), StandardCopyOption.REPLACE_EXISTING);
     }

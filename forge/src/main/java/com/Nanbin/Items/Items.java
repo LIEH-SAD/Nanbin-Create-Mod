@@ -2,11 +2,7 @@ package com.Nanbin.Items;
 
 import com.Nanbin.Blocks.Blocks;
 import com.Nanbin.ItemsGroup.ItemsGroup;
-import com.Nanbin.Registry.RegItem.ItemCRTAPG1;
-import com.Nanbin.Registry.RegItem.ItemCRTAPG2;
-import com.Nanbin.Registry.RegItem.ItemCRTEscalator;
-import com.Nanbin.Registry.RegItem.ItemCRTPSD1;
-import com.Nanbin.Registry.RegItem.ItemPhone;
+import com.Nanbin.Registry.RegItem.*;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.Item;
 import org.mtr.mapping.registry.ItemRegistryObject;

@@ -1,7 +1,10 @@
 package com.Nanbin.client.Render;
 
 import com.Nanbin.InitClient;
-import com.Nanbin.Registry.RegBlock.*;
+import com.Nanbin.Registry.RegBlock.BlockCRTAPGDoor1;
+import com.Nanbin.Registry.RegBlock.BlockCRTAPGGlass1;
+import com.Nanbin.Registry.RegBlock.BlockCRTAPGGlassEnd1;
+import com.Nanbin.Registry.RegBlock.BlockCRTPlatform;
 import com.Nanbin.Registry.RegBlock.flag.APGDoorNumbering;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
 import org.mtr.core.data.Platform;

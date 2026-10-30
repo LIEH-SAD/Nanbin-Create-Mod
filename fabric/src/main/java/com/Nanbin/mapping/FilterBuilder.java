@@ -3,9 +3,7 @@ package com.Nanbin.mapping;
 import org.mtr.mapping.holder.ItemStack;
 import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.holder.PressAction;
-import org.mtr.mapping.registry.BlockRegistryObject;
 import org.mtr.mapping.registry.CreativeModeTabHolder;
-import org.mtr.mapping.registry.ItemRegistryObject;
 import ziyue.filters.Filter;
 
 import java.util.function.Supplier;

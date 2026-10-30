@@ -4,7 +4,6 @@ import com.Nanbin.client.Render.*;
 import com.Nanbin.entity.BlockEntityTypes;
 
 import static org.mtr.mod.InitClient.REGISTRY_CLIENT;
-import org.mtr.mod.render.RenderPSDAPGDoor;
 
 public class BlockEntityRender {
 

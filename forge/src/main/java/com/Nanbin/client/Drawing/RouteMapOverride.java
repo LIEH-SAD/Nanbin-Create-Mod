@@ -1,11 +1,6 @@
 package com.Nanbin.client.Drawing;
 
-import org.mtr.mapping.holder.AbstractTexture;
-import org.mtr.mapping.holder.Identifier;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.NativeImage;
-import org.mtr.mapping.holder.NativeImageBackedTexture;
-import org.mtr.mapping.holder.TextureManager;
+import org.mtr.mapping.holder.*;
 
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;

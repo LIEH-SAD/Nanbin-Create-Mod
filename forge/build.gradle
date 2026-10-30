@@ -1,20 +1,28 @@
-import org.apache.tools.ant.filters.ReplaceTokens
 import org.mtr.mod.BuildTools
 
 plugins {
+	id "java"
+	id "com.github.johnrengelman.shadow" version "+"
 	id "net.minecraftforge.gradle" version "6.+"
 	id "org.spongepowered.mixin" version "+"
 }
+
+apply from: rootProject.file("gradle/node.gradle")
 
 repositories {
     mavenCentral()
 }
 
-final BuildTools buildTools = new BuildTools(minecraftVersion, "forge", mtrVersion, project)
+// The Minecraft version of the current Stonecutter node (for example :forge:1.20.1).
+def minecraftVersion = stonecutter.current.version
+def branchDir = rootProject.file("forge")
+def branchResources = new File(branchDir, "src/main/resources")
+
+final BuildTools buildTools = new BuildTools(minecraftVersion, "forge", mtrVersion, project, branchDir)
 
 minecraft {
 	mappings channel: "official", version: minecraftVersion
-	accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
+	accessTransformer = new File(branchResources, "META-INF/accesstransformer.cfg")
 	runs {
 		configureEach {
 			property "forge.logging.markers", "REGISTRIES"
@@ -30,11 +38,11 @@ minecraft {
 	}
 }
 
-sourceSets.main.resources { srcDir "src/generated/resources" }
+sourceSets.main.resources { srcDir new File(branchDir, "src/generated/resources") }
 
 tasks.processResources {
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE
-	from("src/main/resources") {
+	from(branchResources) {
 		into ""
 	}
 }
@@ -45,7 +53,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraftVersion}-${buildTools.getForgeVersion()}"
     annotationProcessor "org.spongepowered:mixin:+:processor"
     implementation fg.deobf("org.mtr:MTR-forge:${mtrVersion}+${minecraftVersion}")
-    
+
     implementation(fg.deobf("ziyue.filters:filters-forge:${buildTools.getFiltersVersion()}"))
 
     // Nashorn 引擎：forge 1.20.1 环境自带 org.openjdk.nashorn:nashorn-core:15.4（含 asm），
@@ -65,48 +73,48 @@ java {
 	withSourcesJar()
 }
 
+// 每个版本节点单独生成 mods.toml，避免多版本并行构建时互相覆盖。
+def generatedResources = layout.buildDirectory.dir("generated/templates")
+
 tasks.register("setupFiles") {
-	copy {
-		outputs.upToDateWhen { false }
-		from "src/main/mods.template.toml"
-		into "src/main/resources/META-INF"
-		filter(ReplaceTokens, tokens: [version: version, minecraftVersion: minecraftVersion, mtrVersion: mtrVersion])
-		rename "(.+).template.toml", "\$1.toml"
-	}
+	group = "nanbin"
+	description = "Generate META-INF/mods.toml for Minecraft ${minecraftVersion}"
 
-	delete fileTree("src/main/java/com/Nanbin/Blocks")
-	delete fileTree("src/main/java/com/Nanbin/Items")
-	delete fileTree("src/main/java/com/Nanbin/ItemsGroup")
-	delete fileTree("src/main/java/com/Nanbin/Registry")
-	delete fileTree("src/main/java/com/Nanbin/entity")
-	delete fileTree("src/main/java/com/Nanbin/util")
-	delete fileTree("src/main/java/com/Nanbin/Init.java")
-	delete fileTree("src/main/java/com/Nanbin/InitClient.java")
-	delete fileTree("src/main/java/com/Nanbin/client")
-	delete fileTree("src/main/java/com/Nanbin/packet")
-	delete fileTree("src/main/resources/assets")
-	delete fileTree("src/main/resources/data")
+	def template = new File(branchDir, "src/main/mods.template.toml")
+	inputs.file(template)
+	inputs.property("version", version)
+	inputs.property("minecraftVersion", minecraftVersion)
+	inputs.property("mtrVersion", mtrVersion)
+	outputs.dir(generatedResources)
 
-	copy {
-		outputs.upToDateWhen { false }
-		from "../fabric/src/main/java/com/Nanbin"
-		into "src/main/java/com/Nanbin"
-		exclude "**/NanbinClientFabric.java"
-		exclude "**/NanbinFabric.java"
-		exclude "**/ModmenuConfig.java"
-		exclude "**/mapping/**"
-	}
+	doLast {
+		// 旧版构建会把 mods.toml 写进共享源码目录；现在改为每个版本单独生成。
+		new File(branchDir, "src/main/resources/META-INF/mods.toml").delete()
 
-	copy {
-		outputs.upToDateWhen { false }
-		from "../fabric/src/main/resources"
-		into "src/main/resources"
-		exclude "fabric.mod.json"
-		exclude "msd.accesswidener"
+		def target = generatedResources.get().file("META-INF/mods.toml").asFile
+		target.parentFile.mkdirs()
+		target.text = template.text
+				.replace("@version@", version.toString())
+				.replace("@minecraftVersion@", minecraftVersion)
+				.replace("@mtrVersion@", mtrVersion.toString())
 	}
 }
 
-compileJava.dependsOn("setupFiles")
+sourceSets.main.resources.srcDir(generatedResources)
+
+tasks.named("sourcesJar") {
+	dependsOn(rootProject.tasks.named("syncForgeSources"), "setupFiles")
+}
+
+// Stonecutter preprocesses forge/src, which syncForgeSources writes to.
+tasks.configureEach {
+	if (name.startsWith("stonecutter")) {
+		dependsOn(rootProject.tasks.named("syncForgeSources"))
+	}
+}
+
+compileJava.dependsOn(rootProject.tasks.named("syncForgeSources"), "setupFiles")
+processResources.dependsOn(rootProject.tasks.named("syncForgeSources"), "setupFiles")
 
 build {
 	doLast {

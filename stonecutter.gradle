@@ -1,0 +1,7 @@
+plugins {
+	id "dev.kikugie.stonecutter"
+}
+
+// The active version is the one edited directly in fabric/src and forge/src.
+// Other versions are built from preprocessed copies of those sources.
+stonecutter.active "1.20.1"

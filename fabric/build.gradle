@@ -1,11 +1,18 @@
-import org.apache.tools.ant.filters.ReplaceTokens
 import org.mtr.mod.BuildTools
 
 plugins {
+    id "java"
+    id "com.github.johnrengelman.shadow" version "+"
     id "fabric-loom" version "1.10-SNAPSHOT"
 }
 
-final BuildTools buildTools = new BuildTools(minecraftVersion, "fabric", mtrVersion, project)
+apply from: rootProject.file("gradle/node.gradle")
+
+// The Minecraft version of the current Stonecutter node (for example :fabric:1.20.1).
+def minecraftVersion = stonecutter.current.version
+def branchDir = rootProject.file("fabric")
+
+final BuildTools buildTools = new BuildTools(minecraftVersion, "fabric", mtrVersion, project, branchDir)
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraftVersion}"
@@ -62,14 +69,35 @@ java {
     withSourcesJar()
 }
 
+// 每个版本节点单独生成 fabric.mod.json，避免多版本并行构建时互相覆盖。
+def generatedResources = layout.buildDirectory.dir("generated/templates")
+
 tasks.register("setupFiles") {
-    copy {
-        outputs.upToDateWhen { false }
-        from "src/main/fabric.mod.template.json"
-        into "src/main/resources"
-        filter(ReplaceTokens, tokens: [version: version, minecraftVersion: minecraftVersion])
-        rename "(.+).template.json", "\$1.json"
+    group = "nanbin"
+    description = "Generate fabric.mod.json for Minecraft ${minecraftVersion}"
+
+    def template = new File(branchDir, "src/main/fabric.mod.template.json")
+    inputs.file(template)
+    inputs.property("version", version)
+    inputs.property("minecraftVersion", minecraftVersion)
+    outputs.dir(generatedResources)
+
+    doLast {
+        // 旧版构建会把 fabric.mod.json 写进共享源码目录；现在改为每个版本单独生成。
+        new File(branchDir, "src/main/resources/fabric.mod.json").delete()
+
+        def target = generatedResources.get().file("fabric.mod.json").asFile
+        target.parentFile.mkdirs()
+        target.text = template.text
+                .replace("@version@", version.toString())
+                .replace("@minecraftVersion@", minecraftVersion)
     }
+}
+
+sourceSets.main.resources.srcDir(generatedResources)
+
+tasks.named("sourcesJar") {
+    dependsOn("setupFiles")
 }
 
 // 离线绘制测试：不开游戏把吊板线路图渲染成 PNG（build/draw-test），用于调比例/排版
@@ -83,6 +111,7 @@ tasks.register("drawTest", JavaExec) {
 }
 
 compileJava.dependsOn("setupFiles")
+processResources.dependsOn("setupFiles")
 
 build {
     doLast {

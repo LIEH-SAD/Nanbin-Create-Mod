@@ -2,6 +2,7 @@ pluginManagement {
 	repositories {
 		maven { url = "https://maven.fabricmc.net/" }
 		maven { url = "https://maven.minecraftforge.net/" }
+		maven { url = "https://maven.kikugie.dev/releases" }
 		mavenCentral()
 		gradlePluginPortal()
 	}
@@ -9,9 +10,61 @@ pluginManagement {
 
 plugins {
 	id "org.gradle.toolchains.foojay-resolver-convention" version "+"
+	id "dev.kikugie.stonecutter" version "0.7.11"
 }
 
-include("fabric")
-include("forge")
+// Supported Minecraft versions are the ones the bundled MTR jars were built for.
+// libs/ is not tracked by git, so the committed stonecutterVersions property is used as fallback.
+def configuredVersions = providers.gradleProperty("stonecutterVersions")
+		.getOrElse("")
+		.split(",")
+		.collect { it.trim() }
+		.findAll { !it.isEmpty() }
+
+def libsVersions = { String loader ->
+	def files = file("libs").listFiles()
+	if (files == null) {
+		return []
+	}
+	return files
+			.collect { it.name }
+			.findAll { it ==~ /MTR-${loader}-\d+(\.\d+)+\+\d+(\.\d+)+(-server)?\.jar/ }
+			.collect { it.replaceFirst(/^MTR-${loader}-[^+]*\+/, "").replaceFirst(/(-server)?\.jar$/, "") }
+			.findAll { !it.isEmpty() }
+}
+
+def versionsFor = { String loader ->
+	def versions = new LinkedHashSet<String>(configuredVersions)
+	versions.addAll(libsVersions(loader))
+	versions.toList().sort { a, b -> a <=> b }
+}
+
+def fabricVersions = versionsFor("fabric")
+def forgeVersions = versionsFor("forge")
+
+if (fabricVersions.isEmpty() || forgeVersions.isEmpty()) {
+	throw new GradleException("No Minecraft versions found. Add MTR jars to libs/ or set stonecutterVersions in gradle.properties.")
+}
+
+println "Stonecutter versions (from libs/ + gradle.properties):"
+println "  fabric: ${fabricVersions}"
+println "  forge:  ${forgeVersions}"
+
+gradle.rootProject { root ->
+	root.apply from: new File(root.projectDir, "gradle/root-project.gradle")
+}
+
+stonecutter {
+	// Groovy build scripts are used throughout this project.
+	kotlinController = false
+	centralScript = "build.gradle"
+
+	create(":") {
+		// fabric/ and forge/ become branches that own the shared sources in their src/ directory.
+		branch("fabric") { b -> b.versions(fabricVersions as String[]) }
+		branch("forge") { b -> b.versions(forgeVersions as String[]) }
+		vcsVersion.set("1.20.1")
+	}
+}
 
 rootProject.name = "Nanbin"

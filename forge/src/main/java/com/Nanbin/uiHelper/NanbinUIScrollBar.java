@@ -1,6 +1,5 @@
 package com.Nanbin.uiHelper;
 
-import org.mtr.mapping.holder.TextRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mapping.mapper.GuiDrawing;
 

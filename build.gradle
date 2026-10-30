@@ -1,33 +1,3 @@
-plugins {
-	id "java"
-	id "com.github.johnrengelman.shadow" version "+" apply false
-}
-
-group "com.Nanbin"
-version rootProject.properties.version
-
-subprojects {
-	apply plugin: "java"
-	apply plugin: "com.github.johnrengelman.shadow"
-
-	configurations {
-		shadowImplementation
-		implementation.extendsFrom shadowImplementation
-	}
-
-	dependencies {
-		compileOnly "com.google.code.findbugs:jsr305:+"
-	}
-
-	shadowJar {
-		configurations = [project.configurations.shadowImplementation]
-	}
-
-	repositories {
-		mavenCentral()
-		flatDir { dirs "../libs" }
-		maven { url "https://jitpack.io" }
-		maven { url "https://maven.ziyuesinicization.site/releases/" }
-		maven { url "https://maven.shedaniel.me/" }
-	}
-}
+// Stonecutter evaluates this file as the shared build script for root-branch nodes only.
+// Project-wide node configuration lives in gradle/node.gradle,
+// root-only configuration lives in gradle/root-project.gradle (applied from settings.gradle).

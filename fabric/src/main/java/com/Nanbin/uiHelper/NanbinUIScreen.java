@@ -1,16 +1,8 @@
 package com.Nanbin.uiHelper;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.mtr.mapping.holder.ClickableWidget;
-import org.mtr.mapping.holder.MathHelper;
-import org.mtr.mapping.holder.MinecraftClient;
-import org.mtr.mapping.holder.MutableText;
-import org.mtr.mapping.holder.Screen;
-import org.mtr.mapping.mapper.GraphicsHolder;
-import org.mtr.mapping.mapper.GuiDrawing;
-import org.mtr.mapping.mapper.ScreenExtension;
-import org.mtr.mapping.mapper.TextFieldWidgetExtension;
-import org.mtr.mapping.mapper.TextHelper;
+import org.mtr.mapping.holder.*;
+import org.mtr.mapping.mapper.*;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

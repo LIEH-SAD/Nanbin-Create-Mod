@@ -6,7 +6,6 @@ import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.BlockWithEntity;
 import org.mtr.mod.block.BlockPSDTop;
-import org.mtr.mod.block.IBlock;
 
 import javax.annotation.Nonnull;
 

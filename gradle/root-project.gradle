@@ -1,0 +1,52 @@
+// Root project configuration.
+// Stonecutter uses build.gradle as the shared script for its nodes, so root-only logic lives here
+// and is applied from settings.gradle via gradle.rootProject { ... }.
+
+group = "com.Nanbin"
+version = rootProject.properties.version
+
+// Copy shared sources from fabric/src into forge/src once per build, so parallel node builds
+// do not delete/copy the same files concurrently.
+tasks.register("syncForgeSources") {
+	group = "nanbin"
+	description = "Copy shared sources from fabric/src into forge/src (forge-only files are preserved)."
+
+	def fabricMain = file("fabric/src/main")
+	def forgeMain = file("forge/src/main")
+
+	inputs.dir("${fabricMain}/java/com/Nanbin")
+	inputs.dir("${fabricMain}/resources")
+	outputs.dir("${forgeMain}/java/com/Nanbin")
+	outputs.dir("${forgeMain}/resources")
+
+	doLast {
+		delete fileTree("${forgeMain}/java/com/Nanbin/Blocks")
+		delete fileTree("${forgeMain}/java/com/Nanbin/Items")
+		delete fileTree("${forgeMain}/java/com/Nanbin/ItemsGroup")
+		delete fileTree("${forgeMain}/java/com/Nanbin/Registry")
+		delete fileTree("${forgeMain}/java/com/Nanbin/entity")
+		delete fileTree("${forgeMain}/java/com/Nanbin/util")
+		delete fileTree("${forgeMain}/java/com/Nanbin/Init.java")
+		delete fileTree("${forgeMain}/java/com/Nanbin/InitClient.java")
+		delete fileTree("${forgeMain}/java/com/Nanbin/client")
+		delete fileTree("${forgeMain}/java/com/Nanbin/packet")
+		delete fileTree("${forgeMain}/resources/assets")
+		delete fileTree("${forgeMain}/resources/data")
+
+		copy {
+			from "${fabricMain}/java/com/Nanbin"
+			into "${forgeMain}/java/com/Nanbin"
+			exclude "**/NanbinClientFabric.java"
+			exclude "**/NanbinFabric.java"
+			exclude "**/ModmenuConfig.java"
+			exclude "**/mapping/**"
+		}
+
+		copy {
+			from "${fabricMain}/resources"
+			into "${forgeMain}/resources"
+			exclude "fabric.mod.json"
+			exclude "msd.accesswidener"
+		}
+	}
+}

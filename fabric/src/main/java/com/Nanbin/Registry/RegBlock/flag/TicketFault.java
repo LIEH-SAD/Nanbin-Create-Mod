@@ -1,12 +1,7 @@
 package com.Nanbin.Registry.RegBlock.flag;
 
 import com.Nanbin.mapping.TranslationProvider;
-import org.mtr.mapping.holder.BlockState;
-import org.mtr.mapping.holder.BooleanProperty;
-import org.mtr.mapping.holder.PlayerEntity;
-import org.mtr.mapping.holder.Text;
-import org.mtr.mapping.holder.TextFormatting;
-import org.mtr.mapping.holder.World;
+import org.mtr.mapping.holder.*;
 import org.mtr.mod.block.IBlock;
 
 import java.util.HashMap;
