@@ -1,7 +1,31 @@
 {
-	"parent": "mtr:block/psd_glass_end_top_right_air_1",
+	"format_version": "26.3",
+	"credit": "Nanbin Studio",
+	"parent": "block/block",
 	"textures": {
 		"front": "mtr:block/psd_glass_diagonal_top_1",
-		"back": "mtr:block/psd_glass_diagonal_top_back_1"
-	}
+		"back": "mtr:block/psd_glass_diagonal_top_back_1",
+		"particle": "mtr:item/psd_glass_1"
+	},
+	"elements": [
+		{
+			"name": "End glass panel",
+			"from": [4, 0, 2],
+			"to": [6, 16, 8],
+			"faces": {
+				"east": {"uv": [0, 0, 16, 16], "texture": "#front"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#back"}
+			}
+		},
+		{
+			"name": "Right angle return",
+			"from": [6, 0, 2],
+			"to": [16, 16, 4],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 2]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#front"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#back"}
+			}
+		}
+	]
 }

@@ -211,7 +211,7 @@ public class RenderCRTAPGDoor1<T extends BlockCRTAPGDoor1.BlockEntityBase> exten
                                 renderLayer = QueuedRenderLayer.EXTERIOR;
                             }
 
-                            MainRenderer.scheduleRender(new Identifier(String.format("nanbin:textures/block/crt_apg_door_light_%s_old.png", lightTexture)), false, renderLayer, (graphicsHolderNew, offset) -> {
+                            MainRenderer.scheduleRender(new Identifier(String.format("nanbin:textures/block/crt_door_light_%s.png", lightTexture)), false, renderLayer, (graphicsHolderNew, offset) -> {
                                 storedMatrixTransformationsLight.transform(graphicsHolderNew, offset);
                                 graphicsHolderNew.translate((double) -0.50F, (double) 0.0F, (double) 0.0F);
                                 //graphicsHolderNew.scale(0.5F, 1.0F, 1.0F);

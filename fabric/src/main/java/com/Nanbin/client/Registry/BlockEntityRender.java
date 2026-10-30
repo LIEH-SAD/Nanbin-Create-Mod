@@ -35,7 +35,7 @@ public class BlockEntityRender {
         REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.CRT_APG_DOOR_2, (dispatcher) -> new RenderCRTAPGDoor2<>(dispatcher, 2));
         REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.CRT_STATION_INFO_1, RenderCRTStationInfo1::new);
         REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.CRT_STATION_INFO_1_DOUBLE, RenderCRTStationInfo1Double::new);
-        REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.CRT_PSD_DOOR_1, (dispatcher) -> new RenderPSDAPGDoor<>(dispatcher, 0));
+        REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.CRT_PSD_DOOR_1, (dispatcher) -> new RenderCRTPSDDoor1<>(dispatcher));
         REGISTRY_CLIENT.registerBlockEntityRenderer(BlockEntityTypes.CRT_PSD_TOP_1, RenderCRTPSDTop1::new);
     }
 }

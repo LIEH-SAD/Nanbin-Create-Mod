@@ -1,9 +1,34 @@
 {
-	"parent": "mtr:block/psd_glass_end_top_right_middle_1",
+	"parent": "block/block",
 	"textures": {
+		"particle": "mtr:item/psd_glass_1",
 		"bottom": "mtr:block/transparent",
 		"top": "mtr:block/black",
 		"front": "nanbin:block/crt_psd_glass_1_top",
 		"back": "nanbin:block/crt_psd_glass_1_top_back"
-	}
+	},
+	"elements": [
+		{
+			"from": [ 4, 0, 0 ],
+			"to": [ 6, 16, 8 ],
+			"faces": {
+				"down": {
+					"texture": "#bottom",
+					"cullface": "down"
+				},
+				"up": {
+					"texture": "#top",
+					"cullface": "up"
+				},
+				"east": {
+					"uv": [ 12, 0, 4, 16 ],
+					"texture": "#front"
+				},
+				"west": {
+					"uv": [ 4, 0, 12, 16 ],
+					"texture": "#back"
+				}
+			}
+		}
+	]
 }

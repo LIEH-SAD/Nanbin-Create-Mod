@@ -1,6 +1,6 @@
 {
 	"parent": "mtr:block/psd_top_right_edge",
 	"textures": {
-		"particle": "mtr:block/psd_top_edge"
+		"particle": "nanbin:block/crt_psd_top"
 	}
 }
