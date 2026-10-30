@@ -18,6 +18,9 @@
     当前编辑版本（active）在 stonecutter.gradle 中设置，默认 1.20.1。
     切换 active 版本：./gradlew stonecutterSwitchTo<mc>（如 stonecutterSwitchTo1.20.4）
     构建单版本：./gradlew :fabric:1.20.1:build :forge:1.20.1:build
+    生成 IDE 启动配置：./gradlew ideaRunConfigs
+        （在 .idea/runConfigurations 生成各版本的 “Minecraft Client/Server (:fabric:<mc>)”、“(:forge:<mc>)”，
+          对应 runClient / runServer，位于 IDE 的 Minecraft 分组下）
     构建全部版本：./gradlew build
     版本条件注释（Stonecutter 0.7.x 语法，没有 if 关键字）：
         //? >=1.19.4 {

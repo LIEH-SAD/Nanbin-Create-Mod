@@ -50,6 +50,9 @@ println "Stonecutter versions (from libs/ + gradle.properties):"
 println "  fabric: ${fabricVersions}"
 println "  forge:  ${forgeVersions}"
 
+// 供 root-project.gradle 生成 IDE 启动配置使用
+gradle.ext.nanbinNodeVersions = [fabric: fabricVersions, forge: forgeVersions]
+
 gradle.rootProject { root ->
 	root.apply from: new File(root.projectDir, "gradle/root-project.gradle")
 }

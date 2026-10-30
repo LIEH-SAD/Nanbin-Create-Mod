@@ -5,6 +5,69 @@
 group = "com.Nanbin"
 version = rootProject.properties.version
 
+// Generate IntelliJ launch configurations for every Stonecutter node
+// (:fabric:<mc> / :forge:<mc> 的 runClient / runServer)。
+tasks.register("ideaRunConfigs") {
+	group = "nanbin"
+	description = "Generate IntelliJ run configurations for all Minecraft client/server nodes"
+
+	def versionsByLoader = gradle.ext.nanbinNodeVersions ?: [:]
+	def outputDir = new File(projectDir, ".idea/runConfigurations")
+
+	outputs.upToDateWhen { false }
+
+	doLast {
+		outputDir.mkdirs()
+		// 删除本任务以前生成（以及旧版单项目 :fabric / :forge）的配置，避免失效条目。
+		outputDir.listFiles()?.each { file ->
+			if (file.name ==~ /Minecraft_(Client|Server)___.*\.xml/) {
+				file.delete()
+			}
+		}
+
+		def config = { String name, String taskPath ->
+			'<configuration name="' + name + '" type="GradleRunConfiguration" factoryName="Gradle" folderName="Minecraft">\n' +
+					'    <ExternalSystemSettings>\n' +
+					'        <option name="executionName"/>\n' +
+					'        <option name="externalProjectPath" value="$PROJECT_DIR$"/>\n' +
+					'        <option name="externalSystemIdString" value="GRADLE"/>\n' +
+					'        <option name="scriptParameters"/>\n' +
+					'        <option name="taskDescriptions">\n' +
+					'            <list/>\n' +
+					'        </option>\n' +
+					'        <option name="taskNames">\n' +
+					'            <list>\n' +
+					'                <option value="' + taskPath + '"/>\n' +
+					'            </list>\n' +
+					'        </option>\n' +
+					'        <option name="vmOptions"/>\n' +
+					'    </ExternalSystemSettings>\n' +
+					'    <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>\n' +
+					'    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\n' +
+					'    <DebugAllEnabled>false</DebugAllEnabled>\n' +
+					'    <RunAsTest>false</RunAsTest>\n' +
+					'    <method v="2"/>\n' +
+					'</configuration>\n'
+		}
+
+		def generated = 0
+		versionsByLoader.each { loader, versions ->
+			versions.each { mc ->
+				[['Client', 'runClient'], ['Server', 'runServer']].each { entry ->
+					def kind = entry[0]
+					def task = entry[1]
+					def name = "Minecraft ${kind} (:${loader}:${mc})"
+					def file = new File(outputDir, "Minecraft_${kind}_${loader}_${mc}.xml")
+					file.setText(config(name, ":${loader}:${mc}:${task}"), "UTF-8")
+					generated++
+				}
+			}
+		}
+
+		println "Generated ${generated} run configurations in ${outputDir}"
+	}
+}
+
 // Copy shared sources from fabric/src into forge/src once per build, so parallel node builds
 // do not delete/copy the same files concurrently.
 tasks.register("syncForgeSources") {
