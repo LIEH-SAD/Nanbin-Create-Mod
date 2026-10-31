@@ -1,7 +1,45 @@
 {
-	"parent": "mtr:block/psd_top_right_end",
+	"format_version": "26.3",
+	"credit": "Nanbin Studio",
+	"parent": "block/block",
 	"textures": {
-		"main": "nanbin:block/crt_psd_top",
-		"light": "nanbin:block/crt_apg_door_light_off_old"
-	}
+		"particle": "nanbin:block/crt_psd_top",
+		"main": "nanbin:block/crt_psd_top"
+	},
+	"elements": [
+		{
+			"name": "End panel",
+			"from": [0, 1, 0],
+			"to": [6, 16, 8],
+			"faces": {
+				"north": {"uv": [10, 0, 16, 15], "texture": "#main"},
+				"east": {"uv": [0, 0, 16, 15], "texture": "#main"},
+				"west": {"uv": [16, 0, 0, 15], "texture": "#main"},
+				"up": {"uv": [2, 2, 3, 3], "texture": "#main"}
+			}
+		},
+		{
+			"name": "End panel bottom",
+			"from": [0, 0, 0],
+			"to": [6, 1, 8],
+			"faces": {
+				"north": {"uv": [10, 15, 16, 16], "texture": "#main"},
+				"east": {"uv": [0, 15, 16, 16], "texture": "#main"},
+				"west": {"uv": [16, 15, 0, 16], "texture": "#main"},
+				"down": {"uv": [2, 2, 3, 3], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Right angle return",
+			"from": [6, 0, 0],
+			"to": [16, 16, 6],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#main"},
+				"east": {"uv": [0, 0, 2, 16], "texture": "#main"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#main"},
+				"up": {"uv": [0, 0, 10, 2], "texture": "#main"},
+				"down": {"uv": [0, 0, 10, 2], "texture": "#main"}
+			}
+		}
+	]
 }

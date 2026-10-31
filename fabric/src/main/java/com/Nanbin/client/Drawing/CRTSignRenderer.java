@@ -1,6 +1,5 @@
 package com.Nanbin.client.Drawing;
 
-import com.Nanbin.client.RouteMap.RoundMapDrawing;
 import org.mtr.mapping.holder.NativeImage;
 
 import java.awt.*;

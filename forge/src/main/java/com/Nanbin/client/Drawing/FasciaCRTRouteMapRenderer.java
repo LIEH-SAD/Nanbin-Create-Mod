@@ -1,8 +1,5 @@
 package com.Nanbin.client.Drawing;
 
-import com.Nanbin.client.RouteMap.LineMapData;
-import com.Nanbin.client.RouteMap.RoundMapDrawingInverse;
-import com.Nanbin.client.RouteMap.RouteMapGenerator;
 import org.mtr.mapping.holder.NativeImage;
 
 import java.awt.*;
@@ -64,6 +61,13 @@ public final class FasciaCRTRouteMapRenderer {
 	private static final int MAX_BRANCHES = 3;
 	private static final float BAND_TO_NAME_BH = 0.5F + CIRCLE_ABOVE_RATIO + PLAIN_DIAMETER_BAND_RATIO / 2F + NAME_ANCHOR_GAP_RATIO;
 	private static final float BRANCH_TOTAL_BH = 2F * EDGE_MARGIN_RATIO + NAME_STRIP_BH + BAND_TO_NAME_BH + BRANCH_PITCH_BH + 0.5F;
+	// 环线（胶囊）：两条线带在上下各占一条，两端半圆接上
+	private static final float LOOP_BAND_RATIO = 0.062F;
+	private static final float LOOP_GAP_RATIO = 0.33F;
+	private static final float LOOP_MIN_GAP_BH = 2.6F;
+	private static final float LOOP_NAME_SPACE_BH = 2F;
+	private static final float LOOP_END_INSET_BH = 0.6F;
+	private static final int MIN_LOOP_STATIONS = 4;
 
 	public static NativeImage render(LineMapData data, float groupBlocks, float bandHeight,
 			Font nameFont, int nameFontSize, Font numberFont, int numberFontSize,
@@ -109,6 +113,14 @@ public final class FasciaCRTRouteMapRenderer {
 
 			g.setColor(Color.WHITE);
 			g.fillRect(0, 0, w, h);
+
+			// 环线画成两端半圆的胶囊：上下两条线带，站名分别在胶囊外侧
+			if (data.loop() && stationCount >= MIN_LOOP_STATIONS) {
+				drawLoop(g, data, w, h, lineAwt, textAwt, nameFont, nameFontSize, numberFont, numberFontSize,
+						latinFontRatio, gapRatio, resolutionScale, reverse);
+				g.dispose();
+				return img;
+			}
 
 			// 端头预留
 			final float hMargin = w * (1F - CONTENT_WIDTH_RATIO) / 2F; // 内容整体居中
@@ -402,6 +414,163 @@ public final class FasciaCRTRouteMapRenderer {
 			float forkTopX, float halfW, float circleR) {
 	}
 
+	/**
+	 * 环线线路图：首尾相接，画成两端半圆的胶囊轮廓。上行走左→右、下行回右→左，两端半圆接上；
+	 * 车站圆在胶囊外侧（上行在上、下行在下），站名继续沿那条 45° 轴往外铺，换乘圆徽放进胶囊内部的空白。
+	 * 环线没有「已经过的车站」这种方向感，整条线只用一种颜色，本站用大一号的反白圆徽标出；
+	 * 支线在环线上不画（胶囊里没有第二条带可以接出去）。
+	 */
+	private static void drawLoop(Graphics2D g, LineMapData data, int w, int h, Color lineAwt, Color textAwt,
+			Font nameFont, int nameFontSize, Font numberFont, int numberFontSize, float latinFontRatio, float gapRatio,
+			float resolutionScale, boolean reverse) {
+		final int stationCount = data.stations().size();
+		final int currentIndex = Math.max(0, Math.min(stationCount - 1, data.currentIndex()));
+		final int topCount = (stationCount + 1) / 2;
+		final int bottomCount = stationCount - topCount;
+		final int columns = Math.max(1, Math.max(topCount, bottomCount));
+
+		final float hMargin = w * (1F - CONTENT_WIDTH_RATIO) / 2F;
+		float bh = h * LOOP_BAND_RATIO;
+		float gap = h * LOOP_GAP_RATIO;
+		float capR = (gap + bh) / 2F;
+		float pitch = 1F;
+		for (int pass = 0; pass < 4; pass++) {
+			final float xLeft = hMargin + capR;
+			final float xRight = w - hMargin - capR;
+			final float usable = Math.max(1F, xRight - xLeft - 2F * bh * LOOP_END_INSET_BH);
+			pitch = columns > 1 ? usable / (columns - 1F) : usable;
+			bh = Math.min(bh, pitch * PLAIN_DIAMETER_PITCH_RATIO / PLAIN_DIAMETER_BAND_RATIO);
+			// 胶囊上下各留一条站名位，中间的空档至少要够放一排换乘圆徽
+			gap = Math.max(bh * LOOP_MIN_GAP_BH, Math.min(h * LOOP_GAP_RATIO, h - bh - 2F * bh * LOOP_NAME_SPACE_BH));
+			capR = (gap + bh) / 2F;
+		}
+		final float xLeft = hMargin + capR;
+		final float xRight = w - hMargin - capR;
+		final float usable = Math.max(1F, xRight - xLeft - 2F * bh * LOOP_END_INSET_BH);
+		pitch = columns > 1 ? usable / (columns - 1F) : 1F;
+		bh = Math.min(bh, pitch * PLAIN_DIAMETER_PITCH_RATIO / PLAIN_DIAMETER_BAND_RATIO);
+
+		final float mid = h / 2F;
+		final float bandTopCy = mid - gap / 2F;
+		final float bandBotCy = mid + gap / 2F;
+		final float bandTopEdge = bandTopCy - bh / 2F;
+		final float bandBotEdge = bandBotCy + bh / 2F;
+		final float innerTop = bandTopCy + bh / 2F;
+		final float innerBottom = bandBotCy - bh / 2F;
+		final float circleR = bh * PLAIN_DIAMETER_BAND_RATIO / 2F;
+		final float ringW = Math.max(1F, bh * RING_RATIO);
+		final float nodeTopCy = bandTopEdge - bh * CIRCLE_ABOVE_RATIO;
+		final float nodeBotCy = bandBotEdge + bh * CIRCLE_ABOVE_RATIO;
+		final float notchW = bh * NOTCH_WIDTH_RATIO;
+		final float notchDepth = bh * NOTCH_DEPTH_RATIO;
+
+		// 胶囊 = 外圆角矩形 - 内圆角矩形（两端取整圆，就是胶囊轮廓）
+		final float outerTop = bandTopEdge;
+		final float outerHeight = Math.max(2F, bandBotEdge - outerTop);
+		final float outerWidth = Math.max(outerHeight, (xRight + capR) - hMargin);
+		final float innerHeight = Math.max(1F, outerHeight - 2F * bh);
+		final Area ring = new Area(new RoundRectangle2D.Float(hMargin, outerTop, outerWidth, outerHeight, outerHeight, outerHeight));
+		ring.subtract(new Area(new RoundRectangle2D.Float(hMargin + bh, outerTop + bh, Math.max(1F, outerWidth - 2F * bh),
+				innerHeight, innerHeight, innerHeight)));
+		fillMirrored(g, ring, lineAwt, reverse, w);
+
+		// 上行左→右，下行右→左；下行站少时居中，两行用同一个站距
+		final float xStartTop = xLeft + bh * LOOP_END_INSET_BH;
+		final float xStartBottom = xStartTop + (columns - bottomCount) * pitch / 2F;
+		final float[] stationX = new float[stationCount];
+		for (int i = 0; i < topCount; i++) {
+			stationX[i] = xStartTop + i * pitch;
+		}
+		for (int j = 0; j < bottomCount; j++) {
+			stationX[topCount + j] = xStartBottom + (bottomCount - 1 - j) * pitch;
+		}
+
+		// 本站圆比普通站圆大：先沿 45° 轴往线带方向靠，再退到与线带外缘相切
+		final boolean currentTop = currentIndex < topCount;
+		final float currentR = circleR * CURRENT_DIAMETER_RATIO;
+		final float currentAxisCy = currentTop
+				? nodeTopCy + (currentR - circleR)
+				: nodeBotCy - (currentR - circleR);
+		final float currentShift = currentTop
+				? Math.max(0F, currentAxisCy + currentR - bandTopEdge)
+				: Math.max(0F, bandBotEdge - (currentAxisCy - currentR));
+		final float currentCy = currentTop ? currentAxisCy - currentShift : currentAxisCy + currentShift;
+		final float currentX = stationX[currentIndex] + (currentTop ? -currentShift : currentShift);
+
+		// 斜槽：上行从带上缘往下切，下行从带下缘往上切，斜向始终是「左上 → 右下」
+		final Shape oldClip = g.getClip();
+		g.clip(reverse ? mirror(ring, w) : ring);
+		g.setColor(Color.WHITE);
+		for (int i = 0; i < stationCount; i++) {
+			final boolean top = i < topCount;
+			final float centreY = i == currentIndex ? currentAxisCy : (top ? nodeTopCy : nodeBotCy);
+			final float slotX = stationX[i] + ((top ? bandTopEdge : bandBotEdge) - centreY);
+			if (top) {
+				drawNotch(g, slotX - notchW / 2F, bandTopEdge, notchDepth, notchW, reverse, w);
+			} else {
+				drawNotchUp(g, slotX - notchW / 2F, bandBotEdge, notchDepth, notchW, reverse, w);
+			}
+		}
+		g.setClip(oldClip);
+
+		// 换乘圆徽放在胶囊内部的空白处，贴着各自那一行线带
+		final float innerH = Math.max(1F, innerBottom - innerTop);
+		final float badgeR = Math.min(bh * BADGE_RADIUS_RATIO, innerH * 0.24F);
+		final float badgeGap = bh * 0.06F;
+		final float badgeFontSize = Math.max(4F, Math.min(bh * BADGE_FONT_RATIO, badgeR * 1.15F));
+		for (int i = 0; i < stationCount; i++) {
+			final List<LineMapData.Interchange> interchanges = data.stations().get(i).interchanges();
+			if (interchanges.isEmpty()) {
+				continue;
+			}
+			final int count = Math.min(MAX_INTERCHANGE_STUBS, interchanges.size());
+			final float totalW = count * badgeR * 2F + (count - 1) * badgeGap;
+			final float firstX = stationX[i] - totalW / 2F + badgeR;
+			final float cy = i < topCount ? innerTop + innerH * 0.06F + badgeR : innerBottom - innerH * 0.06F - badgeR;
+			for (int k = 0; k < count; k++) {
+				final LineMapData.Interchange interchange = interchanges.get(k);
+				final float badgeX = fx(firstX + k * (badgeR * 2F + badgeGap), reverse, w);
+				g.setColor(new Color(interchange.color() | 0xFF000000, true));
+				g.fill(new Ellipse2D.Float(badgeX - badgeR, cy - badgeR, badgeR * 2F, badgeR * 2F));
+				drawCentredText(g, interchange.number(), badgeX, cy,
+						pickFont(interchange.number(), numberFont, nameFont).deriveFont(Font.BOLD, badgeFontSize), Color.WHITE);
+			}
+		}
+
+		// 车站圆
+		final Font nodeFont = numberFont.deriveFont(Font.BOLD, Math.max(4F, Math.min(bh * NUMBER_BAND_RATIO, numberFontSize * resolutionScale)));
+		final Font currentNodeFont = numberFont.deriveFont(Font.PLAIN, Math.max(4F, currentR * NODE_FONT_RADIUS_RATIO));
+		final Font currentNodeTextFont = nameFont.deriveFont(Font.PLAIN, Math.max(4F, currentR * NODE_FONT_RADIUS_RATIO));
+		for (int i = 0; i < stationCount; i++) {
+			final boolean top = i < topCount;
+			final float x = fx(i == currentIndex ? currentX : stationX[i], reverse, w);
+			if (i == currentIndex) {
+				RoundMapDrawingInverse.draw(g, Math.round(x), Math.round(currentCy), Math.round(currentR),
+						Math.max(1, Math.round(ringW)), lineAwt, lineAwt, currentNodeFont, currentNodeTextFont,
+						RouteMapGenerator.cleanRouteNumber(data.lineNumber()), data.stations().get(i).number());
+			} else {
+				drawNode(g, x, top ? nodeTopCy : nodeBotCy, circleR, ringW, lineAwt, data.stations().get(i).number(),
+						pickFont(data.stations().get(i).number(), nodeFont, nameFont));
+			}
+		}
+
+		// 站名：上行沿 45° 轴往左上铺，下行往右下铺，都在胶囊外侧
+		final float topLimit = bh * EDGE_MARGIN_RATIO;
+		final List<NameSlot> slots = new ArrayList<>();
+		for (int i = 0; i < stationCount; i++) {
+			final boolean top = i < topCount;
+			final float r = i == currentIndex ? currentR : circleR;
+			final float shift = i == currentIndex ? currentShift : 0F;
+			final float cy = i == currentIndex ? currentCy : (top ? nodeTopCy : nodeBotCy);
+			final float off = (r + bh * NAME_ANCHOR_GAP_RATIO) * HALF_SQRT_2;
+			final float x = stationX[i] + (top ? -shift : shift);
+			slots.add(new NameSlot(data.stations().get(i), x + (top ? -off : off), cy + (top ? -off : off), !top,
+					i == currentIndex, top ? 0 : 1, i == currentIndex ? lineAwt : textAwt, top ? topLimit : 0F));
+		}
+		drawStationNames(g, slots, h, w, hMargin, new float[]{pitch, pitch}, bh, nameFont, nameFontSize, latinFontRatio,
+				gapRatio, resolutionScale, reverse);
+	}
+
 	private record NameSlot(LineMapData.Station station, float x, float anchorY, boolean below, boolean current, int band,
 			Color colour, float limitY) {
 	}
@@ -563,6 +732,17 @@ public final class FasciaCRTRouteMapRenderer {
 		notch.lineTo(leftX + width, edgeY - 1F);
 		notch.lineTo(leftX + width + height, edgeY + height);
 		notch.lineTo(leftX + height, edgeY + height);
+		notch.closePath();
+		fillMirrored(g, notch, null, reverse, w);
+	}
+
+	/** 从线带下缘往带内切的斜槽（环线下行那一行用），斜向仍是「左上 → 右下」。 */
+	private static void drawNotchUp(Graphics2D g, float leftX, float edgeY, float height, float width, boolean reverse, int w) {
+		final Path2D notch = new Path2D.Float();
+		notch.moveTo(leftX, edgeY + 1F);
+		notch.lineTo(leftX + width, edgeY + 1F);
+		notch.lineTo(leftX + width - height, edgeY - height);
+		notch.lineTo(leftX - height, edgeY - height);
 		notch.closePath();
 		fillMirrored(g, notch, null, reverse, w);
 	}

@@ -1,4 +1,4 @@
-package com.Nanbin.client.RouteMap;
+package com.Nanbin.client.Drawing;
 
 import com.Nanbin.InitClient;
 import org.mtr.core.data.Platform;
@@ -63,7 +63,8 @@ public final class LineMapDataResolver {
             final List<LineMapData.Station> stations = buildStations(mainRoute, clientData);
 
             return new LineMapData(mainRoute.getColor(), resolveLineNumber(mainRoute, clientData), currentIndex, stations,
-                    resolveBranches(mainRoute, mainStationIds, candidates, clientData));
+                    resolveBranches(mainRoute, mainStationIds, candidates, clientData),
+                    mainRoute.getCircularState() != Route.CircularState.NONE);
         } catch (Exception e) {
             InitClient.LOGGER.error("LineMapDataResolver: failed to resolve line map for platform {}", platformId, e);
         }

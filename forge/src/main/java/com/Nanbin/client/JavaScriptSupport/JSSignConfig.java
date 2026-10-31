@@ -3,6 +3,7 @@ package com.Nanbin.client.JavaScriptSupport;
 import org.mtr.mapping.holder.Identifier;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class JSSignConfig {
@@ -12,7 +13,7 @@ public final class JSSignConfig {
 	/** 脚本未配置 icon 时使用的默认图标。 */
 	public static final Identifier DEFAULT_ICON = new Identifier("nanbin", "textures/block/sign/js_icon.png");
 
-	private static final Map<String, String> SCRIPT_PATHS = new HashMap<>();
+	private static final Map<String, String> SCRIPT_PATHS = new LinkedHashMap<>();
 	private static final Map<String, Identifier> SCRIPT_ICONS = new HashMap<>();
 	private static final Map<String, String> SCRIPT_NAMES = new HashMap<>();
 
@@ -57,7 +58,7 @@ public final class JSSignConfig {
 	}
 
 	public static Map<String, String> getAllScripts() {
-		return new HashMap<>(SCRIPT_PATHS);
+		return new LinkedHashMap<>(SCRIPT_PATHS);
 	}
 
 	public static boolean hasScript(String scriptId) {

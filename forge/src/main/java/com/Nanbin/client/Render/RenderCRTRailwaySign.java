@@ -61,6 +61,17 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 		super(dispatcher);
 	}
 
+	/**
+	 * 多格铁路指示牌的整块内容都是在这一个方块实体里画的（中间格没有方块实体），
+	 * 而默认的视锥剔除只看该格的 1×1×1 包围盒。牌子较长时，斜视会让这一格移出
+	 * 视野但牌面其余部分仍在屏幕内，于是整块内容被剔除、只剩方块模型画出的牌框，
+	 * 看起来就像牌子“裂开/掉元素”。这里按整块牌处理：只要在渲染距离内就参与绘制。
+	 */
+	@Override
+	public boolean rendersOutsideBoundingBox2(BlockCRTRailwaySign.BlockEntityCRTRailwaySign entity) {
+		return true;
+	}
+
 	public void render(BlockCRTRailwaySign.BlockEntityCRTRailwaySign entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
 		long now = System.currentTimeMillis();
 		if (now - this.lastRefreshTime >= 1000L) {
@@ -142,7 +153,10 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 						int bgColor = unifiedBg != 0 ? unifiedBg : (isJSStyle ? 0 : 16777215);
 						int newBackgroundColor = bgColor | -16777216;
-						MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
+						// 牌面底板不能用写深度的 LIGHT 层：底板在 z=0.003125、内容元素在 z=0，只差 1/320 格，
+						// 深度精度不足时底板会在某些视角把色条/文字等元素挡掉（表现为随机掉元素）。
+						// 放到不写深度的 LIGHT_TRANSLUCENT 且仍先于元素绘制（stage 0），内容就永远叠在底板之上。
+						MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformations.transform(graphicsHolderNew, offset);
 							IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, 0.5F * (float)signIds.length, 0.5F, 0.003125F, facing, newBackgroundColor, GraphicsHolder.getDefaultLight());
 							graphicsHolderNew.pop();
@@ -706,7 +720,9 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 	public static void renderJSTexture(Identifier textureId, StoredMatrixTransformations storedMatrixTransformations, Direction facing, float x, float y, float w, float h, int color) {
 		if (!(w <= 0.0F) && !(h <= 0.0F)) {
-			MainRenderer.scheduleRender(textureId, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+			// 指示牌的内容都是叠在牌面上的覆盖层，必须和文字一起放进 MTR 的透明批处理组：
+			// 非透明组里同批次的牌面底板/牌框会在某些视角把图形元素盖掉（文字用透明组所以不受影响）。
+			MainRenderer.scheduleRender(textureId, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
 				IDrawing.drawTexture(graphicsHolderNew, x, y, w, h, 0.0F, 0.0F, 1.0F, 1.0F, facing, color, GraphicsHolder.getDefaultLight());
 				graphicsHolderNew.pop();
@@ -716,7 +732,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 	public static void renderJSRect(StoredMatrixTransformations storedMatrixTransformations, Direction facing, float x, float y, float w, float h, int color) {
 		if (!(w <= 0.0F) && !(h <= 0.0F)) {
-			MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+			MainRenderer.scheduleRender(WHITE_TEXTURE, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
 				IDrawing.drawTexture(graphicsHolderNew, x, y, w, h, 0.0F, 0.0F, 1.0F, 1.0F, facing, color, GraphicsHolder.getDefaultLight());
 				graphicsHolderNew.pop();
@@ -732,7 +748,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 			float angle = (float)Math.atan2((double)dy, (double)dx);
 			float midX = (x1 + x2) / 2.0F;
 			float midY = (y1 + y2) / 2.0F;
-			MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+			MainRenderer.scheduleRender(WHITE_TEXTURE, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
 				graphicsHolderNew.translate((double)midX, (double)midY, (double)0.0F);
 				graphicsHolderNew.rotateZRadians(angle);

@@ -144,6 +144,7 @@ public class Blocks {
     public final static BlockRegistryObject CRT_RAILWAY_SIGN_MIDDLE_EVEN_1;
     public final static BlockRegistryObject CRT_RAILWAY_SIGN_MIDDLE_EVEN_2;
     public final static BlockRegistryObject CRT_RAILWAY_SIGN_MIDDLE_COMMON;
+    public final static BlockRegistryObject CRT_RAILWAY_SIGN_WALL_1;
     public final static BlockRegistryObject CRT_APG_DOOR_1;
     public final static BlockRegistryObject CRT_APG_GLASS_1;
     public final static BlockRegistryObject CRT_APG_GLASS_END_1;
@@ -294,6 +295,7 @@ public class Blocks {
         CRT_RAILWAY_SIGN_MIDDLE_EVEN_1 = REGISTRY.registerBlock(new Identifier(MOD_ID, "crt_railway_sign_middle_even_1"), () -> new Block(new BlockCRTRailwaySignMiddle()));
         CRT_RAILWAY_SIGN_MIDDLE_EVEN_2 = REGISTRY.registerBlock(new Identifier(MOD_ID, "crt_railway_sign_middle_even_2"), () -> new Block(new BlockCRTRailwaySignMiddle()));
         CRT_RAILWAY_SIGN_MIDDLE_COMMON = REGISTRY.registerBlock(new Identifier(MOD_ID, "crt_railway_sign_middle_common"), () -> new Block(new BlockCRTRailwaySignMiddle()));
+        CRT_RAILWAY_SIGN_WALL_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_railway_sign_wall_1"), () -> new Block(new BlockCRTRailwaySignWall(createDefaultBlockSettings(true))), ItemsGroup.CRT);
         CRT_APG_DOOR_1 = REGISTRY.registerBlock(new Identifier(MOD_ID, "crt_apg_door_1"), () -> new Block(new BlockCRTAPGDoor1()));
         CRT_APG_GLASS_1 = REGISTRY.registerBlock(new Identifier(MOD_ID, "crt_apg_glass_1"), () -> new Block(new BlockCRTAPGGlass1()));
         CRT_APG_GLASS_END_1 = REGISTRY.registerBlock(new Identifier(MOD_ID, "crt_apg_glass_end_1"), () -> new Block(new BlockCRTAPGGlassEnd1()));

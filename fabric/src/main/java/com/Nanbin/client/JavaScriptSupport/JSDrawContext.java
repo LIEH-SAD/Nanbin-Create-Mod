@@ -20,8 +20,14 @@ public final class JSDrawContext {
 	private final float cellSize;
 	private final int cellCount;
 	private final int backgroundColor;
+	// 非 0 时覆盖 getWidth()：墙挂牌每格宽 1.0 但内容基于 0.5 高度绘制，需要显式总宽。
+	private final float widthOverride;
 
 	public JSDrawContext(StoredMatrixTransformations storedMatrixTransformations, Direction facing, float startX, float startY, float cellSize, int cellCount, boolean transparentBlack, int backgroundColor) {
+		this(storedMatrixTransformations, facing, startX, startY, cellSize, cellCount, transparentBlack, backgroundColor, 0.0F);
+	}
+
+	public JSDrawContext(StoredMatrixTransformations storedMatrixTransformations, Direction facing, float startX, float startY, float cellSize, int cellCount, boolean transparentBlack, int backgroundColor, float widthOverride) {
 		this.storedMatrixTransformations = storedMatrixTransformations;
 		this.facing = facing;
 		this.startX = startX;
@@ -29,15 +35,15 @@ public final class JSDrawContext {
 		this.cellSize = cellSize;
 		this.cellCount = cellCount;
 		this.backgroundColor = backgroundColor;
+		this.widthOverride = widthOverride;
 	}
 
 	public int getCellCount() {
 		return cellCount;
 	}
 
-	/** 指示牌渲染宽度（世界单位）= 格数 × 单格尺寸。 */
 	public float getWidth() {
-		return cellCount * cellSize;
+		return widthOverride > 0.0F ? widthOverride : cellCount * cellSize;
 	}
 
 	/** 指示牌渲染高度（世界单位）= 单格尺寸（与 render 中原版渲染高度一致）。 */

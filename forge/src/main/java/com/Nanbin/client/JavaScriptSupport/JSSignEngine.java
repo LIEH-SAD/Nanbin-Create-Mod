@@ -26,8 +26,17 @@ public final class JSSignEngine {
 	// 懒加载：ScriptEngineManager 构造时经 ServiceLoader 扫描引擎，在 mod 类加载器下可能抛异常，
 	// 使 JSSignEngine 类初始化失败（NoClassDefFoundError）并连累引用它的渲染器，所以延迟到首次使用再建。
 	private static ScriptEngineManager engineManager;
-	/** ServiceLoader 发现失败时的直接实例化 fallback（Minecraft 特殊类加载器下 ServiceLoader 可能找不到服务文件）。 */
-	private static ScriptEngine nashornEngine;
+	/**
+	 * Nashorn 直连工厂（懒探测，只缓存工厂本身）。
+	 * <p>
+	 * 注意不能缓存 {@link ScriptEngine} 实例：一个 ScriptEngine 就是一个独立的 JS 全局作用域，
+	 * 多个脚本共用同一个引擎会互相覆盖函数定义 —— 切到另一个脚本后渲染出来的还是最后 eval 的那个，
+	 * 看起来就是「预设切换不了」。
+	 */
+	private static Object nashornFactory;
+	private static java.lang.reflect.Method nashornGetEngineMethod;
+	private static boolean nashornDirectChecked;
+	private static boolean nashornFallbackWarned;
 	/** 每个脚本实际调用的数据接口类型（供数据选择屏幕按需显示按钮）。 */
 	private static final Map<String, Set<String>> USED_DATA_TYPES = new java.util.concurrent.ConcurrentHashMap<>();
 	/** 自定义文本在 selectedIds 中的编码标记（bit 62，避免与站点/站台ID、线路颜色冲突）。 */
@@ -167,7 +176,7 @@ public final class JSSignEngine {
 	}
 
 	/**
-	 * 创建 Nashorn ScriptEngine。
+	 * 创建一个**新的** Nashorn ScriptEngine（每个脚本 id 一个，互不共享全局作用域）。
 	 * <p>
 	 * 优先直接通过 {@code NashornScriptEngineFactory.getScriptEngine("--language=es6")} 创建
 	 * —— Nashorn 15.4 默认仅支持 ES5，必须显式开启 ES6 才能使用 const/let/箭头函数/class 等语法。
@@ -176,33 +185,35 @@ public final class JSSignEngine {
 	 * 用反射实现，避免编译期对 Nashorn 具体类的依赖（fabric 侧为 include 打包，forge 侧复用环境自带的 nashorn-core）。
 	 */
 	private static ScriptEngine createNashornEngine() {
-		try {
-			if (nashornEngine == null) {
-				nashornEngine = createNashornEngineDirect();
-				if (nashornEngine == null) {
-					// 极端 fallback：标准 ServiceLoader 发现（默认 ES5，仅保证引擎可用）
-					Init.LOGGER.warn("Nashorn factory not available, falling back to ScriptEngineManager");
-					if (engineManager == null) {
-						engineManager = new ScriptEngineManager(JSSignEngine.class.getClassLoader());
-					}
-					nashornEngine = engineManager.getEngineByName("nashorn");
-				}
-			}
-			return nashornEngine;
-		} catch (Exception e) {
-			Init.LOGGER.error("Failed to create Nashorn script engine", e);
-			return null;
+		final ScriptEngine engine = createNashornEngineDirect();
+		if (engine != null) {
+			return engine;
 		}
+		// 极端 fallback：标准 ServiceLoader 发现（默认 ES5，仅保证引擎可用）
+		if (!nashornFallbackWarned) {
+			nashornFallbackWarned = true;
+			Init.LOGGER.warn("Nashorn factory not available, falling back to ScriptEngineManager");
+		}
+		if (engineManager == null) {
+			engineManager = new ScriptEngineManager(JSSignEngine.class.getClassLoader());
+		}
+		return engineManager.getEngineByName("nashorn");
 	}
 
-	/** 反射创建开启 ES6 的 Nashorn 引擎，使脚本可使用现代语法并调用注入的 Java 对象方法。 */
+	/** 反射创建开启 ES6 的 Nashorn 引擎（工厂只实例化一次，引擎每次都是新的）。 */
 	private static ScriptEngine createNashornEngineDirect() {
 		try {
-			final Class<?> factoryClass = Class.forName("org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory", true, JSSignEngine.class.getClassLoader());
-			final Object factory = factoryClass.getDeclaredConstructor().newInstance();
+			if (!nashornDirectChecked) {
+				nashornDirectChecked = true;
+				final Class<?> factoryClass = Class.forName("org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory", true, JSSignEngine.class.getClassLoader());
+				nashornFactory = factoryClass.getDeclaredConstructor().newInstance();
+				nashornGetEngineMethod = factoryClass.getMethod("getScriptEngine", String[].class);
+			}
+			if (nashornFactory == null || nashornGetEngineMethod == null) {
+				return null;
+			}
 			// --language=es6：开启 const/let/箭头函数/class 等现代语法（Nashorn 15.4 默认仅 ES5）
-			final ScriptEngine engine = (ScriptEngine) factoryClass.getMethod("getScriptEngine", String[].class).invoke(factory, (Object) new String[]{"--language=es6"});
-			return engine;
+			return (ScriptEngine) nashornGetEngineMethod.invoke(nashornFactory, (Object) new String[]{"--language=es6"});
 		} catch (Exception e) {
 			Init.LOGGER.warn("Failed to create Nashorn engine via factory", e);
 			return null;
@@ -210,11 +221,13 @@ public final class JSSignEngine {
 	}
 
 	/**
-	 * 加载脚本内容，支持两种 path 写法：
+	 * 加载脚本内容，支持三种 path 写法：
 	 * <ul>
 	 *     <li>资源位置 {@code namespace:path}（如 {@code nanbin:js/crt_station_entrance.js}）——
 	 *     通过客户端资源管理器读取 {@code assets/namespace/path}，因此可被资源包覆盖；</li>
-	 *     <li>类路径 {@code assets/nanbin/js/xxx.js}（旧写法，直接读类加载器中的资源）。</li>
+	 *     <li>资源包内路径 {@code assets/nanbin/js/xxx.js}（旧写法）——同样先按资源位置读取，
+	 *     这样资源包里的同名脚本能覆盖内置脚本；读不到再退回类路径；</li>
+	 *     <li>其它相对路径按类路径读取。</li>
 	 * </ul>
 	 */
 	private static String loadScript(String path) {
@@ -225,8 +238,18 @@ public final class JSSignEngine {
 			}
 			return content;
 		}
+		final String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+		// assets/<namespace>/<path> 也按资源位置解析，资源包优先，避免资源包里的同名脚本永远被内置脚本盖住
+		if (normalizedPath.startsWith("assets/")) {
+			final String[] parts = normalizedPath.split("/", 3);
+			if (parts.length == 3) {
+				final String content = loadScriptAsIdentifier(parts[1] + ":" + parts[2]);
+				if (content != null) {
+					return content;
+				}
+			}
+		}
 		try {
-			final String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
 			final InputStream stream = JSSignEngine.class.getClassLoader().getResourceAsStream(normalizedPath);
 			if (stream == null) {
 				return null;

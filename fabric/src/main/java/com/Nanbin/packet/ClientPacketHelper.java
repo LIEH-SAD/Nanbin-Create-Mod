@@ -28,7 +28,39 @@ import java.util.function.Predicate;
 public final class ClientPacketHelper {
 
     public static void openBlockEntityScreen(BlockPos blockPos) {
+        final org.mtr.mapping.holder.ClientWorld world = MinecraftClient.getInstance().getWorldMapped();
+        if (world != null) {
+            final org.mtr.mapping.holder.BlockState state = world.getBlockState(blockPos);
+            if (state.getBlock().data instanceof com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall) {
+                openRailwaySignWallScreen(world, blockPos, state);
+                return;
+            }
+        }
         openRailwaySignScreen(blockPos);
+    }
+
+    // 墙挂指示牌：任意一格用刷子打开整条牌的编辑器，内容按格拼成一行。
+    public static void openRailwaySignWallScreen(org.mtr.mapping.holder.ClientWorld world, BlockPos blockPos, org.mtr.mapping.holder.BlockState state) {
+        final org.mtr.mapping.holder.BlockView view = org.mtr.mapping.holder.BlockView.cast(world);
+        final BlockPos start = com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall.findStart(view, blockPos, state);
+        final List<BlockPos> run = com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall.collectRun(view, start);
+        if (run.isEmpty()) {
+            return;
+        }
+        final String[] cells = new String[run.size()];
+        final LongAVLTreeSet selectedIds = new LongAVLTreeSet();
+        for (int i = 0; i < run.size(); i++) {
+            final com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall.BlockEntity entity = com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall.getBlockEntity(view, run.get(i));
+            if (entity != null) {
+                cells[i] = entity.getSignId();
+                selectedIds.addAll(entity.getSelectedIds());
+            }
+        }
+        final String[][] splitCells = new String[][]{cells};
+        final List<LongAVLTreeSet> lineSelectedIds = new ArrayList<>();
+        lineSelectedIds.add(selectedIds);
+        final RailwaySignDoubleScreen screen = new RailwaySignDoubleScreen(start, 1, cells.length, splitCells, lineSelectedIds, true, () -> Registry.sendPacketToServer(new PacketUpdateRailwaySignWallData(start, splitCells[0], selectedIds)));
+        openScreen(screen, screenExtension -> screenExtension instanceof RailwaySignDoubleScreen);
     }
 
     public static void openRailwaySignScreen(BlockPos blockPos) {
@@ -76,8 +108,13 @@ public final class ClientPacketHelper {
         MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(platformsForList, selectedIds, true, false, parent)));
     }
 
-    /** 优先精确匹配方块所在站区域；其次找最近的站台所属站；最后取全图最近的站。 */
-    private static Station findStationForSelection(BlockPos blockPos) {
+    /**
+     * 优先精确匹配方块所在站区域；其次找最近的站台所属站；最后取全图最近的站。
+     * <p>
+     * 指示牌常被挂在车站外的出入口处，{@link InitClient#findStation} 只做区域精确匹配，
+     * 直接用它会得到 null，选择屏就会一个数据按钮都不显示，所以统一走这里的兜底链。
+     */
+    public static Station findStationForSelection(BlockPos blockPos) {
         final Station exact = InitClient.findStation(blockPos);
         if (exact != null) {
             return exact;

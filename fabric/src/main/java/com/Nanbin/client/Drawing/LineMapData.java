@@ -1,4 +1,4 @@
-package com.Nanbin.client.RouteMap;
+package com.Nanbin.client.Drawing;
 
 import java.util.List;
 
@@ -8,6 +8,7 @@ import java.util.List;
  * 换乘信息取自 MTR 为每个线路车站维护的换乘颜色表并排除本线自身颜色。
  * 支线（{@link Branch}）指经过本站台、但在某个共用车站之后走向不同的另一条
  * {@code SimplifiedRoute}（MTR 里一条线路可以有多条走向），逐条画成下方第二条线路带。
+ * 环线（{@link #loop}）首尾相接，没有首末站，线路图画成两端半圆的胶囊而不是一条直线。
  * 解析逻辑见 {@link LineMapDataResolver}。
  *
  * @param lineColor    本线颜色
@@ -15,8 +16,14 @@ import java.util.List;
  * @param currentIndex 本站在该线路中的下标（0 = 首站）
  * @param stations     该线路全部车站，按行车顺序
  * @param branches     支线，可为空列表
+ * @param loop         是否环线（MTR 的线路走向标了环线时首尾相接）
  */
-public record LineMapData(int lineColor, String lineNumber, int currentIndex, List<Station> stations, List<Branch> branches) {
+public record LineMapData(int lineColor, String lineNumber, int currentIndex, List<Station> stations, List<Branch> branches,
+		boolean loop) {
+
+	public LineMapData(int lineColor, String lineNumber, int currentIndex, List<Station> stations, List<Branch> branches) {
+		this(lineColor, lineNumber, currentIndex, stations, branches, false);
+	}
 
     /**
      * @param name         车站名（{@code |} 分隔中英段）

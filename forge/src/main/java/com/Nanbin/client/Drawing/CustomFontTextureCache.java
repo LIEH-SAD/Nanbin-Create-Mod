@@ -1,6 +1,5 @@
 package com.Nanbin.client.Drawing;
 
-import com.Nanbin.client.RouteMap.LineMapData;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
 import org.mtr.mapping.holder.NativeImage;
@@ -258,6 +257,7 @@ public class CustomFontTextureCache {
 				.append('|').append(nameFontSize).append('|').append(numberFontSize)
 				.append('|').append(latinFontRatio).append('|').append(gapRatio).append('|').append(textColor)
 				.append('|').append(reverse)
+				.append("|loop").append(data.loop())
 				.append('|').append(data.lineColor()).append('|').append(data.lineNumber()).append('|').append(data.currentIndex());
 		for (final LineMapData.Station station : data.stations()) {
 			keyBuilder.append('|').append(station.name()).append('~').append(station.number());

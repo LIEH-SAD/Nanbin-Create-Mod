@@ -76,8 +76,13 @@ public final class ClientPacketHelper {
         MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScreen(platformsForList, selectedIds, true, false, parent)));
     }
 
-    /** 优先精确匹配方块所在站区域；其次找最近的站台所属站；最后取全图最近的站。 */
-    private static Station findStationForSelection(BlockPos blockPos) {
+    /**
+     * 优先精确匹配方块所在站区域；其次找最近的站台所属站；最后取全图最近的站。
+     * <p>
+     * 指示牌常被挂在车站外的出入口处，{@link InitClient#findStation} 只做区域精确匹配，
+     * 直接用它会得到 null，选择屏就会一个数据按钮都不显示，所以统一走这里的兜底链。
+     */
+    public static Station findStationForSelection(BlockPos blockPos) {
         final Station exact = InitClient.findStation(blockPos);
         if (exact != null) {
             return exact;

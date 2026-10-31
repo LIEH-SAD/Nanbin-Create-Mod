@@ -36,6 +36,8 @@ import java.awt.*;
 import java.lang.Character.UnicodeScript;
 import java.util.*;
 import java.util.List;
+import java.util.function.IntFunction;
+import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -59,6 +61,17 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 	public RenderCRTRailwaySign(BlockEntityRenderer.Argument dispatcher) {
 		super(dispatcher);
+	}
+
+	/**
+	 * 多格铁路指示牌的整块内容都是在这一个方块实体里画的（中间格没有方块实体），
+	 * 而默认的视锥剔除只看该格的 1×1×1 包围盒。牌子较长时，斜视会让这一格移出
+	 * 视野但牌面其余部分仍在屏幕内，于是整块内容被剔除、只剩方块模型画出的牌框，
+	 * 看起来就像牌子“裂开/掉元素”。这里按整块牌处理：只要在渲染距离内就参与绘制。
+	 */
+	@Override
+	public boolean rendersOutsideBoundingBox2(BlockCRTRailwaySign.BlockEntityCRTRailwaySign entity) {
+		return true;
 	}
 
 	public void render(BlockCRTRailwaySign.BlockEntityCRTRailwaySign entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
@@ -142,7 +155,10 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 						int bgColor = unifiedBg != 0 ? unifiedBg : (isJSStyle ? 0 : 16777215);
 						int newBackgroundColor = bgColor | -16777216;
-						MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT, (graphicsHolderNew, offset) -> {
+						// 牌面底板不能用写深度的 LIGHT 层：底板在 z=0.003125、内容元素在 z=0，只差 1/320 格，
+						// 深度精度不足时底板会在某些视角把色条/文字等元素挡掉（表现为随机掉元素）。
+						// 放到不写深度的 LIGHT_TRANSLUCENT 且仍先于元素绘制（stage 0），内容就永远叠在底板之上。
+						MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformations.transform(graphicsHolderNew, offset);
 							IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, 0.5F * (float)signIds.length, 0.5F, 0.003125F, facing, newBackgroundColor, GraphicsHolder.getDefaultLight());
 							graphicsHolderNew.pop();
@@ -196,16 +212,22 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 	}
 
 	public static void drawSignCRT(GraphicsHolder graphicsHolder, @Nullable StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String signId, float x, float y, float size, float maxWidthLeft, float maxWidthRight, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, RenderRailwaySign.DrawTexture drawTexture, boolean transparentBlack, String[] signIds, int globalBgColor) {
+		drawSignCRT(graphicsHolder, storedMatrixTransformations, pos, signId, x, y, size, size, maxWidthLeft, maxWidthRight, selectedIds, routeNumbers, facing, backgroundColor, drawTexture, transparentBlack, signIds, globalBgColor);
+	}
+
+	public static void drawSignCRT(GraphicsHolder graphicsHolder, @Nullable StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String signId, float x, float y, float size, float cellWidth, float maxWidthLeft, float maxWidthRight, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, RenderRailwaySign.DrawTexture drawTexture, boolean transparentBlack, String[] signIds, int globalBgColor) {
 		SignResource sign = RenderRailwaySign.getSign(signId);
 		if (sign != null) {
 			boolean isExit = signId.equals("exit_letter") || signId.equals("exit_letter_flipped");
 			boolean isLine = signId.equals("line") || signId.equals("line_flipped");
 			boolean isPlatform = signId.equals("platform") || signId.equals("platform_flipped");
+			// 方块牌每格 1.0 宽而内容按 0.5 高绘制，非自定义文字贴图需在格内水平居中；旧路径 cellWidth == size，偏移为 0。
+			float centeredX = x + (cellWidth - size) / 2.0F;
 			if (storedMatrixTransformations == null) {
-				RenderRailwaySign.drawSign(graphicsHolder, (StoredMatrixTransformations)null, pos, signId, x, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
+				RenderRailwaySign.drawSign(graphicsHolder, (StoredMatrixTransformations)null, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
 			} else if (!isExit && !isLine && !isPlatform) {
 				if (!sign.hasCustomText) {
-					RenderRailwaySign.drawSign(graphicsHolder, storedMatrixTransformations, pos, signId, x, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
+					RenderRailwaySign.drawSign(graphicsHolder, storedMatrixTransformations, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
 				} else {
 					boolean flipCustomText = sign.getFlipCustomText();
 					boolean isSmall = sign.getSmall();
@@ -213,8 +235,9 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 					boolean isStationNameCRT = signId.equals("crt_station_name");
 					boolean isRouteNumber = signId.equals("crt_route_number") || signId.equals("crt_route_number_flipped");
 					boolean isJSSign = signId.startsWith("crt_js_");
+					boolean isStationBox = isStation && cellWidth > size;
 					if (isJSSign) {
-						renderJSSign(signId, storedMatrixTransformations, pos, signIds, selectedIds, routeNumbers, facing, backgroundColor, x, size, flipCustomText, transparentBlack, y);
+						renderJSSign(signId, storedMatrixTransformations, pos, signIds, selectedIds, routeNumbers, facing, backgroundColor, centeredX, size, flipCustomText, transparentBlack, y);
 					} else {
 						SignTextStyleConfig.SignTextStyle style = SignTextStyleConfig.get(signId);
 						if (style == null && signId.endsWith("_flipped")) {
@@ -223,7 +246,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 						String signText = resolveSignText(signId, sign, selectedIds, routeNumbers, isStation || isStationNameCRT, isRouteNumber);
 						if (transparentBlack) {
-							renderCustomTextCRT(signText, storedMatrixTransformations, facing, size, x, false, size, 0, isRouteNumber ? getNumberFontType(signText) : FONT_TYPE, isRouteNumber, true, false, (SignTextStyleConfig.SignTextStyle)null, false, 1.0F, TEXT_COLOR, y, 0.0F);
+							renderCustomTextCRT(signText, storedMatrixTransformations, facing, size, x, false, size, 0, isRouteNumber ? getNumberFontType(signText) : FONT_TYPE, isRouteNumber, true, false, (SignTextStyleConfig.SignTextStyle)null, false, 1.0F, TEXT_COLOR, y, cellWidth);
 						} else {
 							if (!isStation && !isRouteNumber && !isStationNameCRT) {
 								float signSize = (sign.getSmall() ? 0.75F : 1.0F) * size;
@@ -234,20 +257,20 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 							float fixedMargin = size * 0.25F / 2.0F;
 							float start;
 							float maxWidth;
-							if (!isRouteNumber && !isStationNameCRT) {
+							if (!isRouteNumber && !isStationNameCRT && !isStationBox) {
 								maxWidth = Math.max(0.0F, (flipCustomText ? maxWidthLeft : maxWidthRight) * size - fixedMargin * (float)(isSmall ? 1 : 2));
 								start = flipCustomText ? x - (isSmall ? 0.0F : fixedMargin) : x + size + (isSmall ? 0.0F : fixedMargin);
 							} else {
-								maxWidth = size;
+								maxWidth = cellWidth;
 								start = x;
 							}
 
-							renderCustomTextCRT(signText, storedMatrixTransformations, facing, size, start, flipCustomText, maxWidth, globalBgColor, isRouteNumber ? getNumberFontType(signText) : FONT_TYPE, isRouteNumber, isRouteNumber || isStationNameCRT, isRouteNumber, style, false, 1.0F, (Color)null);
+							renderCustomTextCRT(signText, storedMatrixTransformations, facing, size, start, flipCustomText, maxWidth, globalBgColor, isRouteNumber ? getNumberFontType(signText) : FONT_TYPE, isRouteNumber, isRouteNumber || isStationNameCRT, isRouteNumber, style, false, 1.0F, (Color)null, y, cellWidth);
 						}
 					}
 				}
 			} else {
-				RenderRailwaySign.drawSign(graphicsHolder, storedMatrixTransformations, pos, signId, x, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
+				RenderRailwaySign.drawSign(graphicsHolder, storedMatrixTransformations, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
 			}
 		}
 	}
@@ -430,7 +453,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 		}
 	}
 
-	private static boolean isRouteNumberV2(String signId) {
+	public static boolean isRouteNumberV2(String signId) {
 		return "crt_route_name".equals(signId) || "crt_route_name_flipped".equals(signId);
 	}
 
@@ -478,6 +501,11 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 	}
 
 	private static void renderRouteNumberV2Regions(StoredMatrixTransformations storedMatrixTransformations, BlockCRTRailwaySign.BlockEntityCRTRailwaySign entity, String[] signIds, Direction facing, float size, Map<Long, String> routeNameByColor, int[] cellBackgroundColors) {
+		renderRouteNumberV2Regions(storedMatrixTransformations, signIds, entity.getSelectedIds(), entity::getRouteNumber, entity::getCellColors, facing, size, size, routeNameByColor, cellBackgroundColors);
+	}
+
+	// cellStep：每格水平步长（旧牌 0.5，墙挂牌 1.0）；颜色条/编号等内部布局仍按 size（内容高度）计算。
+	public static void renderRouteNumberV2Regions(StoredMatrixTransformations storedMatrixTransformations, String[] signIds, LongAVLTreeSet selectedIds, LongFunction<String> routeNumberGetter, IntFunction<long[]> cellColorGetter, Direction facing, float size, float cellStep, Map<Long, String> routeNameByColor, int[] cellBackgroundColors) {
 		for(int i = 0; i < signIds.length; ++i) {
 			if (signIds[i] != null && isRouteNumberV2(signIds[i])) {
 				int start;
@@ -492,14 +520,14 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 				long[] colors = null;
 
 				for(int c = start; c <= v2End && colors == null; ++c) {
-					long[] cellColors = entity.getCellColors(c);
+					long[] cellColors = cellColorGetter.apply(c);
 					if (cellColors != null && cellColors.length > 0) {
 						colors = cellColors;
 					}
 				}
 
 				if (colors == null) {
-					colors = entity.getSelectedIds().longStream().filter((color) -> color > 0L && routeNameByColor.containsKey(color)).toArray();
+					colors = selectedIds.longStream().filter((color) -> color > 0L && routeNameByColor.containsKey(color)).toArray();
 				}
 
 				if (colors.length == 0) {
@@ -529,7 +557,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 					for(int cell = regionStart; cell <= end; ++cell) {
 						int cellBg = cellBackgroundColors[cell] != 0 ? cellBackgroundColors[cell] : 16777215;
-						renderRouteNumberV2Cell(storedMatrixTransformations, signIds, cell, regionStart, end, colors, routeNameByColor, entity, facing, size, cellBg, regionFlipped);
+						renderRouteNumberV2Cell(storedMatrixTransformations, signIds, cell, regionStart, end, colors, routeNameByColor, routeNumberGetter, facing, size, cellStep, cellBg, regionFlipped);
 					}
 
 					i = end;
@@ -539,7 +567,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 	}
 
-	private static void renderRouteNumberV2Cell(StoredMatrixTransformations storedMatrixTransformations, String[] signIds, int cellIndex, int regionStart, int regionEnd, long[] colors, Map<Long, String> routeNameByColor, BlockCRTRailwaySign.BlockEntityCRTRailwaySign entity, Direction facing, float size, int backgroundColor, boolean regionFlipped) {
+	private static void renderRouteNumberV2Cell(StoredMatrixTransformations storedMatrixTransformations, String[] signIds, int cellIndex, int regionStart, int regionEnd, long[] colors, Map<Long, String> routeNameByColor, LongFunction<String> routeNumberGetter, Direction facing, float size, float cellStep, int backgroundColor, boolean regionFlipped) {
 		String cellSignId = signIds[cellIndex];
 		boolean flipped = "crt_route_name_flipped".equals(cellSignId) || (cellSignId == null || cellSignId.isEmpty()) && regionFlipped;
 		int shownRoutes = Math.min(regionEnd - regionStart + 1, colors.length);
@@ -548,14 +576,17 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 			long routeColorLong = colors[routeIndex];
 			int routeColor = (int)routeColorLong | -16777216;
 			String routeName = (String)routeNameByColor.get(routeColorLong);
-			String number = entity.getRouteNumber(routeColorLong);
+			String number = routeNumberGetter.apply(routeColorLong);
+			if (number == null) {
+				number = "";
+			}
 			if (number.isEmpty()) {
 				number = deriveNumberFromName(routeName);
 			}
 
 			String text = stripNumberFromName(routeName, number);
 			boolean isTextCell = flipped ? cellIndex == regionEnd - shownRoutes + 1 : cellIndex == regionStart + shownRoutes - 1;
-			float cellX = (float)cellIndex * size;
+			float cellX = (float)cellIndex * cellStep;
 			if (flipped) {
 				renderRouteNumberV2CellFlip(storedMatrixTransformations, signIds, cellIndex, facing, size, cellX, routeColor, number, text, isTextCell, backgroundColor);
 			} else {
@@ -650,10 +681,15 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 	}
 
 	public static void renderJSStyleLine(String scriptId, StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String[] lineIds, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, float cellSize, float startX, float startY, boolean transparentBlack, Map<Long, String> routeNumberMap) {
+		renderJSStyleLine(scriptId, storedMatrixTransformations, pos, lineIds, selectedIds, routeNumbers, facing, backgroundColor, cellSize, startX, startY, transparentBlack, routeNumberMap, 0.0F);
+	}
+
+	// widthOverride > 0 时覆盖 ctx.getWidth()：墙挂牌每格 1.0 宽但内容按 0.5 高绘制。
+	public static void renderJSStyleLine(String scriptId, StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String[] lineIds, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, float cellSize, float startX, float startY, boolean transparentBlack, Map<Long, String> routeNumberMap, float widthOverride) {
 		refreshJSCache();
 		String signKey = scriptId + "_" + pos.getX() + "_" + pos.getY() + "_" + pos.getZ() + "_" + startX + "_" + startY + "_" + facing;
 		JSSignEngine.JSSignContext context = new JSSignEngine.JSSignContext(lineIds, 0, selectedIds, routeNumbers, backgroundColor, cellSize, signKey, pos, routeNumberMap);
-		JSDrawContext drawContext = new JSDrawContext(storedMatrixTransformations, facing, startX, startY, cellSize, lineIds.length, transparentBlack, backgroundColor);
+		JSDrawContext drawContext = new JSDrawContext(storedMatrixTransformations, facing, startX, startY, cellSize, lineIds.length, transparentBlack, backgroundColor, widthOverride);
 		JSSignEngine.render(scriptId, signKey, drawContext, new JSSignEngine.JSSignAPI(context, scriptId));
 	}
 
@@ -706,7 +742,9 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 	public static void renderJSTexture(Identifier textureId, StoredMatrixTransformations storedMatrixTransformations, Direction facing, float x, float y, float w, float h, int color) {
 		if (!(w <= 0.0F) && !(h <= 0.0F)) {
-			MainRenderer.scheduleRender(textureId, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+			// 指示牌的内容都是叠在牌面上的覆盖层，必须和文字一起放进 MTR 的透明批处理组：
+			// 非透明组里同批次的牌面底板/牌框会在某些视角把图形元素盖掉（文字用透明组所以不受影响）。
+			MainRenderer.scheduleRender(textureId, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
 				IDrawing.drawTexture(graphicsHolderNew, x, y, w, h, 0.0F, 0.0F, 1.0F, 1.0F, facing, color, GraphicsHolder.getDefaultLight());
 				graphicsHolderNew.pop();
@@ -716,7 +754,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 	public static void renderJSRect(StoredMatrixTransformations storedMatrixTransformations, Direction facing, float x, float y, float w, float h, int color) {
 		if (!(w <= 0.0F) && !(h <= 0.0F)) {
-			MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+			MainRenderer.scheduleRender(WHITE_TEXTURE, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
 				IDrawing.drawTexture(graphicsHolderNew, x, y, w, h, 0.0F, 0.0F, 1.0F, 1.0F, facing, color, GraphicsHolder.getDefaultLight());
 				graphicsHolderNew.pop();
@@ -732,7 +770,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 			float angle = (float)Math.atan2((double)dy, (double)dx);
 			float midX = (x1 + x2) / 2.0F;
 			float midY = (y1 + y2) / 2.0F;
-			MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+			MainRenderer.scheduleRender(WHITE_TEXTURE, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
 				graphicsHolderNew.translate((double)midX, (double)midY, (double)0.0F);
 				graphicsHolderNew.rotateZRadians(angle);

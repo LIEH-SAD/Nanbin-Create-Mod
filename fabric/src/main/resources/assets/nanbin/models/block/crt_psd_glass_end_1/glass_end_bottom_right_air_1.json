@@ -10,7 +10,7 @@
 	"elements": [
 		{
 			"name": "End glass panel",
-			"from": [4, 0, 0],
+			"from": [4, 0, 2],
 			"to": [6, 16, 8],
 			"faces": {
 				"east": {"uv": [0, 0, 16, 16], "texture": "#front"},
@@ -19,8 +19,9 @@
 		},
 		{
 			"name": "Right angle return",
-			"from": [6, 0, 0],
-			"to": [16, 16, 2],
+			"from": [6, 0, 2],
+			"to": [16, 16, 4],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 2]},
 			"faces": {
 				"north": {"uv": [0, 0, 16, 16], "texture": "#front"},
 				"south": {"uv": [0, 0, 16, 16], "texture": "#back"}

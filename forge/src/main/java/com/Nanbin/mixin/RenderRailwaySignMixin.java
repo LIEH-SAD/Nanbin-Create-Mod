@@ -7,6 +7,7 @@ import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.BlockState;
 import org.mtr.mapping.holder.Direction;
 import org.mtr.mapping.holder.World;
+import org.mtr.mapping.mapper.BlockEntityExtension;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.block.BlockRailwaySign;
 import org.mtr.mod.block.BlockStationNameBase;
@@ -25,6 +26,18 @@ import java.util.Map;
 
 @Mixin(value = RenderRailwaySign.class, remap = false)
 public abstract class RenderRailwaySignMixin {
+
+    /**
+     * MTR 的多格指示牌同样整块内容都由一个方块实体（牌子一端）绘制，
+     * 默认按该格 1×1×1 包围盒做视锥剔除，斜视时这一格移出视野会让整块内容消失，
+     * 而牌框是方块模型仍在，视觉上就是“牌子分裂”。JS 样式下把整块牌当成一个整体。
+     */
+    public boolean rendersOutsideBoundingBox2(BlockEntityExtension entity) {
+        if (entity instanceof BlockRailwaySign.BlockEntity) {
+            return JSSignConfig.hasJSStyle(((BlockRailwaySign.BlockEntity) entity).getSignIds());
+        }
+        return false;
+    }
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void nanbin$renderJSStyle(BlockRailwaySign.BlockEntity entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay, CallbackInfo ci) {

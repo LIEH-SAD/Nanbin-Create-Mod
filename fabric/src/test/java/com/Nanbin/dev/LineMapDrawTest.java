@@ -1,7 +1,7 @@
 package com.Nanbin.dev;
 
 import com.Nanbin.client.Drawing.FasciaCRTRouteMapRenderer;
-import com.Nanbin.client.RouteMap.LineMapData;
+import com.Nanbin.client.Drawing.LineMapData;
 
 import javax.imageio.ImageIO;
 import java.awt.Font;
@@ -56,6 +56,12 @@ public final class LineMapDrawTest {
 		// 最长的站名 + 长支线，看站名缩放兜底
 		draw(outDir, "08-long-names", height, nameFont, numberFont,
 				new LineMapData(LINE_COLOR, "1", 3, longNameStations(), List.of(branch(2, 2))));
+		// 环线（胶囊轮廓）：上下两行车站，两端半圆接上
+		draw(outDir, "09-loop", height, nameFont, numberFont,
+				new LineMapData(LINE_COLOR, "环线", 5, loopStations(16), List.of(), true));
+		// 环线反向（镜像）
+		draw(outDir, "10-loop-reversed", height, nameFont, numberFont, true,
+				new LineMapData(LINE_COLOR, "环线", 9, loopStations(12), List.of(), true));
 
 		System.out.println("draw test done -> " + outDir.getAbsolutePath());
 	}
@@ -88,6 +94,23 @@ public final class LineMapDrawTest {
 			afterStations.add(station("支线" + (i + 1) + "站|Branch " + (i + 1), String.format("%02d", i + 1)));
 		}
 		return new LineMapData.Branch(forkIndex, LINE_COLOR, "1", afterStations, List.of());
+	}
+
+	/** 环线车站：每隔几站挂一个换乘，看胶囊内部圆徽的排布。 */
+	private static List<LineMapData.Station> loopStations(int count) {
+		final List<LineMapData.Station> stations = new ArrayList<>();
+		for (int i = 0; i < count; i++) {
+			final String number = String.format("%02d", i + 1);
+			final String name = "环线" + (i + 1) + "站|Loop Station " + (i + 1);
+			if (i % 5 == 3) {
+				stations.add(station(name, number, interchange(0xFF73BF70, "8"), interchange(0xFFE5007F, "20")));
+			} else if (i % 4 == 1) {
+				stations.add(station(name, number, interchange(0xFF1E6ECE, "2")));
+			} else {
+				stations.add(station(name, number));
+			}
+		}
+		return stations;
 	}
 
 	private static LineMapData.Station station(String name, String number, LineMapData.Interchange... interchanges) {

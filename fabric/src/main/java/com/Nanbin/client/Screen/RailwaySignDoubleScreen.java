@@ -2,6 +2,7 @@ package com.Nanbin.client.Screen;
 
 import com.Nanbin.client.ClientData.SignClipboard;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
+import com.Nanbin.packet.ClientPacketHelper;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
@@ -10,7 +11,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mod.InitClient;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
@@ -90,7 +90,8 @@ public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
 
         allSignIds.addAll(CustomResourceLoader.getSortedSignIds());
 
-        final Station station = InitClient.findStation(signPos);
+        // 与数据选择屏一致：车站出入口外的指示牌也要能找到所属车站
+        final Station station = ClientPacketHelper.findStationForSelection(signPos);
         if (station == null) {
             exitsForList = ObjectImmutableList.of();
             platformsForList = ObjectImmutableList.of();

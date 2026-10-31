@@ -28,6 +28,7 @@ public class BlockEntityTypes {
     public static final BlockEntityTypeRegistryObject<BlockCRTRailwaySign.BlockEntityCRTRailwaySign> CRT_RAILWAY_SIGN_10_ODD;
     public static final BlockEntityTypeRegistryObject<BlockCRTRailwaySign.BlockEntityCRTRailwaySign> CRT_RAILWAY_SIGN_11_EVEN;
     public static final BlockEntityTypeRegistryObject<BlockCRTRailwaySign.BlockEntityCRTRailwaySign> CRT_RAILWAY_SIGN_11_ODD;
+    public static final BlockEntityTypeRegistryObject<BlockCRTRailwaySignWall.BlockEntity> CRT_RAILWAY_SIGN_WALL_1;
     public static final BlockEntityTypeRegistryObject<BlockPSDTOP.BlockEntity> PSD_TOP;
     public static final BlockEntityTypeRegistryObject<BlockRoadName.BlockEntity> BLOCK_ROAD_NAME;
     public static final BlockEntityTypeRegistryObject<BlockCRTAPGDoor1.BlockEntity> CRT_APG_DOOR_1;
@@ -60,6 +61,7 @@ public class BlockEntityTypes {
         CRT_RAILWAY_SIGN_10_ODD = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "crt_railway_sign_10_odd"), (pos, state) -> new BlockCRTRailwaySign.BlockEntityCRTRailwaySign(10, true, pos, state), Blocks.CRT_RAILWAY_SIGN_10_ODD::get);
         CRT_RAILWAY_SIGN_11_EVEN = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "crt_railway_sign_11_even"), (pos, state) -> new BlockCRTRailwaySign.BlockEntityCRTRailwaySign(11, false, pos, state), Blocks.CRT_RAILWAY_SIGN_11_EVEN::get);
         CRT_RAILWAY_SIGN_11_ODD = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "crt_railway_sign_11_odd"), (pos, state) -> new BlockCRTRailwaySign.BlockEntityCRTRailwaySign(11, true, pos, state), Blocks.CRT_RAILWAY_SIGN_11_ODD::get);
+        CRT_RAILWAY_SIGN_WALL_1 = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "crt_railway_sign_wall_1"), BlockCRTRailwaySignWall.BlockEntity::new, Blocks.CRT_RAILWAY_SIGN_WALL_1::get);
         PSD_TOP = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "psd_top"), BlockPSDTOP.BlockEntity::new, Blocks.PSD_TOP::get);
         BLOCK_ROAD_NAME = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "road_name_block"), BlockRoadName.BlockEntity::new, Blocks.ROAD_NAME::get);
         CRT_APG_DOOR_1 = Init.REGISTRY.registerBlockEntityType(new Identifier("nanbin", "crt_apg_door_1"), BlockCRTAPGDoor1.BlockEntity::new, Blocks.CRT_APG_DOOR_1::get);

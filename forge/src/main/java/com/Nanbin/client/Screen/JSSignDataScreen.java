@@ -1,6 +1,7 @@
 package com.Nanbin.client.Screen;
 
 import com.Nanbin.client.JavaScriptSupport.JSSignEngine;
+import com.Nanbin.packet.ClientPacketHelper;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
@@ -9,7 +10,6 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.*;
-import org.mtr.mod.InitClient;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.data.IGui;
@@ -63,7 +63,9 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 		this.onSave = onSave;
 		this.scriptId = scriptId;
 
-		final Station station = InitClient.findStation(signPos);
+		// 不能只做区域精确匹配：挂在车站出入口外的指示牌会查不到车站，
+		// 那样四个列表全空，屏幕上就只剩“保存/取消”，看起来就是“站台/线路/出口都没出现”。
+		final Station station = ClientPacketHelper.findStationForSelection(signPos);
 		if (station == null) {
 			platformsForList = ObjectImmutableList.of();
 			exitsForList = ObjectImmutableList.of();
@@ -97,12 +99,14 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 		// 根据脚本实际调用的数据接口动态调整按钮；未记录到任何接口时显示全部
 		final Set<String> usedTypes = JSSignEngine.getUsedDataTypes(scriptId);
 		final boolean showAll = usedTypes.isEmpty();
-		if (showAll || usedTypes.contains("platform")) {
+		// getStationNames() / getSelectedStationIds() 同样接受站台 ID，因此调用车站接口时也提供“选择站台”
+		final boolean stationLike = usedTypes.contains("station");
+		if (showAll || usedTypes.contains("platform") || stationLike) {
 			if (!platformsForList.isEmpty()) {
 				dataButtons.add(new DataButton(TextHelper.translatable("gui.nanbin.js_data.select_platform"), () -> openSelector(platformsForList)));
 			}
 		}
-		if (showAll || usedTypes.contains("station")) {
+		if (showAll || stationLike) {
 			if (!stationsForList.isEmpty()) {
 				dataButtons.add(new DataButton(TextHelper.translatable("gui.nanbin.js_data.select_station"), () -> openSelector(stationsForList)));
 			}
@@ -202,6 +206,11 @@ public class JSSignDataScreen extends ScreenExtension implements IGui {
 		super.render(graphicsHolder, mouseX, mouseY, delta);
 
 		graphicsHolder.drawCenteredText(TextHelper.translatable("gui.nanbin.js_data.title").getString(), width / 2, 15, ARGB_WHITE);
+
+		// 没有任何数据按钮时给出原因，避免只剩“保存/取消”让人以为界面坏了
+		if (dataButtons.isEmpty()) {
+			graphicsHolder.drawCenteredText(TextHelper.translatable("gui.nanbin.js_data.no_data").getString(), width / 2, height / 2 - 10, ARGB_GRAY);
+		}
 
 		if (scrollIndex > 0) {
 			graphicsHolder.drawCenteredText("↑", width / 2, TOP_PADDING - 13, ARGB_GRAY);
