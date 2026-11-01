@@ -74,7 +74,8 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_TICKET_2_EXIT.get().data.asItem())
                 .addItems(Blocks.CRT_TICKET_3_ENTER.get().data.asItem())
                 .addItems(Blocks.CRT_TICKET_3_EXIT.get().data.asItem())
-                .addItems(Blocks.CRT_TICKET_MACHINE_1.get().data.asItem());
+                .addItems(Blocks.CRT_TICKET_MACHINE_1.get().data.asItem())
+                .addItems(Blocks.CRT_TICKET_DISPLAY_1.get().data.asItem());
 
         //CRT_OVERHEAD_LINES = FilterBuilder.registerFilter(ItemsGroup.CRT, TextHelper.translatable("FiltersGroup.nanbin.crt_overhead_lines"), () -> new ItemStack(new ItemConvertible(Blocks.CRT_LOGO.get().data)))
                 //.addItems(Blocks.CRT_RIGID_CATENARY_1.get().data.asItem());
