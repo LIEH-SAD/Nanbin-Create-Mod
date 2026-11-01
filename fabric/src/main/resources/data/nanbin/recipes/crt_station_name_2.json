@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:crt_station_name_1"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_station_name_2",
+    "count": 1
+  }
+}

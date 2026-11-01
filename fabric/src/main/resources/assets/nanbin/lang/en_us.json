@@ -38,6 +38,8 @@
   "block.nanbin.crt_barrier_entrance_3": "CRT Entry Gate (Huanghuayuan Station)",
   "block.nanbin.crt_barrier_exit_3": "CRT Exit Gate (Huanghuayuan Station)",
   "block.nanbin.crt_ticket_machine_1": "Bitian Line Self‑Service Ticket Machine",
+  "block.nanbin.crt_ticket_display_1": "CRT Ticket Gate Status Display",
+  "item.nanbin.crt_ticket_display_1": "CRT Ticket Gate Status Display",
   "block.nanbin.crt_temp_fence_1": "CRT Temporary Fence",
   "block.nanbin.crt_fence_1": "CRT Fence (Horizontal)",
   "block.nanbin.crt_fence_8": "CRT Fence (Horizontal Right End)",

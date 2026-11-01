@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:pavement_2"
+    }
+  ],
+  "result": {
+    "item": "nanbin:pavement_3",
+    "count": 1
+  }
+}

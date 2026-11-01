@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:station_color_ceiling_2"
+    }
+  ],
+  "result": {
+    "item": "nanbin:station_color_ceiling",
+    "count": 1
+  }
+}

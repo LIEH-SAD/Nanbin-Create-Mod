@@ -26,6 +26,7 @@ public class Blocks {
     public final static BlockRegistryObject CRT_TICKET_3_EXIT;
     public final static BlockRegistryObject CRT_TICKET_MACHINE_1;
     public final static BlockRegistryObject CRT_TICKET_MACHINE_2;
+    public final static BlockRegistryObject CRT_TICKET_DISPLAY_1;
     public final static BlockRegistryObject CRT_ESCALATOR_STEP;
     public final static BlockRegistryObject CRT_ESCALATOR_SIDE;
     public final static BlockRegistryObject CRT_OLD_WALL1;
@@ -177,6 +178,7 @@ public class Blocks {
         CRT_TICKET_3_EXIT = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_barrier_exit_3"), () -> new Block(new BlockCRTTicketBarrier3(false)), ItemsGroup.CRT);
         CRT_TICKET_MACHINE_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_ticket_machine_1"), () -> new Block(new BlockCRTTicketMachine1(createDefaultBlockSettings(true, (blockState) -> 5).nonOpaque())), ItemsGroup.CRT);
         CRT_TICKET_MACHINE_2 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_ticket_machine_2"), () -> new Block(new BlockCRTTicketMachine2(createDefaultBlockSettings(true, (blockState) -> 5).nonOpaque())), ItemsGroup.CRT);
+        CRT_TICKET_DISPLAY_1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_ticket_display_1"), () -> new Block(new BlockCRTTicketDisplay1()), ItemsGroup.CRT);
         CRT_ESCALATOR_STEP = REGISTRY.registerBlock(new Identifier(MOD_ID, "crt_escalator_step"), () -> new Block(new BlockCRTEscalatorStep()));
         CRT_ESCALATOR_SIDE = REGISTRY.registerBlock(new Identifier(MOD_ID, "crt_escalator_side"), () -> new Block(new BlockCRTEscalatorSide()));
         CRT_OLD_WALL1 = REGISTRY.registerBlockWithBlockItem(new Identifier(MOD_ID, "crt_old_wall_1"), () -> new Block(new BlockStationColor()), ItemBlockEnchanted::new, ItemsGroup.CRT);

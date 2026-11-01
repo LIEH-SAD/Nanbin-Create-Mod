@@ -38,6 +38,8 @@
   "block.nanbin.crt_barrier_entrance_3": "CRT入站闸机(黄花园站)",
   "block.nanbin.crt_barrier_exit_3": "CRT出站闸机(黄花园站)",
   "block.nanbin.crt_ticket_machine_1": "壁铜线自助票务机",
+  "block.nanbin.crt_ticket_display_1": "CRT闸机状态显示器",
+  "item.nanbin.crt_ticket_display_1": "CRT闸机状态显示器",
   "block.nanbin.crt_temp_fence_1": "CRT临时栏杆",
   "block.nanbin.crt_fence_1": "CRT栏杆（水平）",
   "block.nanbin.crt_fence_8": "CRT栏杆（水平末端右）",

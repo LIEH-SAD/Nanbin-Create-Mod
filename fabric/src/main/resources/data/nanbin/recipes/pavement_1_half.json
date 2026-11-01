@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "nanbin:pavement_1"
+    }
+  },
+  "result": {
+    "item": "nanbin:pavement_1_half",
+    "count": 6
+  }
+}

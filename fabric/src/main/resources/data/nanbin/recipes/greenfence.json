@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:metalfence"
+    },
+    {
+      "tag": "c:green_dyes"
+    }
+  ],
+  "result": {
+    "item": "nanbin:greenfence",
+    "count": 2
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IGI",
+    "GIG",
+    "IGI"
+  ],
+  "key": {
+    "I": {
+      "tag": "c:iron_ingots"
+    },
+    "G": {
+      "tag": "c:glowstone_dusts"
+    }
+  },
+  "result": {
+    "item": "nanbin:ceiling",
+    "count": 32
+  }
+}

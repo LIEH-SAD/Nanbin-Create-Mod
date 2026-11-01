@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:crt_psd_cab_door"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_apg_cab_door_old",
+    "count": 1
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:gray_tactile_paving"
+    }
+  ],
+  "result": {
+    "item": "nanbin:gray_tactile_paving_connect",
+    "count": 1
+  }
+}
