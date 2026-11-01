@@ -6,6 +6,7 @@ import com.Nanbin.client.Screen.CustomTextScreen;
 import com.Nanbin.client.Screen.JSSignDataScreen;
 import com.Nanbin.client.Screen.JSSignSelectorScreen;
 import com.Nanbin.client.Screen.RailwaySignClearConfirmScreen;
+import com.Nanbin.uiHelper.NanbinHorizontalScrollBar;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
@@ -15,6 +16,7 @@ import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
+import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.packet.PacketUpdateRailwaySignConfig;
 import org.mtr.mod.screen.DashboardListItem;
@@ -26,7 +28,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 扩展 MTR 的 {@link RailwaySignScreen}：加入复制／粘贴／清空／撤销按钮，并支持用 JS 脚本整屏渲染指示牌内容。
@@ -82,6 +86,9 @@ public abstract class RailwaySignScreenMixin {
 	private ButtonWidgetExtension nanbin$clearButton;
 	@Unique
 	private ButtonWidgetExtension nanbin$jsStyleButton;
+
+	@Unique
+	private NanbinHorizontalScrollBar nanbin$editScrollBar;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void nanbin$initStationsForList(CallbackInfo ci) {
@@ -182,6 +189,52 @@ public abstract class RailwaySignScreenMixin {
 		nanbin$applyLockState();
 	}
 
+	// 格子过多时，在最上方编辑按钮下方显示横向滚动条
+	@Inject(method = "init2", at = @At("TAIL"))
+	private void nanbin$initEditScrollBar(CallbackInfo ci) {
+		final ScreenExtension screen = (ScreenExtension) (Object) this;
+		final double previousScroll = nanbin$editScrollBar == null ? 0 : nanbin$editScrollBar.getScroll();
+		nanbin$editScrollBar = new NanbinHorizontalScrollBar(8, 54, Math.max(0, screen.width - 16), 6, () -> nanbin$layoutEditRow());
+		nanbin$editScrollBar.setContentWidth(buttonsEdit.length * 32);
+		nanbin$editScrollBar.setScroll(previousScroll);
+		nanbin$editScrollBar.setVisibleMapped(nanbin$editScrollBar.isScrollable());
+		screen.addChild(new ClickableWidget(nanbin$editScrollBar));
+		nanbin$layoutEditRow();
+	}
+
+	@Unique
+	private void nanbin$layoutEditRow() {
+		final int startX = nanbin$editRowStartX();
+		for (int i = 0; i < buttonsEdit.length; i++) {
+			IDrawing.setPositionAndWidth(buttonsEdit[i], startX + i * 32, 32, 32);
+		}
+	}
+
+	// 放得下就居中，放不下就从左端（x = 8）开始并随滚动条左移，滚动上限正好等于 内容宽 - 可视宽
+	@Unique
+	private int nanbin$editRowStartX() {
+		final ScreenExtension screen = (ScreenExtension) (Object) this;
+		final int contentWidth = buttonsEdit.length * 32;
+		return contentWidth <= screen.width - 16 || nanbin$editScrollBar == null ? (screen.width - contentWidth) / 2 : 8 - (int) Math.round(nanbin$editScrollBar.getScroll());
+	}
+
+	// 顶部格子预览跟随编辑按钮一起横向滚动
+	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lorg/mtr/mod/render/RenderRailwaySign;drawSign(Lorg/mtr/mapping/mapper/GraphicsHolder;Lorg/mtr/mod/render/StoredMatrixTransformations;Lorg/mtr/mapping/holder/BlockPos;Ljava/lang/String;FFFFFLorg/mtr/libraries/it/unimi/dsi/fastutil/longs/LongAVLTreeSet;Lorg/mtr/mapping/holder/Direction;ILorg/mtr/mod/render/RenderRailwaySign$DrawTexture;)V"), index = 4)
+	private float nanbin$scrollSignPreview(float x) {
+		final ScreenExtension screen = (ScreenExtension) (Object) this;
+		return x - (screen.width - buttonsEdit.length * 32) / 2 + nanbin$editRowStartX();
+	}
+
+	// 鼠标在顶部格子区域时滚轮改为横向滚动
+	@Inject(method = "mouseScrolled2", at = @At("HEAD"), cancellable = true)
+	private void nanbin$scrollEditRow(double mouseX, double mouseY, double amount, CallbackInfoReturnable<Boolean> cir) {
+		final ScreenExtension screen = (ScreenExtension) (Object) this;
+		if (nanbin$editScrollBar != null && nanbin$editScrollBar.isScrollable() && mouseX >= 0 && mouseX < screen.width && mouseY >= 0 && mouseY < 60) {
+			nanbin$editScrollBar.setScroll(nanbin$editScrollBar.getScroll() - amount * 16);
+			cir.setReturnValue(true);
+		}
+	}
+
 	/** 当前是否已启用全局 JS 样式（第 0 格为样式标记）。 */
 	@Unique
 	private boolean nanbin$hasJSStyle() {
@@ -218,6 +271,8 @@ public abstract class RailwaySignScreenMixin {
 			}
 			selectedIds.clear();
 			InitClient.REGISTRY_CLIENT.sendPacketToServer(new PacketUpdateRailwaySignConfig(signPos, selectedIds, signIds));
+			// 切换样式后立即刷新锁定状态与按钮文字，否则要等下次 init 才生效
+			nanbin$applyLockState();
 		})));
 	}
 

@@ -1,6 +1,6 @@
 package com.Nanbin.client.Render;
 
-import com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall;
+import com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall1;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
 import org.mtr.core.data.SimplifiedRoute;
@@ -23,30 +23,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RenderCRTRailwaySignWall extends BlockEntityRenderer<BlockCRTRailwaySignWall.BlockEntity> {
+public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailwaySignWall1.BlockEntity> {
 
 	private static final Identifier WHITE_TEXTURE = new Identifier("mtr", "textures/block/white.png");
-	// 每格 1 块宽，内容区高度 0.5 块。
-	private static final float CELL_WIDTH = 1.0F;
+	// 每个方块放两格内容（格宽 0.5），内容区高度 0.5 块，单格即 0.5 × 0.5。
+	private static final int CELLS_PER_BLOCK = BlockCRTRailwaySignWall1.CELLS_PER_BLOCK;
+	private static final float CELL_WIDTH = 1.0F / CELLS_PER_BLOCK;
 	private static final float CONTENT_HEIGHT = 0.5F;
 	private static final double BASE_Y = 0.75D;
-	// 内容相对格中心的偏移：x -0.5 让局部 x=0 落在左端方块的西缘，z 让内容贴在模型黑色面板（+Z 面 z=2px）前方。
+	// 内容相对方块中心的偏移：x -0.5 让局部 x=0 落在左端方块的西缘，z 让内容贴在模型黑色面板（+Z 面 z=2px）前方。
+	// 每块两格（各 0.5 宽），整条牌的内容宽度 = 方块数 × 1.0。
 	private static final float CONTENT_OFFSET_X = -0.5F;
 	private static final float CONTENT_OFFSET_Z = 0.36875F;
 	private static final long REFRESH_INTERVAL_MS = 1000L;
 	private long lastRefreshTime = 0L;
 
-	public RenderCRTRailwaySignWall(BlockEntityRenderer.Argument dispatcher) {
+	public RenderCRTRailwaySignWall1(BlockEntityRenderer.Argument dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	public boolean rendersOutsideBoundingBox2(BlockCRTRailwaySignWall.BlockEntity entity) {
+	public boolean rendersOutsideBoundingBox2(BlockCRTRailwaySignWall1.BlockEntity entity) {
 		return true;
 	}
 
 	@Override
-	public void render(BlockCRTRailwaySignWall.BlockEntity entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
+	public void render(BlockCRTRailwaySignWall1.BlockEntity entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
 		final long now = System.currentTimeMillis();
 		if (now - lastRefreshTime >= REFRESH_INTERVAL_MS) {
 			lastRefreshTime = now;
@@ -59,28 +61,28 @@ public class RenderCRTRailwaySignWall extends BlockEntityRenderer<BlockCRTRailwa
 		}
 		final BlockPos pos = entity.getPos2();
 		final BlockState state = world.getBlockState(pos);
-		if (!BlockCRTRailwaySignWall.isWallSign(state)) {
+		if (!BlockCRTRailwaySignWall1.isWallSign(state)) {
 			return;
 		}
 		// 整条牌的内容只由左端方块的实体绘制，其余格直接跳过。
-		if (IBlock.getStatePropertySafe(state, BlockCRTRailwaySignWall.LEFT)) {
+		if (IBlock.getStatePropertySafe(state, BlockCRTRailwaySignWall1.LEFT)) {
 			return;
 		}
 
 		final Direction facing = IBlock.getStatePropertySafe(state, DirectionHelper.FACING);
 		final BlockView view = BlockView.cast(world);
-		final List<BlockPos> run = BlockCRTRailwaySignWall.collectRun(view, pos);
+		final List<BlockPos> run = BlockCRTRailwaySignWall1.collectRun(view, pos);
 		if (run.isEmpty()) {
 			return;
 		}
 
-		final int cellCount = run.size();
+		final int cellCount = run.size() * CELLS_PER_BLOCK;
 		final String[] signIds = new String[cellCount];
 		boolean allEmpty = true;
 		for (int i = 0; i < cellCount; i++) {
-			final BlockCRTRailwaySignWall.BlockEntity cellEntity = BlockCRTRailwaySignWall.getBlockEntity(view, run.get(i));
+			final BlockCRTRailwaySignWall1.BlockEntity cellEntity = BlockCRTRailwaySignWall1.getBlockEntity(view, run.get(i / CELLS_PER_BLOCK));
 			if (cellEntity != null) {
-				signIds[i] = cellEntity.getSignId();
+				signIds[i] = cellEntity.getSignId(i % CELLS_PER_BLOCK);
 				if (signIds[i] != null && !signIds[i].isEmpty()) {
 					allEmpty = false;
 				}
@@ -156,7 +158,7 @@ public class RenderCRTRailwaySignWall extends BlockEntityRenderer<BlockCRTRailwa
 					if (signIds[i] != null && !RenderCRTRailwaySign.isRouteNumberV2(signIds[i])) {
 						final int cellBg = cellBackgroundColors[i] != 0 ? cellBackgroundColors[i] : 0xFFFFFF;
 						final float cellX = CELL_WIDTH * (float) i;
-						RenderCRTRailwaySign.drawSignCRT(graphicsHolder, storedMatrixTransformations, pos, signIds[i], cellX, 0.0F, CONTENT_HEIGHT, CELL_WIDTH, RenderRailwaySign.getMaxWidth(signIds, i, false) * 2.0F, RenderRailwaySign.getMaxWidth(signIds, i, true) * 2.0F, selectedIds, routeNumbers, facing, cellBg, (textureId, x, y, size, flipTexture) -> MainRenderer.scheduleRender(textureId, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+						RenderCRTRailwaySign.drawSignCRT(graphicsHolder, storedMatrixTransformations, pos, signIds[i], cellX, 0.0F, CONTENT_HEIGHT, CELL_WIDTH, RenderRailwaySign.getMaxWidth(signIds, i, false), RenderRailwaySign.getMaxWidth(signIds, i, true), selectedIds, routeNumbers, facing, cellBg, (textureId, x, y, size, flipTexture) -> MainRenderer.scheduleRender(textureId, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformations.transform(graphicsHolderNew, offset);
 							IDrawing.drawTexture(graphicsHolderNew, x, y, size, size, flipTexture ? 1.0F : 0.0F, 0.0F, flipTexture ? 0.0F : 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
 							graphicsHolderNew.pop();

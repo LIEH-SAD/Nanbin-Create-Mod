@@ -6,6 +6,7 @@ import org.mtr.mapping.holder.NativeImage;
 import org.mtr.mapping.holder.NativeImageBackedTexture;
 import org.mtr.mod.client.DynamicTextureCache;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -74,11 +75,19 @@ public class CustomFontTextureCache {
 		public final Identifier identifier;
 		public final int width;
 		public final int height;
+		// 像素图：JS 指示牌烘焙贴图时直接拿它合成，避免回查纹理
+		@Nullable
+		public final NativeImage image;
 
 		public FittedTextTexture(Identifier identifier, int width, int height) {
+			this(identifier, width, height, null);
+		}
+
+		public FittedTextTexture(Identifier identifier, int width, int height, @Nullable NativeImage image) {
 			this.identifier = identifier;
 			this.width = width;
 			this.height = height;
+			this.image = image;
 		}
 	}
 
@@ -111,7 +120,7 @@ public class CustomFontTextureCache {
 			return new FittedTextTexture(DynamicTextureCache.instance.getStationName(text, 1.0F).identifier, 0, 0);
 		}
 
-		final FittedTextTexture result = new FittedTextTexture(registerTexture(nativeImage, "f"), nativeImage.getWidth(), nativeImage.getHeight());
+		final FittedTextTexture result = new FittedTextTexture(registerTexture(nativeImage, "f"), nativeImage.getWidth(), nativeImage.getHeight(), nativeImage);
 
 		fittedTextureCache.put(cacheKey, result);
 		return result;
@@ -146,7 +155,7 @@ public class CustomFontTextureCache {
 			return new FittedTextTexture(DynamicTextureCache.instance.getStationName(text, 1.0F).identifier, 0, 0);
 		}
 
-		final FittedTextTexture result = new FittedTextTexture(registerTexture(nativeImage, "bil"), nativeImage.getWidth(), nativeImage.getHeight());
+		final FittedTextTexture result = new FittedTextTexture(registerTexture(nativeImage, "bil"), nativeImage.getWidth(), nativeImage.getHeight(), nativeImage);
 
 		fittedTextureCache.put(cacheKey, result);
 		return result;

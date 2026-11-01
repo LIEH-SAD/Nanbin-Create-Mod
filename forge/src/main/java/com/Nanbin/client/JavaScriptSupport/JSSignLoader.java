@@ -19,6 +19,8 @@ public final class JSSignLoader {
 	public static void reload() {
 		JSSignConfig.clear();
 		JSSignEngine.clearCache();
+		// 资源可能换了，烘焙贴图与贴图像素缓存一起作废
+		JSSignTextureBaker.clearCaches();
 		ResourceManagerHelper.readAllResources(JS_SIGNS_CONFIG_ID, inputStream -> {
 			try {
 				final JsonReader reader = new JsonReader(Config.readResource(inputStream));

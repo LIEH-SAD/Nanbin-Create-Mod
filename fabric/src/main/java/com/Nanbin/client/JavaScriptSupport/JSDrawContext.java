@@ -20,7 +20,7 @@ public final class JSDrawContext {
 	private final float cellSize;
 	private final int cellCount;
 	private final int backgroundColor;
-	// 非 0 时覆盖 getWidth()：墙挂牌每格宽 1.0 但内容基于 0.5 高度绘制，需要显式总宽。
+	// 非 0 时覆盖 getWidth()：由渲染器直接给出整块总宽，避免格宽与格高不等时算错。
 	private final float widthOverride;
 
 	public JSDrawContext(StoredMatrixTransformations storedMatrixTransformations, Direction facing, float startX, float startY, float cellSize, int cellCount, boolean transparentBlack, int backgroundColor) {
@@ -84,6 +84,8 @@ public final class JSDrawContext {
 	/** 旧接口兼容：把 execute 返回的结果（单个 {@link JSSignResult} 或数组）逐格绘制到本上下文。 */
 	public void drawResults(Object result) {
 		final JSSignEngine.JSSignResult[] results = JSSignEngine.toCellResults(result, cellCount);
+		// 横向按实际格宽排布：墙挂牌每格 1.0 宽而 cellSize 只有 0.5，用 cellSize 会让相邻格重叠。
+		final float cellWidth = cellCount <= 0 ? cellSize : getWidth() / cellCount;
 		for (int i = 0; i < cellCount; i++) {
 			final JSSignEngine.JSSignResult cell = results[Math.min(i, results.length - 1)];
 			final String text = cell.getText();
@@ -93,9 +95,9 @@ public final class JSDrawContext {
 			final int color = cell.getTextColor() != 0 ? cell.getTextColor() : 0xFF000000;
 			final int bg = cell.getBackgroundColor() != 0 ? cell.getBackgroundColor() : backgroundColor;
 			if (bg != 0) {
-				drawRect(i * cellSize, 0, cellSize, cellSize, bg);
+				drawRect(i * cellWidth, 0, cellWidth, cellSize, bg);
 			}
-			drawText(text, i * cellSize, 0, cellSize, cellSize, color, cell.getTextSize(), cell.isTextBold(), true);
+			drawText(text, i * cellWidth, 0, cellWidth, cellSize, color, cell.getTextSize(), cell.isTextBold(), true);
 		}
 	}
 

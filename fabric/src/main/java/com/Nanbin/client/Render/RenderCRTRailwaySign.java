@@ -6,8 +6,10 @@ import com.Nanbin.client.Drawing.CustomFontTextureCache.FontType;
 import com.Nanbin.client.Drawing.FontRenderUtils;
 import com.Nanbin.client.Drawing.SignTextStyleConfig;
 import com.Nanbin.client.JavaScriptSupport.JSDrawContext;
+import com.Nanbin.client.JavaScriptSupport.JSDrawSink;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
 import com.Nanbin.client.JavaScriptSupport.JSSignEngine;
+import com.Nanbin.client.JavaScriptSupport.JSSignTextureBaker;
 import org.mtr.core.data.SimplifiedRoute;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -221,7 +223,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 			boolean isExit = signId.equals("exit_letter") || signId.equals("exit_letter_flipped");
 			boolean isLine = signId.equals("line") || signId.equals("line_flipped");
 			boolean isPlatform = signId.equals("platform") || signId.equals("platform_flipped");
-			// 方块牌每格 1.0 宽而内容按 0.5 高绘制，非自定义文字贴图需在格内水平居中；旧路径 cellWidth == size，偏移为 0。
+			// 格宽大于内容高时（如旧墙挂牌每格 1.0）非自定义文字贴图需在格内水平居中；一般情况 cellWidth == size，偏移为 0。
 			float centeredX = x + (cellWidth - size) / 2.0F;
 			if (storedMatrixTransformations == null) {
 				RenderRailwaySign.drawSign(graphicsHolder, (StoredMatrixTransformations)null, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
@@ -364,11 +366,16 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 					float backgroundY = centerInCell ? yOffset : y1;
 					float backgroundW = centerInCell ? (centerWidth > 0.0F ? centerWidth : size) : width;
 					float backgroundH = centerInCell ? size : height;
-					MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
-						storedMatrixTransformations.transform(graphicsHolderNew, offset);
-						IDrawing.drawTexture(graphicsHolderNew, backgroundX, backgroundY, backgroundW, backgroundH, 0.0F, 0.0F, 1.0F, 1.0F, facing, textBackgroundColor, GraphicsHolder.getDefaultLight());
-						graphicsHolderNew.pop();
-					});
+					final JSDrawSink backgroundSink = JSDrawSink.current();
+					if (backgroundSink != null) {
+						backgroundSink.drawTexture(WHITE_TEXTURE, backgroundX, backgroundY, backgroundW, backgroundH, textBackgroundColor);
+					} else {
+						MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+							storedMatrixTransformations.transform(graphicsHolderNew, offset);
+							IDrawing.drawTexture(graphicsHolderNew, backgroundX, backgroundY, backgroundW, backgroundH, 0.0F, 0.0F, 1.0F, 1.0F, facing, textBackgroundColor, GraphicsHolder.getDefaultLight());
+							graphicsHolderNew.pop();
+						});
+					}
 				}
 
 				float lineY = y1;
@@ -390,11 +397,20 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 					float finalLineY = lineY - (float)(padding + raise) * pixelToWorld * scaleY;
 					float glyphLineHeight = (float)Math.max(1, lineTexture.height - padding * 2) * pixelToWorld * scaleY;
-					MainRenderer.scheduleRender(lineTexture.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
-						storedMatrixTransformations.transform(graphicsHolderNew, offset);
-						IDrawing.drawTexture(graphicsHolderNew, lineX, finalLineY, lineW, lineH, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
-						graphicsHolderNew.pop();
-					});
+					final JSDrawSink lineSink = JSDrawSink.current();
+					if (lineSink != null) {
+						if (lineTexture.image != null) {
+							lineSink.drawImage(lineTexture.image, lineX, finalLineY, lineW, lineH, -1);
+						} else {
+							lineSink.drawTexture(lineTexture.identifier, lineX, finalLineY, lineW, lineH, -1);
+						}
+					} else {
+						MainRenderer.scheduleRender(lineTexture.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+							storedMatrixTransformations.transform(graphicsHolderNew, offset);
+							IDrawing.drawTexture(graphicsHolderNew, lineX, finalLineY, lineW, lineH, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
+							graphicsHolderNew.pop();
+						});
+					}
 					lineY += glyphLineHeight + (float)lineGapPx * pixelToWorld * scaleY;
 				}
 
@@ -588,45 +604,48 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 			boolean isTextCell = flipped ? cellIndex == regionEnd - shownRoutes + 1 : cellIndex == regionStart + shownRoutes - 1;
 			float cellX = (float)cellIndex * cellStep;
 			if (flipped) {
-				renderRouteNumberV2CellFlip(storedMatrixTransformations, signIds, cellIndex, facing, size, cellX, routeColor, number, text, isTextCell, backgroundColor);
+				renderRouteNumberV2CellFlip(storedMatrixTransformations, signIds, cellIndex, facing, size, cellStep, cellX, routeColor, number, text, isTextCell, backgroundColor);
 			} else {
-				renderRouteNumberV2CellNormal(storedMatrixTransformations, signIds, cellIndex, facing, size, cellX, routeColor, number, text, isTextCell, backgroundColor);
+				renderRouteNumberV2CellNormal(storedMatrixTransformations, signIds, cellIndex, facing, size, cellStep, cellX, routeColor, number, text, isTextCell, backgroundColor);
 			}
 
 		}
 	}
 
-	private static void renderRouteNumberV2CellNormal(StoredMatrixTransformations storedMatrixTransformations, String[] signIds, int cellIndex, Direction facing, float size, float cellX, int routeColor, String number, String text, boolean isLast, int backgroundColor) {
+	private static void renderRouteNumberV2CellNormal(StoredMatrixTransformations storedMatrixTransformations, String[] signIds, int cellIndex, Direction facing, float size, float cellStep, float cellX, int routeColor, String number, String text, boolean isLast, int backgroundColor) {
+		// 水平布局按格宽 cellStep 铺满整格，高度仍按内容高度 size；cellStep == size 时算式与旧路径完全一致。
+		float cw = cellStep;
 		float m1Y = 0.2F * size;
-		float m1W = 0.3F * size;
+		float m1W = 0.3F * cw;
 		float m1H = 0.8F * size;
 		drawSolidRect(storedMatrixTransformations, facing, cellX, m1Y, m1W, m1H, routeColor);
 		boolean hasNumber = !number.isEmpty();
 		if (hasNumber) {
-			drawNumberBlock(storedMatrixTransformations, facing, cellX + 0.3F * size, 0.0F, 0.7F * size, 1.0F * size, number);
+			drawNumberBlock(storedMatrixTransformations, facing, cellX + 0.3F * cw, 0.0F, 0.7F * cw, 1.0F * size, number);
 		}
 
 		if (isLast && !text.isEmpty()) {
-			float textStart = cellX + (hasNumber ? 1.0F : 0.4F) * size;
+			float textStart = cellX + (hasNumber ? 1.0F : 0.4F) * cw;
 			SignTextStyleConfig.SignTextStyle style = SignTextStyleConfig.get(signIds[cellIndex]);
 			renderCustomTextCRT(text, storedMatrixTransformations, facing, size, textStart, false, 100.0F, backgroundColor, FontType.ALIBABA, false, false, false, style, false, 0.8F, (Color)null);
 		}
 
 	}
 
-	private static void renderRouteNumberV2CellFlip(StoredMatrixTransformations storedMatrixTransformations, String[] signIds, int cellIndex, Direction facing, float size, float cellX, int routeColor, String number, String text, boolean isTextCell, int backgroundColor) {
-		float m1X = cellX + 0.7F * size;
+	private static void renderRouteNumberV2CellFlip(StoredMatrixTransformations storedMatrixTransformations, String[] signIds, int cellIndex, Direction facing, float size, float cellStep, float cellX, int routeColor, String number, String text, boolean isTextCell, int backgroundColor) {
+		float cw = cellStep;
+		float m1X = cellX + 0.7F * cw;
 		float m1Y = 0.2F * size;
-		float m1W = 0.3F * size;
+		float m1W = 0.3F * cw;
 		float m1H = 0.8F * size;
 		drawSolidRect(storedMatrixTransformations, facing, m1X, m1Y, m1W, m1H, routeColor);
 		boolean hasNumber = !number.isEmpty();
 		if (hasNumber) {
-			drawNumberBlock(storedMatrixTransformations, facing, cellX, 0.0F, 0.7F * size, size, number);
+			drawNumberBlock(storedMatrixTransformations, facing, cellX, 0.0F, 0.7F * cw, size, number);
 		}
 
 		if (isTextCell && !text.isEmpty()) {
-			float textStart = cellX + (hasNumber ? 0.0F : 0.7F) * size;
+			float textStart = cellX + (hasNumber ? 0.0F : 0.7F) * cw;
 			SignTextStyleConfig.SignTextStyle style = SignTextStyleConfig.get(signIds[cellIndex]);
 			if (style == null) {
 				style = SignTextStyleConfig.get("crt_route_name");
@@ -684,13 +703,50 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 		renderJSStyleLine(scriptId, storedMatrixTransformations, pos, lineIds, selectedIds, routeNumbers, facing, backgroundColor, cellSize, startX, startY, transparentBlack, routeNumberMap, 0.0F);
 	}
 
-	// widthOverride > 0 时覆盖 ctx.getWidth()：墙挂牌每格 1.0 宽但内容按 0.5 高绘制。
+	// widthOverride > 0 时覆盖 ctx.getWidth()：格宽与格高不由同一常量推导时由渲染器直接给总宽。
 	public static void renderJSStyleLine(String scriptId, StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String[] lineIds, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, float cellSize, float startX, float startY, boolean transparentBlack, Map<Long, String> routeNumberMap, float widthOverride) {
 		refreshJSCache();
-		String signKey = scriptId + "_" + pos.getX() + "_" + pos.getY() + "_" + pos.getZ() + "_" + startX + "_" + startY + "_" + facing;
-		JSSignEngine.JSSignContext context = new JSSignEngine.JSSignContext(lineIds, 0, selectedIds, routeNumbers, backgroundColor, cellSize, signKey, pos, routeNumberMap);
-		JSDrawContext drawContext = new JSDrawContext(storedMatrixTransformations, facing, startX, startY, cellSize, lineIds.length, transparentBlack, backgroundColor, widthOverride);
+		final String signKey = scriptId + "_" + pos.getX() + "_" + pos.getY() + "_" + pos.getZ() + "_" + startX + "_" + startY + "_" + facing;
+		final float width = widthOverride > 0.0F ? widthOverride : lineIds.length * cellSize;
+		final long contentKey = buildJSContentKey(lineIds, selectedIds, routeNumbers, backgroundColor, cellSize, transparentBlack, width);
+		// 先让脚本产出元素，再把元素按顺序烘焙成一张贴图，牌面只画这一张，避免逐元素渲染时元素丢失
+		final JSSignTextureBaker.Baked baked = JSSignTextureBaker.bake(signKey, contentKey, startX, startY, width, cellSize, () -> JSSignEngine.render(scriptId, signKey,
+				new JSDrawContext(storedMatrixTransformations, facing, startX, startY, cellSize, lineIds.length, transparentBlack, backgroundColor, width),
+				new JSSignEngine.JSSignAPI(new JSSignEngine.JSSignContext(lineIds, 0, selectedIds, routeNumbers, backgroundColor, cellSize, signKey, pos, routeNumberMap, width), scriptId)));
+		if (baked != null) {
+			MainRenderer.scheduleRender(baked.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+				storedMatrixTransformations.transform(graphicsHolderNew, offset);
+				IDrawing.drawTexture(graphicsHolderNew, startX, startY, width, cellSize, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
+				graphicsHolderNew.pop();
+			});
+			return;
+		}
+		// 元素里有取不到像素的贴图时回退到逐元素渲染
+		JSSignEngine.JSSignContext context = new JSSignEngine.JSSignContext(lineIds, 0, selectedIds, routeNumbers, backgroundColor, cellSize, signKey, pos, routeNumberMap, width);
+		JSDrawContext drawContext = new JSDrawContext(storedMatrixTransformations, facing, startX, startY, cellSize, lineIds.length, transparentBlack, backgroundColor, width);
 		JSSignEngine.render(scriptId, signKey, drawContext, new JSSignEngine.JSSignAPI(context, scriptId));
+	}
+
+	// 内容指纹：格子/选择/线路编号/底色等变化时立即重烘焙，否则靠定时刷新
+	private static long buildJSContentKey(String[] lineIds, LongAVLTreeSet selectedIds, String[] routeNumbers, int backgroundColor, float cellSize, boolean transparentBlack, float width) {
+		long hash = 1125899906842597L;
+		hash = hash * 31L + Float.floatToIntBits(width);
+		hash = hash * 31L + Float.floatToIntBits(cellSize);
+		hash = hash * 31L + backgroundColor;
+		hash = hash * 31L + (transparentBlack ? 1 : 0);
+		for (final String signId : lineIds) {
+			hash = hash * 31L + (signId == null ? 0 : signId.hashCode());
+		}
+		for (final LongBidirectionalIterator iterator = selectedIds.iterator(); iterator.hasNext(); ) {
+			final long id = iterator.nextLong();
+			hash = hash * 31L + (int) (id ^ (id >>> 32));
+		}
+		if (routeNumbers != null) {
+			for (final String routeNumber : routeNumbers) {
+				hash = hash * 31L + (routeNumber == null ? 0 : routeNumber.hashCode());
+			}
+		}
+		return hash;
 	}
 
 	private static void refreshJSCache() {
@@ -742,6 +798,11 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 	public static void renderJSTexture(Identifier textureId, StoredMatrixTransformations storedMatrixTransformations, Direction facing, float x, float y, float w, float h, int color) {
 		if (!(w <= 0.0F) && !(h <= 0.0F)) {
+			final JSDrawSink sink = JSDrawSink.current();
+			if (sink != null) {
+				sink.drawTexture(textureId, x, y, w, h, color);
+				return;
+			}
 			// 指示牌的内容都是叠在牌面上的覆盖层，必须和文字一起放进 MTR 的透明批处理组：
 			// 非透明组里同批次的牌面底板/牌框会在某些视角把图形元素盖掉（文字用透明组所以不受影响）。
 			MainRenderer.scheduleRender(textureId, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
@@ -754,6 +815,11 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 	public static void renderJSRect(StoredMatrixTransformations storedMatrixTransformations, Direction facing, float x, float y, float w, float h, int color) {
 		if (!(w <= 0.0F) && !(h <= 0.0F)) {
+			final JSDrawSink sink = JSDrawSink.current();
+			if (sink != null) {
+				sink.drawTexture(WHITE_TEXTURE, x, y, w, h, color);
+				return;
+			}
 			MainRenderer.scheduleRender(WHITE_TEXTURE, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
 				IDrawing.drawTexture(graphicsHolderNew, x, y, w, h, 0.0F, 0.0F, 1.0F, 1.0F, facing, color, GraphicsHolder.getDefaultLight());
@@ -770,6 +836,11 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 			float angle = (float)Math.atan2((double)dy, (double)dx);
 			float midX = (x1 + x2) / 2.0F;
 			float midY = (y1 + y2) / 2.0F;
+			final JSDrawSink sink = JSDrawSink.current();
+			if (sink != null) {
+				sink.drawRotatedQuad(midX, midY, length, thickness, angle, color);
+				return;
+			}
 			MainRenderer.scheduleRender(WHITE_TEXTURE, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
 				graphicsHolderNew.translate((double)midX, (double)midY, (double)0.0F);

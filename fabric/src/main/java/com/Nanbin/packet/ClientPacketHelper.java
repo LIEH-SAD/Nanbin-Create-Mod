@@ -1,5 +1,6 @@
 package com.Nanbin.packet;
 
+import com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall1;
 import com.Nanbin.Registry.RegBlock.BlockCRTStationInfo1;
 import com.Nanbin.Registry.RegBlock.BlockCRTStationInfo1Double;
 import com.Nanbin.client.Screen.*;
@@ -31,7 +32,7 @@ public final class ClientPacketHelper {
         final org.mtr.mapping.holder.ClientWorld world = MinecraftClient.getInstance().getWorldMapped();
         if (world != null) {
             final org.mtr.mapping.holder.BlockState state = world.getBlockState(blockPos);
-            if (state.getBlock().data instanceof com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall) {
+            if (state.getBlock().data instanceof BlockCRTRailwaySignWall1) {
                 openRailwaySignWallScreen(world, blockPos, state);
                 return;
             }
@@ -42,24 +43,28 @@ public final class ClientPacketHelper {
     // 墙挂指示牌：任意一格用刷子打开整条牌的编辑器，内容按格拼成一行。
     public static void openRailwaySignWallScreen(org.mtr.mapping.holder.ClientWorld world, BlockPos blockPos, org.mtr.mapping.holder.BlockState state) {
         final org.mtr.mapping.holder.BlockView view = org.mtr.mapping.holder.BlockView.cast(world);
-        final BlockPos start = com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall.findStart(view, blockPos, state);
-        final List<BlockPos> run = com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall.collectRun(view, start);
+        final BlockPos start = BlockCRTRailwaySignWall1.findStart(view, blockPos, state);
+        final List<BlockPos> run = BlockCRTRailwaySignWall1.collectRun(view, start);
         if (run.isEmpty()) {
             return;
         }
-        final String[] cells = new String[run.size()];
+        // 每个方块两格内容：编辑器按格展开，长度 = 方块数 × 2
+        final int cellsPerBlock = BlockCRTRailwaySignWall1.CELLS_PER_BLOCK;
+        final String[] cells = new String[run.size() * cellsPerBlock];
         final LongAVLTreeSet selectedIds = new LongAVLTreeSet();
         for (int i = 0; i < run.size(); i++) {
-            final com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall.BlockEntity entity = com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall.getBlockEntity(view, run.get(i));
+            final BlockCRTRailwaySignWall1.BlockEntity entity = BlockCRTRailwaySignWall1.getBlockEntity(view, run.get(i));
             if (entity != null) {
-                cells[i] = entity.getSignId();
+                for (int j = 0; j < cellsPerBlock; j++) {
+                    cells[i * cellsPerBlock + j] = entity.getSignId(j);
+                }
                 selectedIds.addAll(entity.getSelectedIds());
             }
         }
         final String[][] splitCells = new String[][]{cells};
         final List<LongAVLTreeSet> lineSelectedIds = new ArrayList<>();
         lineSelectedIds.add(selectedIds);
-        final RailwaySignDoubleScreen screen = new RailwaySignDoubleScreen(start, 1, cells.length, splitCells, lineSelectedIds, true, () -> Registry.sendPacketToServer(new PacketUpdateRailwaySignWallData(start, splitCells[0], selectedIds)));
+        final RailwaySignDoubleScreen screen = new RailwaySignDoubleScreen(start, 1, cells.length, splitCells, lineSelectedIds, true, () -> Registry.sendPacketToServer(new PacketUpdateRailwaySignWallData1(start, splitCells[0], selectedIds)));
         openScreen(screen, screenExtension -> screenExtension instanceof RailwaySignDoubleScreen);
     }
 

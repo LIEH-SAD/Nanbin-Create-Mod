@@ -1,3 +1,6 @@
 {
-	"parent": "nanbin:block/crt_railway_sign_wall_1_single"
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "nanbin:item/crt_railway_sign_wall_1"
+	}
 }

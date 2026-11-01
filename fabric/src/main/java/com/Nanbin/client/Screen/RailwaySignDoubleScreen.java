@@ -3,6 +3,7 @@ package com.Nanbin.client.Screen;
 import com.Nanbin.client.ClientData.SignClipboard;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
 import com.Nanbin.packet.ClientPacketHelper;
+import com.Nanbin.uiHelper.NanbinHorizontalScrollBar;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
@@ -66,6 +67,8 @@ public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
     protected ButtonWidgetExtension nanbinPasteButton;
     protected ButtonWidgetExtension nanbinClearButton;
     protected ButtonWidgetExtension nanbinJsStyleButton;
+    // 格子太多放不下时，编辑按钮行下方的横向滚动条
+    protected NanbinHorizontalScrollBar nanbinEditScrollBar;
 
     protected static final int SIGN_SIZE = 32;
     protected static final int SIGN_BUTTON_SIZE = 16;
@@ -145,10 +148,10 @@ public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
 
         for (int i = 0; i < lines; i++) {
             for (int j = 0; j < buttonsEdit[i].length; j++) {
-                IDrawing.setPositionAndWidth(buttonsEdit[i][j], (width - SIGN_SIZE * length) / 2 + j * SIGN_SIZE, i * (SIGN_SIZE + SQUARE_SIZE) + SIGN_SIZE, SIGN_SIZE);
                 addChild(new ClickableWidget(buttonsEdit[i][j]));
             }
         }
+        nanbinInitEditScrollBar();
 
         columns = Math.max((width - SIGN_BUTTON_SIZE * 3) / (SIGN_BUTTON_SIZE * 8) * 2, 1);
         rows = Math.max((height - SIGN_SIZE * lines - SQUARE_SIZE * 4 - SQUARE_SIZE / 2) / SIGN_BUTTON_SIZE, 1);
@@ -219,6 +222,41 @@ public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
         addChild(new ClickableWidget(nanbinUndoButton));
     }
 
+    // 格子太多放不下时，在最下方编辑按钮行下方显示横向滚动条
+    private void nanbinInitEditScrollBar() {
+        final double previousScroll = nanbinEditScrollBar == null ? 0 : nanbinEditScrollBar.getScroll();
+        nanbinEditScrollBar = new NanbinHorizontalScrollBar(8, lines * (SIGN_SIZE + SQUARE_SIZE) + 2, Math.max(0, width - 16), 6, this::nanbinLayoutEditRow);
+        nanbinEditScrollBar.setContentWidth(length * SIGN_SIZE);
+        nanbinEditScrollBar.setScroll(previousScroll);
+        nanbinEditScrollBar.setVisibleMapped(nanbinEditScrollBar.isScrollable());
+        addChild(new ClickableWidget(nanbinEditScrollBar));
+        nanbinLayoutEditRow();
+    }
+
+    protected void nanbinLayoutEditRow() {
+        final int startX = nanbinEditStartX();
+        for (int i = 0; i < lines; i++) {
+            for (int j = 0; j < buttonsEdit[i].length; j++) {
+                IDrawing.setPositionAndWidth(buttonsEdit[i][j], startX + j * SIGN_SIZE, i * (SIGN_SIZE + SQUARE_SIZE) + SIGN_SIZE, SIGN_SIZE);
+            }
+        }
+    }
+
+    // 放得下就居中，放不下就从左端（x = 8）开始并随滚动条左移，滚动上限正好等于 contentWidth - 可视宽度
+    protected int nanbinEditStartX() {
+        final int contentWidth = length * SIGN_SIZE;
+        return contentWidth <= width - 16 ? (width - contentWidth) / 2 : 8 - nanbinEditScroll();
+    }
+
+    protected int nanbinEditScroll() {
+        return nanbinEditScrollBar == null ? 0 : (int) Math.round(nanbinEditScrollBar.getScroll());
+    }
+
+    /** 鼠标是否落在编辑按钮行/滚动条所在的顶部区域（滚轮改为横向滚动）。 */
+    private boolean nanbinIsInEditRow(double mouseY) {
+        return nanbinEditScrollBar != null && nanbinEditScrollBar.isScrollable() && mouseY >= 0 && mouseY < nanbinEditScrollBar.getY2() + 6;
+    }
+
     /** 任一行的第 0 格为 JS 样式标记即视为整屏启用 JS 样式。 */
     protected boolean nanbinHasJSStyle() {
         for (final String[] lineIds : signIds) {
@@ -266,6 +304,8 @@ public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
             if (onSave != null) {
                 onSave.run();
             }
+            // 切换样式后立即刷新锁定状态与按钮文字，否则要等下次 init 才生效
+            nanbinApplyLockState();
         })));
     }
 
@@ -309,10 +349,11 @@ public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
         renderBackground(graphicsHolder);
         super.render(graphicsHolder, mouseX, mouseY, delta);
 
+        final int editStartX = nanbinEditStartX();
         for (int i = 0; i < lines; i++) {
             for (int j = 0; j < signIds[i].length; j++) {
                 if (signIds[i][j] != null) {
-                    RenderRailwaySign.drawSign(graphicsHolder, null, signPos, signIds[i][j], (width - SIGN_SIZE * length) / 2F + j * SIGN_SIZE, i * (SQUARE_SIZE + SIGN_SIZE), SIGN_SIZE, RenderRailwaySign.getMaxWidth(signIds[i], j, false), RenderRailwaySign.getMaxWidth(signIds[i], j, true), selectedIds.get(i), Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
+                    RenderRailwaySign.drawSign(graphicsHolder, null, signPos, signIds[i][j], editStartX + j * SIGN_SIZE, i * (SQUARE_SIZE + SIGN_SIZE), SIGN_SIZE, RenderRailwaySign.getMaxWidth(signIds[i], j, false), RenderRailwaySign.getMaxWidth(signIds[i], j, true), selectedIds.get(i), Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
                         final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
                         guiDrawing.beginDrawingTexture(textureId);
                         guiDrawing.drawTexture(x, y, x + size, y + size, flipTexture ? 1 : 0, 0, flipTexture ? 0 : 1, 1);
@@ -346,6 +387,10 @@ public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
 
     @Override
     public boolean mouseScrolled2(double mouseX, double mouseY, double amount) {
+        if (nanbinIsInEditRow(mouseY)) {
+            nanbinEditScrollBar.setScroll(nanbinEditScrollBar.getScroll() - amount * 16);
+            return true;
+        }
         setPage(page + (int) Math.signum(-amount));
         return super.mouseScrolled2(mouseX, mouseY, amount);
     }
@@ -371,6 +416,7 @@ public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
                 button.active = true;
             }
         }
+        nanbinLayoutEditRow();
         for (ButtonWidgetExtension button : buttonsSelection) {
             button.visible = false;
         }

@@ -63,7 +63,7 @@ function create(ctx, state, sign) {
 }
 
 function render(ctx, state, sign) {
-    // 每帧调用，在此绘制整个指示牌
+    // 生成整块指示牌的元素；引擎会把这一帧的元素按顺序烘焙成一张贴图后渲染
 }
 
 function dispose(ctx, state, sign) {
@@ -74,6 +74,12 @@ function dispose(ctx, state, sign) {
 - `ctx`：绘制上下文（见第三节）
 - `state`：跨帧状态对象，随每个屏幕独立存储
 - `sign`：指示牌数据接口（见第四节）
+
+> **渲染方式**：脚本不再逐元素直接画到世界里。引擎调用 `render` 后，会把这一帧生成的
+> 所有元素（贴图 / 矩形 / 连线 / 文字）按绘制顺序合成到一张贴图上，牌面最终只画这一张贴图，
+> 因此元素之间不会互相遮挡丢失，绘制顺序即叠放顺序。
+> 为了省开销，`render` 约**每秒调用一次**（内容变化时会立即重绘），
+> 所以脚本适合做时钟这类秒级更新的内容，不要依赖逐帧动画。
 
 ---
 
@@ -147,7 +153,7 @@ Line.create()
 
 | 接口 | 返回 | 说明 |
 |------|------|------|
-| `getWidth()` | float | 渲染宽度（世界单位）= 格数 × 单格尺寸 |
+| `getWidth()` | float | 渲染宽度（世界单位），与 `ctx.getWidth()` 一致（墙挂牌每块两格、每格 0.5 宽） |
 | `getHeight()` | float | 渲染高度（世界单位）= 单格尺寸 |
 | `getCellCount()` | int | 格子数量（格数） |
 | `getCellSize()` | float | 单格世界尺寸 |

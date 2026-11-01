@@ -26,15 +26,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 // CRT 墙挂铁路指示牌：同一面墙上的相邻方块自动连接成一整块牌，每块占 1 格内容。
-public class BlockCRTRailwaySignWall extends BlockExtension implements IBlock, DirectionHelper, BlockWithEntity {
+public class BlockCRTRailwaySignWall1 extends BlockExtension implements IBlock, DirectionHelper, BlockWithEntity {
 
     // 连接状态：LEFT / RIGHT 表示观察者左右两侧是否有同向的相邻方块。
     public static final BooleanProperty LEFT = BooleanProperty.of("left");
     public static final BooleanProperty RIGHT = BooleanProperty.of("right");
     // 单次扫描的最大长度，避免异常数据导致死循环。
     public static final int MAX_RUN = 64;
+    // 每个方块放两格内容（格宽 0.5），与 MTR 原版指示牌的单格尺寸一致。
+    public static final int CELLS_PER_BLOCK = 2;
 
-    public BlockCRTRailwaySignWall(BlockSettings blockSettings) {
+    public BlockCRTRailwaySignWall1(BlockSettings blockSettings) {
         super(blockSettings);
     }
 
@@ -61,7 +63,7 @@ public class BlockCRTRailwaySignWall extends BlockExtension implements IBlock, D
     }
 
     public static boolean isWallSign(BlockState state) {
-        return state.getBlock().data instanceof BlockCRTRailwaySignWall;
+        return state.getBlock().data instanceof BlockCRTRailwaySignWall1;
     }
 
     public static boolean isConnected(BlockState state, Direction facing) {
@@ -171,12 +173,14 @@ public class BlockCRTRailwaySignWall extends BlockExtension implements IBlock, D
 
     public static class BlockEntity extends BlockEntityExtension {
 
+        // 旧存档只有一格，读取时并入第 0 格。
         private static final String KEY_SIGN_ID = "wall_sign_id";
+        private static final String KEY_SIGN_ID_PREFIX = "wall_sign_id_";
         private static final String KEY_SELECTED_IDS = "selected_ids";
         private static final String KEY_ROUTE_COLORS = "wall_route_colors";
         private static final String KEY_ROUTE_NUMBERS = "wall_route_numbers";
 
-        private String signId;
+        private final String[] signIds = new String[CELLS_PER_BLOCK];
         private final LongAVLTreeSet selectedIds = new LongAVLTreeSet();
         // 颜色 -> 线路编号；MTR 客户端数据只有 SimplifiedRoute，只能服务端解析后随 NBT 同步。
         private final Long2ObjectOpenHashMap<String> routeNumbers = new Long2ObjectOpenHashMap<>();
@@ -185,8 +189,9 @@ public class BlockCRTRailwaySignWall extends BlockExtension implements IBlock, D
             super(BlockEntityTypes.CRT_RAILWAY_SIGN_WALL_1.get(), pos, state);
         }
 
-        public String getSignId() {
-            return signId;
+        // 本方块第 cell 格（0 = 左半，1 = 右半）的内容 id。
+        public String getSignId(int cell) {
+            return cell >= 0 && cell < CELLS_PER_BLOCK ? signIds[cell] : null;
         }
 
         public LongAVLTreeSet getSelectedIds() {
@@ -199,9 +204,12 @@ public class BlockCRTRailwaySignWall extends BlockExtension implements IBlock, D
             markDirty2();
         }
 
-        // 服务端写入本格内容；selectedIds 为整块牌共用的数据选择。
-        public void setData(String newSignId, LongAVLTreeSet newSelectedIds) {
-            signId = newSignId == null || newSignId.isEmpty() ? null : newSignId;
+        // 服务端写入本方块的两格内容；selectedIds 为整块牌共用的数据选择。
+        public void setData(String[] newSignIds, LongAVLTreeSet newSelectedIds) {
+            for (int i = 0; i < CELLS_PER_BLOCK; i++) {
+                final String signId = newSignIds != null && i < newSignIds.length ? newSignIds[i] : null;
+                signIds[i] = signId == null || signId.isEmpty() ? null : signId;
+            }
             if (newSelectedIds != null) {
                 selectedIds.clear();
                 selectedIds.addAll(newSelectedIds);
@@ -213,9 +221,12 @@ public class BlockCRTRailwaySignWall extends BlockExtension implements IBlock, D
         @Override
         public void readCompoundTag(CompoundTag compoundTag) {
             super.readCompoundTag(compoundTag);
-            signId = compoundTag.getString(KEY_SIGN_ID);
-            if (signId.isEmpty()) {
-                signId = null;
+            for (int i = 0; i < CELLS_PER_BLOCK; i++) {
+                String signId = compoundTag.getString(KEY_SIGN_ID_PREFIX + i);
+                if (signId.isEmpty() && i == 0) {
+                    signId = compoundTag.getString(KEY_SIGN_ID);
+                }
+                signIds[i] = signId.isEmpty() ? null : signId;
             }
             selectedIds.clear();
             for (final long id : compoundTag.getLongArray(KEY_SELECTED_IDS)) {
@@ -235,7 +246,10 @@ public class BlockCRTRailwaySignWall extends BlockExtension implements IBlock, D
         @Override
         public void writeCompoundTag(CompoundTag compoundTag) {
             super.writeCompoundTag(compoundTag);
-            compoundTag.putString(KEY_SIGN_ID, signId == null ? "" : signId);
+            for (int i = 0; i < CELLS_PER_BLOCK; i++) {
+                compoundTag.putString(KEY_SIGN_ID_PREFIX + i, signIds[i] == null ? "" : signIds[i]);
+            }
+            compoundTag.putString(KEY_SIGN_ID, signIds[0] == null ? "" : signIds[0]);
             compoundTag.putLongArray(KEY_SELECTED_IDS, selectedIds.toLongArray());
             final long[] colors = routeNumbers.keySet().toLongArray();
             final StringBuilder sb = new StringBuilder();

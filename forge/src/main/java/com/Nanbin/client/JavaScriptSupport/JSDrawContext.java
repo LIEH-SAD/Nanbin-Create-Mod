@@ -20,8 +20,14 @@ public final class JSDrawContext {
 	private final float cellSize;
 	private final int cellCount;
 	private final int backgroundColor;
+	// 非 0 时覆盖 getWidth()：由渲染器直接给出整块总宽，避免格宽与格高不等时算错。
+	private final float widthOverride;
 
 	public JSDrawContext(StoredMatrixTransformations storedMatrixTransformations, Direction facing, float startX, float startY, float cellSize, int cellCount, boolean transparentBlack, int backgroundColor) {
+		this(storedMatrixTransformations, facing, startX, startY, cellSize, cellCount, transparentBlack, backgroundColor, 0.0F);
+	}
+
+	public JSDrawContext(StoredMatrixTransformations storedMatrixTransformations, Direction facing, float startX, float startY, float cellSize, int cellCount, boolean transparentBlack, int backgroundColor, float widthOverride) {
 		this.storedMatrixTransformations = storedMatrixTransformations;
 		this.facing = facing;
 		this.startX = startX;
@@ -29,15 +35,15 @@ public final class JSDrawContext {
 		this.cellSize = cellSize;
 		this.cellCount = cellCount;
 		this.backgroundColor = backgroundColor;
+		this.widthOverride = widthOverride;
 	}
 
 	public int getCellCount() {
 		return cellCount;
 	}
 
-	/** 指示牌渲染宽度（世界单位）= 格数 × 单格尺寸。 */
 	public float getWidth() {
-		return cellCount * cellSize;
+		return widthOverride > 0.0F ? widthOverride : cellCount * cellSize;
 	}
 
 	/** 指示牌渲染高度（世界单位）= 单格尺寸（与 render 中原版渲染高度一致）。 */
@@ -78,6 +84,8 @@ public final class JSDrawContext {
 	/** 旧接口兼容：把 execute 返回的结果（单个 {@link JSSignResult} 或数组）逐格绘制到本上下文。 */
 	public void drawResults(Object result) {
 		final JSSignEngine.JSSignResult[] results = JSSignEngine.toCellResults(result, cellCount);
+		// 横向按实际格宽排布：墙挂牌每格 1.0 宽而 cellSize 只有 0.5，用 cellSize 会让相邻格重叠。
+		final float cellWidth = cellCount <= 0 ? cellSize : getWidth() / cellCount;
 		for (int i = 0; i < cellCount; i++) {
 			final JSSignEngine.JSSignResult cell = results[Math.min(i, results.length - 1)];
 			final String text = cell.getText();
@@ -87,9 +95,9 @@ public final class JSDrawContext {
 			final int color = cell.getTextColor() != 0 ? cell.getTextColor() : 0xFF000000;
 			final int bg = cell.getBackgroundColor() != 0 ? cell.getBackgroundColor() : backgroundColor;
 			if (bg != 0) {
-				drawRect(i * cellSize, 0, cellSize, cellSize, bg);
+				drawRect(i * cellWidth, 0, cellWidth, cellSize, bg);
 			}
-			drawText(text, i * cellSize, 0, cellSize, cellSize, color, cell.getTextSize(), cell.isTextBold(), true);
+			drawText(text, i * cellWidth, 0, cellWidth, cellSize, color, cell.getTextSize(), cell.isTextBold(), true);
 		}
 	}
 

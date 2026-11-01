@@ -53,7 +53,7 @@ public final class Init {
             REGISTRY.registerPacket(PacketOpenStationInfoScreen.class, PacketOpenStationInfoScreen::new);
             REGISTRY.registerPacket(PacketUpdateStationInfoData.class, PacketUpdateStationInfoData::new);
             REGISTRY.registerPacket(PacketUpdateStationInfoSignData.class, PacketUpdateStationInfoSignData::new);
-            REGISTRY.registerPacket(PacketUpdateRailwaySignWallData.class, PacketUpdateRailwaySignWallData::new);
+            REGISTRY.registerPacket(PacketUpdateRailwaySignWallData1.class, PacketUpdateRailwaySignWallData1::new);
         });
 
         int currentStep = 1;
