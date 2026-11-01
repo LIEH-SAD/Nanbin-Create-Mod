@@ -1,7 +1,8 @@
 package com.Nanbin.mapping;
 
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.PushReaction;
+// pushReaction/ignitedByLava and the no-arg Properties.of() are only available from 1.20
+//? if >=1.20 {
+
 import org.mtr.mapping.holder.BlockSettings;
 
 public final class BlockSettingsFactory {
@@ -10,10 +11,11 @@ public final class BlockSettingsFactory {
 	}
 
 	public static BlockSettings createPushOnly() {
-		return new BlockSettings(BlockBehaviour.Properties.of().pushReaction(PushReaction.PUSH_ONLY));
+		return new BlockSettings(net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().pushReaction(net.minecraft.world.level.material.PushReaction.PUSH_ONLY));
 	}
 
 	public static BlockSettings createBurnableNonOpaqueSolid() {
-		return new BlockSettings(BlockBehaviour.Properties.of().ignitedByLava().noOcclusion().forceSolidOn());
+		return new BlockSettings(net.minecraft.world.level.block.state.BlockBehaviour.Properties.of().ignitedByLava().noOcclusion().forceSolidOn());
 	}
 }
+//?}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CCC",
+    "CDC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "nanbin:ceiling"
+    },
+    "D": {
+      "tag": "c:dyes"
+    }
+  },
+  "result": {
+    "item": "nanbin:station_color_ceiling",
+    "count": 8
+  }
+}

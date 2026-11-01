@@ -1,5 +1,8 @@
 package com.Nanbin.mapping;
 
+// GameRules.BooleanValue.create is not public before 1.19.4, so this helper starts there
+//? if >=1.19.4 {
+
 import net.minecraft.world.level.GameRules;
 
 /**
@@ -28,3 +31,4 @@ public class GameRuleRegistry
         return new IntegerGameRule(GameRules.register(name, GameRules.Category.MISC, GameRules.IntegerValue.create(defaultValue)));
     }
 }
+//?}

@@ -51,8 +51,8 @@ public class BlockRoadName extends BlockExtension implements DirectionHelper, Bl
         return IBlockExtension.checkHoldingBrush(world, player, () -> {
             String[] texts = new String[]{"", "", "", ""};
             final org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity != null && blockEntity.data instanceof BlockEntity entity) {
-                texts = entity.getTexts();
+            if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
+                texts = ((BlockEntity) blockEntity.data).getTexts();
             }
             Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenRoadNameScreen(pos, texts));
         });
@@ -127,8 +127,8 @@ public class BlockRoadName extends BlockExtension implements DirectionHelper, Bl
             setTextsInternal(texts);
             for (final BlockPos otherPos : getOtherPositions()) {
                 final org.mtr.mapping.holder.BlockEntity blockEntity = this.getWorld2().getBlockEntity(otherPos);
-                if (blockEntity != null && blockEntity.data instanceof BlockEntity entity) {
-                    entity.setTextsInternal(texts);
+                if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
+                    ((BlockEntity) blockEntity.data).setTextsInternal(texts);
                 }
             }
             markDirty2();
@@ -179,7 +179,8 @@ public class BlockRoadName extends BlockExtension implements DirectionHelper, Bl
             this.setPlatformId(platformId);
             for (final BlockPos otherPos : getOtherPositions()) {
                 final org.mtr.mapping.holder.BlockEntity blockEntity = this.getWorld2().getBlockEntity(otherPos);
-                if (blockEntity != null && blockEntity.data instanceof BlockEntity entity) {
+                if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
+                    final BlockEntity entity = (BlockEntity) blockEntity.data;
                     entity.setPlatformId(platformId);
                     entity.markDirty2();
                 } else {

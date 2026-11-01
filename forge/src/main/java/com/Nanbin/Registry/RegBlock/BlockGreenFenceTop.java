@@ -28,13 +28,18 @@ public class BlockGreenFenceTop extends BlockExtension {
     @Override
     public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext ctx) {
         Direction direction = IBlock.getStatePropertySafe(state, DirectionHelper.FACING);
-        return switch (direction) {
-            case NORTH -> SHAPE_NORTH;
-            case SOUTH -> SHAPE_SOUTH;
-            case EAST -> SHAPE_EAST;
-            case WEST -> SHAPE_WEST;
-            default -> SHAPE_NORTH;
-        };
+        switch (direction) {
+            case NORTH:
+                return SHAPE_NORTH;
+            case SOUTH:
+                return SHAPE_SOUTH;
+            case EAST:
+                return SHAPE_EAST;
+            case WEST:
+                return SHAPE_WEST;
+            default:
+                return SHAPE_NORTH;
+        }
     }
 
     @Override

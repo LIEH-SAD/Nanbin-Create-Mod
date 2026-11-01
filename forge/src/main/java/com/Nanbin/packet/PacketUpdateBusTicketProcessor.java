@@ -37,8 +37,8 @@ public final class PacketUpdateBusTicketProcessor extends PacketHandler {
     public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
         World world = serverPlayerEntity.getEntityWorld();
         org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(blockPos);
-        if (blockEntity != null && blockEntity.data instanceof BlockBusTicketProcessor.BlockEntity entity) {
-            entity.setData(mode, amount);
+        if (blockEntity != null && blockEntity.data instanceof BlockBusTicketProcessor.BlockEntity) {
+            ((BlockBusTicketProcessor.BlockEntity) blockEntity.data).setData(mode, amount);
         }
     }
 }

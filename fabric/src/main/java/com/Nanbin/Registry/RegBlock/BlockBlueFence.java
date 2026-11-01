@@ -89,13 +89,18 @@ public class BlockBlueFence extends BlockExtension {
     @Override
     public VoxelShape getOutlineShape2(BlockState state, BlockView world, BlockPos pos, ShapeContext ctx) {
         Direction direction = IBlock.getStatePropertySafe(state, DirectionHelper.FACING);
-        return switch (direction) {
-            case NORTH -> BLUEFENCE_NORTH;
-            case SOUTH -> BLUEFENCE_SOUTH;
-            case EAST -> BLUEFENCE_EAST;
-            case WEST -> BLUEFENCE_WEST;
-            default -> BLUEFENCE_NORTH;
-        };
+        switch (direction) {
+            case NORTH:
+                return BLUEFENCE_NORTH;
+            case SOUTH:
+                return BLUEFENCE_SOUTH;
+            case EAST:
+                return BLUEFENCE_EAST;
+            case WEST:
+                return BLUEFENCE_WEST;
+            default:
+                return BLUEFENCE_NORTH;
+        }
     }
 
     @Override

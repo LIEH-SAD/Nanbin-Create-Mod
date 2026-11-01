@@ -12,17 +12,9 @@ import org.mtr.mod.data.TicketSystem.EnumTicketBarrierOpen;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-/**
- * CRT 闸机状态显示器：放置在闸机正上方 1~6 格内，实时读取下方闸机的开关/故障状态并切换模型。
- *
- * <p>方向与碰撞箱均按照模型本身的几何形状生成：一块 16×12×4 的悬挂屏幕，
- * 会随闸机的朝向一起旋转，屏幕本体所在的方块位置会阻挡实体。
- */
 public class BlockCRTTicketDisplay1 extends BlockExtension implements DirectionHelper {
 
-    /** 显示器可以侦测到的闸机最大垂直距离（含）。 */
     private static final int MAX_SCAN_DISTANCE = 6;
-    /** 刷新间隔（tick）。4 tick ≈ 0.2 秒，保证闸机状态变化后显示器能及时切换模型。 */
     private static final int REFRESH_INTERVAL = 4;
 
     public static final EnumProperty<EnumDisplayState> DISPLAY = EnumProperty.of("display", EnumDisplayState.class);
@@ -82,7 +74,6 @@ public class BlockCRTTicketDisplay1 extends BlockExtension implements DirectionH
         properties.add(DISPLAY);
     }
 
-    /** 模型主体占据方块内 (0,4,6)-(16,16,10)，碰撞箱与模型保持一致。 */
     private static VoxelShape getDisplayShape(BlockState state) {
         return IBlock.getVoxelShapeByDirection(0, 4, 6, 16, 16, 10, IBlock.getStatePropertySafe(state, FACING));
     }

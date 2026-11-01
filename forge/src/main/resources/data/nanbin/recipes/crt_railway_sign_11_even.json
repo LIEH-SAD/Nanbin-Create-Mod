@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:crt_railway_sign_10_odd"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_railway_sign_11_even",
+    "count": 1
+  }
+}

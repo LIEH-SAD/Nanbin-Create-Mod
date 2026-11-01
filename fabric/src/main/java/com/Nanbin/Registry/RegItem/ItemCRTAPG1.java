@@ -38,7 +38,8 @@ public class ItemCRTAPG1 extends ItemExtension implements IBlock
 
             for (int y = 0; y < 2; y++) {
                 final BlockState state = this.block.getDefaultState().with(new Property<>(BlockPSDAPGBase.FACING.data), playerFacing.data).with(new Property<>(HALF.data), y == 1 ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER);
-                if (block.data instanceof BlockFlagDoorSingle doorSingle) {
+                if (block.data instanceof BlockFlagDoorSingle) {
+                    final BlockFlagDoorSingle doorSingle = (BlockFlagDoorSingle) block.data;
                     BlockState neighborState = state.with(new Property<>(SIDE.data), doorSingle.isLeft() ? EnumSide.LEFT : EnumSide.RIGHT);
                     world.setBlockState(newPos.up(y), neighborState);
                 } else if (block.data instanceof BlockPSDAPGDoorBase) {

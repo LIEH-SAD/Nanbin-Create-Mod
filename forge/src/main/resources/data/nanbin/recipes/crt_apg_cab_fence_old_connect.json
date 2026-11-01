@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:crt_apg_cab_fence_old"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_apg_cab_fence_old_connect",
+    "count": 1
+  }
+}

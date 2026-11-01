@@ -153,12 +153,14 @@ public final class ClientPacketHelper {
         final int length;
         final String[][] signIds;
         final List<LongAVLTreeSet> selectedIds;
-        if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1.BlockEntity entity) {
+        if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1.BlockEntity) {
+            final BlockCRTStationInfo1.BlockEntity entity = (BlockCRTStationInfo1.BlockEntity) blockEntity.data;
             lines = BlockCRTStationInfo1.BlockEntity.SIGN_LINES;
             length = BlockCRTStationInfo1.BlockEntity.SIGN_LENGTH;
             signIds = entity.getSignIds();
             selectedIds = entity.getSelectedIds();
-        } else if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1Double.BlockEntity entity) {
+        } else if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1Double.BlockEntity) {
+            final BlockCRTStationInfo1Double.BlockEntity entity = (BlockCRTStationInfo1Double.BlockEntity) blockEntity.data;
             lines = BlockCRTStationInfo1Double.BlockEntity.SIGN_LINES;
             length = BlockCRTStationInfo1Double.BlockEntity.SIGN_LENGTH;
             signIds = entity.getSignIds(isFront);

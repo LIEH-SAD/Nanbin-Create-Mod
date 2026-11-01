@@ -410,8 +410,60 @@ public final class FasciaCRTRouteMapRenderer {
 		}
 	}
 
-	private record BranchLayout(List<LineMapData.Station> stations, float cy, Shape ribbon, float[] x, Color colour,
-			float forkTopX, float halfW, float circleR) {
+	private static final class BranchLayout {
+
+		private final List<LineMapData.Station> stations;
+		private final float cy;
+		private final Shape ribbon;
+		private final float[] x;
+		private final Color colour;
+		private final float forkTopX;
+		private final float halfW;
+		private final float circleR;
+
+		private BranchLayout(List<LineMapData.Station> stations, float cy, Shape ribbon, float[] x, Color colour,
+				float forkTopX, float halfW, float circleR) {
+			this.stations = stations;
+			this.cy = cy;
+			this.ribbon = ribbon;
+			this.x = x;
+			this.colour = colour;
+			this.forkTopX = forkTopX;
+			this.halfW = halfW;
+			this.circleR = circleR;
+		}
+
+		private List<LineMapData.Station> stations() {
+			return stations;
+		}
+
+		private float cy() {
+			return cy;
+		}
+
+		private Shape ribbon() {
+			return ribbon;
+		}
+
+		private float[] x() {
+			return x;
+		}
+
+		private Color colour() {
+			return colour;
+		}
+
+		private float forkTopX() {
+			return forkTopX;
+		}
+
+		private float halfW() {
+			return halfW;
+		}
+
+		private float circleR() {
+			return circleR;
+		}
 	}
 
 	/**
@@ -571,8 +623,60 @@ public final class FasciaCRTRouteMapRenderer {
 				gapRatio, resolutionScale, reverse);
 	}
 
-	private record NameSlot(LineMapData.Station station, float x, float anchorY, boolean below, boolean current, int band,
-			Color colour, float limitY) {
+	private static final class NameSlot {
+
+		private final LineMapData.Station station;
+		private final float x;
+		private final float anchorY;
+		private final boolean below;
+		private final boolean current;
+		private final int band;
+		private final Color colour;
+		private final float limitY;
+
+		private NameSlot(LineMapData.Station station, float x, float anchorY, boolean below, boolean current, int band,
+				Color colour, float limitY) {
+			this.station = station;
+			this.x = x;
+			this.anchorY = anchorY;
+			this.below = below;
+			this.current = current;
+			this.band = band;
+			this.colour = colour;
+			this.limitY = limitY;
+		}
+
+		private LineMapData.Station station() {
+			return station;
+		}
+
+		private float x() {
+			return x;
+		}
+
+		private float anchorY() {
+			return anchorY;
+		}
+
+		private boolean below() {
+			return below;
+		}
+
+		private boolean current() {
+			return current;
+		}
+
+		private int band() {
+			return band;
+		}
+
+		private Color colour() {
+			return colour;
+		}
+
+		private float limitY() {
+			return limitY;
+		}
 	}
 
 	private static float lineEndOf(int w, float hMargin, float greyW) {

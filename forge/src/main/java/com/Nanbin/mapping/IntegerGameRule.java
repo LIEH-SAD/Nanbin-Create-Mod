@@ -1,5 +1,8 @@
 package com.Nanbin.mapping;
 
+// 1.16.5 uses net.minecraft.world.GameRules; only 1.17+ is supported here
+//? if >=1.17 {
+
 import net.minecraft.world.level.GameRules;
 import org.mtr.mapping.holder.ServerWorld;
 import org.mtr.mapping.tool.HolderBase;
@@ -19,3 +22,4 @@ public class IntegerGameRule extends HolderBase<GameRules.Key<GameRules.IntegerV
         return world.data.getGameRules().getInt(rule.data);
     }
 }
+//?}

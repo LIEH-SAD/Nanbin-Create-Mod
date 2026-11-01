@@ -144,7 +144,23 @@ public class RenderCRTPSDTop1 extends BlockEntityRenderer<BlockCRTPSDTop1.BlockE
     }
 
     /** 吊板分组：本格在组内的下标（从乘客左手边数起，0 起）与组内总格数。 */
-    private record Group(int index, int count) {
+    private static final class Group {
+
+        private final int index;
+        private final int count;
+
+        private Group(int index, int count) {
+            this.index = index;
+            this.count = count;
+        }
+
+        private int index() {
+            return index;
+        }
+
+        private int count() {
+            return count;
+        }
     }
 
     /**

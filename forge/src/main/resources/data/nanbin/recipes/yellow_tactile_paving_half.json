@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "nanbin:yellow_tactile_paving"
+    }
+  },
+  "result": {
+    "item": "nanbin:yellow_tactile_paving_half",
+    "count": 6
+  }
+}

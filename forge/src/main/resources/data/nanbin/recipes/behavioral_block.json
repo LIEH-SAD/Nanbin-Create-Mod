@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IRI",
+    "RIR",
+    "IRI"
+  ],
+  "key": {
+    "I": {
+      "tag": "c:iron_ingots"
+    },
+    "R": {
+      "tag": "c:redstone_dusts"
+    }
+  },
+  "result": {
+    "item": "nanbin:behavioral_block",
+    "count": 4
+  }
+}

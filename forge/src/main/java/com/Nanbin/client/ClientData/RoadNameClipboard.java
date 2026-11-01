@@ -14,7 +14,23 @@ public class RoadNameClipboard {
 
 	private static final Deque<State> UNDO_STACK = new ArrayDeque<>();
 
-	private record State(BlockPos pos, String[] texts) {
+	private static final class State {
+
+		private final BlockPos pos;
+		private final String[] texts;
+
+		private State(BlockPos pos, String[] texts) {
+			this.pos = pos;
+			this.texts = texts;
+		}
+
+		private BlockPos pos() {
+			return pos;
+		}
+
+		private String[] texts() {
+			return texts;
+		}
 	}
 
 	public static void copy(String[] sourceTexts) {

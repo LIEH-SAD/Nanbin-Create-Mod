@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:crt_ticket_machine_2"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_ticket_machine_1",
+    "count": 1
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:yellow_block"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_yellow_wall_block",
+    "count": 1
+  }
+}

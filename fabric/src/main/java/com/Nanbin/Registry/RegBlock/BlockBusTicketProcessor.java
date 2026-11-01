@@ -79,16 +79,16 @@ public class BlockBusTicketProcessor extends BlockTicketProcessor implements Blo
 
     private static int getMode(World world, BlockPos pos) {
         org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity != null && blockEntity.data instanceof BlockEntity entity) {
-            return entity.getMode();
+        if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
+            return ((BlockEntity) blockEntity.data).getMode();
         }
         return MODE_TWO_TAP;
     }
 
     private static int getAmount(World world, BlockPos pos) {
         org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity != null && blockEntity.data instanceof BlockEntity entity) {
-            return entity.getAmount();
+        if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
+            return ((BlockEntity) blockEntity.data).getAmount();
         }
         return DEFAULT_AMOUNT;
     }

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BBB",
+    "BDB",
+    "BBB"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:stone"
+    },
+    "D": {
+      "tag": "c:red_dyes"
+    }
+  },
+  "result": {
+    "item": "nanbin:red_block",
+    "count": 8
+  }
+}

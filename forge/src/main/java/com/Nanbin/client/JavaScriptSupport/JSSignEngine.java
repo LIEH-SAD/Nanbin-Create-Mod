@@ -254,7 +254,13 @@ public final class JSSignEngine {
 			if (stream == null) {
 				return null;
 			}
-			return new String(stream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+			final java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+			final byte[] chunk = new byte[8192];
+			int read;
+			while ((read = stream.read(chunk)) > 0) {
+				buffer.write(chunk, 0, read);
+			}
+			return new String(buffer.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
 		} catch (Exception e) {
 			Init.LOGGER.error("Failed to load script from path: {}", path, e);
 			return null;

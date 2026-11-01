@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "mtr:metal"
+    },
+    {
+      "tag": "c:red_dyes"
+    },
+    {
+      "item": "minecraft:paper"
+    }
+  ],
+  "result": {
+    "item": "nanbin:logo",
+    "count": 1
+  }
+}

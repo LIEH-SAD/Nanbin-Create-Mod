@@ -154,7 +154,11 @@ public class NanbinConfigScreen extends NanbinUIScreen {
 
     private static void drawTexture(GraphicsHolder graphicsHolder, Identifier texture, float x, float y, float width, float height) {
         // 参考实现会先把着色器颜色重置为白色，避免贴图被上一步的着色器颜色染色
+        //? if <1.17 {
+        /*RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        *///?} else {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        //?}
         final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
         guiDrawing.beginDrawingTexture(texture);
         guiDrawing.drawTexture(x, y, x + width, y + height, 0.0F, 0.0F, 1.0F, 1.0F);

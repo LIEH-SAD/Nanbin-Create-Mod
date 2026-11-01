@@ -18,11 +18,51 @@ import java.util.List;
  * @param branches     支线，可为空列表
  * @param loop         是否环线（MTR 的线路走向标了环线时首尾相接）
  */
-public record LineMapData(int lineColor, String lineNumber, int currentIndex, List<Station> stations, List<Branch> branches,
-		boolean loop) {
+public final class LineMapData {
+
+	private final int lineColor;
+	private final String lineNumber;
+	private final int currentIndex;
+	private final List<Station> stations;
+	private final List<Branch> branches;
+	private final boolean loop;
+
+	public LineMapData(int lineColor, String lineNumber, int currentIndex, List<Station> stations, List<Branch> branches,
+			boolean loop) {
+		this.lineColor = lineColor;
+		this.lineNumber = lineNumber;
+		this.currentIndex = currentIndex;
+		this.stations = stations;
+		this.branches = branches;
+		this.loop = loop;
+	}
 
 	public LineMapData(int lineColor, String lineNumber, int currentIndex, List<Station> stations, List<Branch> branches) {
 		this(lineColor, lineNumber, currentIndex, stations, branches, false);
+	}
+
+	public int lineColor() {
+		return lineColor;
+	}
+
+	public String lineNumber() {
+		return lineNumber;
+	}
+
+	public int currentIndex() {
+		return currentIndex;
+	}
+
+	public List<Station> stations() {
+		return stations;
+	}
+
+	public List<Branch> branches() {
+		return branches;
+	}
+
+	public boolean loop() {
+		return loop;
 	}
 
     /**
@@ -30,14 +70,52 @@ public record LineMapData(int lineColor, String lineNumber, int currentIndex, Li
      * @param number       车站编号（该站站台号码）
      * @param interchanges 换乘线路，可为空列表
      */
-    public record Station(String name, String number, List<Interchange> interchanges) {
+    public static final class Station {
+
+        private final String name;
+        private final String number;
+        private final List<Interchange> interchanges;
+
+        public Station(String name, String number, List<Interchange> interchanges) {
+            this.name = name;
+            this.number = number;
+            this.interchanges = interchanges;
+        }
+
+        public String name() {
+            return name;
+        }
+
+        public String number() {
+            return number;
+        }
+
+        public List<Interchange> interchanges() {
+            return interchanges;
+        }
     }
 
     /**
      * @param color  换乘线路颜色
      * @param number 换乘线路编号（多个时用 / 连接）
      */
-    public record Interchange(int color, String number) {
+    public static final class Interchange {
+
+        private final int color;
+        private final String number;
+
+        public Interchange(int color, String number) {
+            this.color = color;
+            this.number = number;
+        }
+
+        public int color() {
+            return color;
+        }
+
+        public String number() {
+            return number;
+        }
     }
 
     /**
@@ -50,6 +128,40 @@ public record LineMapData(int lineColor, String lineNumber, int currentIndex, Li
      * @param afterStations  分叉之后（行进方向前方）的支线车站，按行车顺序
      * @param beforeStations 分叉之前（反方向）的支线车站，按行车顺序
      */
-    public record Branch(int forkIndex, int lineColor, String lineNumber, List<Station> afterStations, List<Station> beforeStations) {
+    public static final class Branch {
+
+        private final int forkIndex;
+        private final int lineColor;
+        private final String lineNumber;
+        private final List<Station> afterStations;
+        private final List<Station> beforeStations;
+
+        public Branch(int forkIndex, int lineColor, String lineNumber, List<Station> afterStations, List<Station> beforeStations) {
+            this.forkIndex = forkIndex;
+            this.lineColor = lineColor;
+            this.lineNumber = lineNumber;
+            this.afterStations = afterStations;
+            this.beforeStations = beforeStations;
+        }
+
+        public int forkIndex() {
+            return forkIndex;
+        }
+
+        public int lineColor() {
+            return lineColor;
+        }
+
+        public String lineNumber() {
+            return lineNumber;
+        }
+
+        public List<Station> afterStations() {
+            return afterStations;
+        }
+
+        public List<Station> beforeStations() {
+            return beforeStations;
+        }
     }
 }

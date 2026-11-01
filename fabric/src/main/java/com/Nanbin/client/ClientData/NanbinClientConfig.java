@@ -54,11 +54,11 @@ public final class NanbinClientConfig {
 			return;
 		}
 		try {
-			//? >=1.18.2 {
-			/*final JsonObject json = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
-			*///?} else {
-			final JsonObject json = new JsonParser().parse(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
-			//?}
+			//? if >=1.18.2 {
+			final JsonObject json = JsonParser.parseString(new String(Files.readAllBytes(file), StandardCharsets.UTF_8)).getAsJsonObject();
+			//?} else {
+			/*final JsonObject json = new JsonParser().parse(new String(Files.readAllBytes(file), StandardCharsets.UTF_8)).getAsJsonObject();
+			*///?}
 			if (json.has(KEY_ROUTE_MAP_URL)) {
 				routeMapUrl = json.get(KEY_ROUTE_MAP_URL).getAsString().trim();
 			}
@@ -73,7 +73,7 @@ public final class NanbinClientConfig {
 			Files.createDirectories(file.getParent());
 			final JsonObject json = new JsonObject();
 			json.addProperty(KEY_ROUTE_MAP_URL, routeMapUrl);
-			Files.writeString(file, GSON.toJson(json), StandardCharsets.UTF_8);
+			Files.write(file, GSON.toJson(json).getBytes(StandardCharsets.UTF_8));
 		} catch (Exception e) {
 			LOGGER.error("NanbinClientConfig: failed to write {}", file, e);
 		}

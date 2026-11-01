@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:stone"
+    },
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "tag": "c:blue_dyes"
+    }
+  ],
+  "result": {
+    "item": "nanbin:road_name_block",
+    "count": 2
+  }
+}

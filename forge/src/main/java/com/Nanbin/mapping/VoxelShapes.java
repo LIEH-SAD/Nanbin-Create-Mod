@@ -1,5 +1,124 @@
 package com.Nanbin.mapping;
 
+// 1.16.5 uses the net.minecraft.util.math.shapes package
+//? if <1.17 {
+
+/*import org.mtr.mapping.annotation.MappedMethod;
+import org.mtr.mapping.holder.BooleanBiFunction;
+import org.mtr.mapping.holder.Box;
+import org.mtr.mapping.holder.Direction;
+import org.mtr.mapping.holder.VoxelShape;
+import org.mtr.mapping.tool.HolderBase;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+public final class VoxelShapes extends HolderBase<net.minecraft.util.math.shapes.VoxelShapes> {
+    public VoxelShapes(net.minecraft.util.math.shapes.VoxelShapes data) {
+        super(data);
+    }
+
+    @MappedMethod
+    public static VoxelShapes cast(HolderBase<?> data) {
+        return new VoxelShapes((net.minecraft.util.math.shapes.VoxelShapes)data.data);
+    }
+
+    @MappedMethod
+    public static boolean isInstance(@Nullable HolderBase<?> data) {
+        return data != null && data.data instanceof net.minecraft.util.math.shapes.VoxelShapes;
+    }
+
+    @MappedMethod
+    public boolean equals(@Nullable Object data) {
+        return data instanceof HolderBase && ((net.minecraft.util.math.shapes.VoxelShapes)this.data).equals(((HolderBase)data).data);
+    }
+
+    //修改union的组合数量，保证多方块组合
+    @Nonnull
+    @MappedMethod
+    public static VoxelShape union(VoxelShape... shapes) {
+        if (shapes.length == 0) {
+            return new VoxelShape(net.minecraft.util.math.shapes.VoxelShapes.empty());
+        }
+        net.minecraft.util.math.shapes.VoxelShape result = shapes[0].data;
+        for (int i = 1; i < shapes.length; i++) {
+            result = net.minecraft.util.math.shapes.VoxelShapes.or(result, shapes[i].data);
+        }
+        return new VoxelShape(result);
+    }
+
+    @Nonnull
+    @MappedMethod
+    public static VoxelShape fullCube() {
+        return new VoxelShape(net.minecraft.util.math.shapes.VoxelShapes.block());
+    }
+
+    @Nonnull
+    @MappedMethod
+    public static VoxelShape combineAndSimplify(VoxelShape first, VoxelShape second, BooleanBiFunction function) {
+        return new VoxelShape(net.minecraft.util.math.shapes.VoxelShapes.join((net.minecraft.util.math.shapes.VoxelShape)first.data, (net.minecraft.util.math.shapes.VoxelShape)second.data, (net.minecraft.util.math.shapes.IBooleanFunction)function.data));
+    }
+
+    @MappedMethod
+    public static boolean adjacentSidesCoverSquare(VoxelShape one, VoxelShape two, Direction direction) {
+        return net.minecraft.util.math.shapes.VoxelShapes.mergedFaceOccludes((net.minecraft.util.math.shapes.VoxelShape)one.data, (net.minecraft.util.math.shapes.VoxelShape)two.data, direction.data);
+    }
+
+    @MappedMethod
+    public static boolean matchesAnywhere(VoxelShape shape1, VoxelShape shape2, BooleanBiFunction predicate) {
+        return net.minecraft.util.math.shapes.VoxelShapes.joinIsNotEmpty((net.minecraft.util.math.shapes.VoxelShape)shape1.data, (net.minecraft.util.math.shapes.VoxelShape)shape2.data, (net.minecraft.util.math.shapes.IBooleanFunction)predicate.data);
+    }
+
+    @MappedMethod
+    public static boolean isSideCovered(VoxelShape shape, VoxelShape neighbor, Direction direction) {
+        return net.minecraft.util.math.shapes.VoxelShapes.blockOccudes((net.minecraft.util.math.shapes.VoxelShape)shape.data, (net.minecraft.util.math.shapes.VoxelShape)neighbor.data, direction.data);
+    }
+
+    @Nonnull
+    @MappedMethod
+    public static VoxelShape empty() {
+        return new VoxelShape(net.minecraft.util.math.shapes.VoxelShapes.empty());
+    }
+
+    @MappedMethod
+    public static boolean unionCoversFullCube(VoxelShape one, VoxelShape two) {
+        return net.minecraft.util.math.shapes.VoxelShapes.faceShapeOccludes((net.minecraft.util.math.shapes.VoxelShape)one.data, (net.minecraft.util.math.shapes.VoxelShape)two.data);
+    }
+
+    @Nonnull
+    @MappedMethod
+    public static VoxelShape extrudeFace(VoxelShape shape, Direction direction) {
+        return new VoxelShape(net.minecraft.util.math.shapes.VoxelShapes.getFaceShape((net.minecraft.util.math.shapes.VoxelShape)shape.data, direction.data));
+    }
+
+    @Nonnull
+    @MappedMethod
+    public static VoxelShape combine(VoxelShape one, VoxelShape two, BooleanBiFunction function) {
+        return new VoxelShape(net.minecraft.util.math.shapes.VoxelShapes.joinUnoptimized((net.minecraft.util.math.shapes.VoxelShape)one.data, (net.minecraft.util.math.shapes.VoxelShape)two.data, (net.minecraft.util.math.shapes.IBooleanFunction)function.data));
+    }
+
+    @Nonnull
+    @MappedMethod
+    public static VoxelShape cuboid(Box box) {
+        return new VoxelShape(net.minecraft.util.math.shapes.VoxelShapes.create((net.minecraft.util.math.AxisAlignedBB)box.data));
+    }
+
+    @Nonnull
+    @MappedMethod
+    public static VoxelShape cuboid(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        return new VoxelShape(net.minecraft.util.math.shapes.VoxelShapes.box(minX, minY, minZ, maxX, maxY, maxZ));
+    }
+
+    @Nonnull
+    @MappedMethod
+    public static VoxelShape getUnboundedMapped() {
+        return new VoxelShape(net.minecraft.util.math.shapes.VoxelShapes.INFINITY);
+    }
+}
+*///?} else {
+
 import org.mtr.mapping.annotation.MappedMethod;
 import org.mtr.mapping.holder.BooleanBiFunction;
 import org.mtr.mapping.holder.Box;
@@ -114,3 +233,4 @@ public final class VoxelShapes extends HolderBase<net.minecraft.world.phys.shape
         return new VoxelShape(net.minecraft.world.phys.shapes.Shapes.INFINITY);
     }
 }
+//?}

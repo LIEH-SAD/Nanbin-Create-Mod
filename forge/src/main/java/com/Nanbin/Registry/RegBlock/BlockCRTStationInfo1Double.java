@@ -138,9 +138,10 @@ public class BlockCRTStationInfo1Double extends BlockExtension implements BlockW
             }
             final boolean isFront = hitSide.getOpposite() == facing;
             final org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity == null || !(blockEntity.data instanceof BlockEntity entity)) {
+            if (blockEntity == null || !(blockEntity.data instanceof BlockEntity)) {
                 return;
             }
+            final BlockEntity entity = (BlockEntity) blockEntity.data;
             final IBlock.DoubleBlockHalf half = IBlock.getStatePropertySafe(state, HALF);
             if (half == IBlock.DoubleBlockHalf.UPPER) {
                 entity.toggleFlip(isFront);
@@ -285,7 +286,8 @@ public class BlockCRTStationInfo1Double extends BlockExtension implements BlockW
                     final BlockPos otherPos = bottomLeftPos.up(y).offset(right, x);
                     if (!otherPos.equals(this.getPos2())) {
                         final org.mtr.mapping.holder.BlockEntity blockEntity = this.getWorld2().getBlockEntity(otherPos);
-                        if (blockEntity != null && blockEntity.data instanceof BlockEntity entity) {
+                        if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
+                            final BlockEntity entity = (BlockEntity) blockEntity.data;
                             if (front) {
                                 entity.flip = flipValue;
                             } else {
@@ -338,7 +340,8 @@ public class BlockCRTStationInfo1Double extends BlockExtension implements BlockW
                     final BlockPos otherPos = bottomLeftPos.up(y).offset(right, x);
                     if (!otherPos.equals(this.getPos2())) {
                         final org.mtr.mapping.holder.BlockEntity blockEntity = this.getWorld2().getBlockEntity(otherPos);
-                        if (blockEntity != null && blockEntity.data instanceof BlockEntity entity) {
+                        if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
+                            final BlockEntity entity = (BlockEntity) blockEntity.data;
                             if (front) {
                                 entity.url = this.url;
                             } else {
@@ -361,7 +364,8 @@ public class BlockCRTStationInfo1Double extends BlockExtension implements BlockW
                     final BlockPos otherPos = bottomLeftPos.up(y).offset(right, x);
                     if (!otherPos.equals(this.getPos2())) {
                         final org.mtr.mapping.holder.BlockEntity blockEntity = this.getWorld2().getBlockEntity(otherPos);
-                        if (blockEntity != null && blockEntity.data instanceof BlockEntity entity) {
+                        if (blockEntity != null && blockEntity.data instanceof BlockEntity) {
+                            final BlockEntity entity = (BlockEntity) blockEntity.data;
                             entity.copySignDataOnly(front, front ? this.signIds : this.signIdsBack, front ? this.selectedIds : this.selectedIdsBack);
                             entity.updateRouteNumbersFromServer(front);
                         }

@@ -276,7 +276,7 @@ public class CustomFontTextureCache {
 		}
 		for (final LineMapData.Branch branch : data.branches()) {
 			keyBuilder.append("|B").append(branch.forkIndex()).append('@').append(branch.lineColor()).append('/').append(branch.lineNumber());
-			for (final List<LineMapData.Station> branchStations : List.of(branch.afterStations(), branch.beforeStations())) {
+			for (final List<LineMapData.Station> branchStations : Arrays.asList(branch.afterStations(), branch.beforeStations())) {
 				keyBuilder.append('#');
 				for (final LineMapData.Station station : branchStations) {
 					keyBuilder.append('|').append(station.name()).append('~').append(station.number());
@@ -464,7 +464,7 @@ public class CustomFontTextureCache {
 			pendingDestroy.addLast(new PendingTextures(textures));
 		}
 		final long now = System.currentTimeMillis();
-		final var textureManager = MinecraftClient.getInstance().getTextureManager();
+		final org.mtr.mapping.holder.TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
 		while (!pendingDestroy.isEmpty() && now - pendingDestroy.peekFirst().enqueuedAt >= TEXTURE_DESTROY_DELAY_MS) {
 			final PendingTextures oldest = pendingDestroy.removeFirst();
 			oldest.textures.forEach(textureManager::destroyTexture);

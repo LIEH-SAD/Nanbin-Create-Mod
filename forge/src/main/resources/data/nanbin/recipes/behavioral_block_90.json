@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:behavioral_block"
+    }
+  ],
+  "result": {
+    "item": "nanbin:behavioral_block_90",
+    "count": 1
+  }
+}

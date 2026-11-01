@@ -22,7 +22,41 @@ public class SignClipboard {
 
 	private static final Deque<State> UNDO_STACK = new ArrayDeque<>();
 
-	private record State(BlockPos pos, int lines, int length, String[][] signIds, List<LongAVLTreeSet> selectedIds) {
+	private static final class State {
+
+		private final BlockPos pos;
+		private final int lines;
+		private final int length;
+		private final String[][] signIds;
+		private final List<LongAVLTreeSet> selectedIds;
+
+		private State(BlockPos pos, int lines, int length, String[][] signIds, List<LongAVLTreeSet> selectedIds) {
+			this.pos = pos;
+			this.lines = lines;
+			this.length = length;
+			this.signIds = signIds;
+			this.selectedIds = selectedIds;
+		}
+
+		private BlockPos pos() {
+			return pos;
+		}
+
+		private int lines() {
+			return lines;
+		}
+
+		private int length() {
+			return length;
+		}
+
+		private String[][] signIds() {
+			return signIds;
+		}
+
+		private List<LongAVLTreeSet> selectedIds() {
+			return selectedIds;
+		}
 	}
 
 	/** 单行指示牌复制（兼容旧调用）。 */

@@ -41,7 +41,8 @@ public class StationInfoScreen extends MTRScreenBase implements IGui {
         final ClientWorld world = MinecraftClient.getInstance().getWorldMapped();
         if (world != null) {
             final BlockEntity blockEntity = world.getBlockEntity(blockPos);
-            if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1.BlockEntity entity) {
+            if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1.BlockEntity) {
+                final BlockCRTStationInfo1.BlockEntity entity = (BlockCRTStationInfo1.BlockEntity) blockEntity.data;
                 final String savedUrl = entity.getUrl();
                 if (!savedUrl.isEmpty()) {
                     url = savedUrl;
@@ -50,7 +51,8 @@ public class StationInfoScreen extends MTRScreenBase implements IGui {
                 if (!savedSelectedIds.isEmpty()) {
                     selectedIds.addAll(savedSelectedIds.get(0));
                 }
-            } else if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1Double.BlockEntity entity) {
+            } else if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1Double.BlockEntity) {
+                final BlockCRTStationInfo1Double.BlockEntity entity = (BlockCRTStationInfo1Double.BlockEntity) blockEntity.data;
                 final String savedUrl = entity.getUrl(isFront);
                 if (!savedUrl.isEmpty()) {
                     url = savedUrl;

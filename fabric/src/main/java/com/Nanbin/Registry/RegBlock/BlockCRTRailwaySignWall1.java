@@ -73,7 +73,7 @@ public class BlockCRTRailwaySignWall1 extends BlockExtension implements IBlock, 
     @Nullable
     public static BlockEntity getBlockEntity(BlockView world, BlockPos pos) {
         final org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(pos);
-        return blockEntity != null && blockEntity.data instanceof BlockEntity wallEntity ? wallEntity : null;
+        return blockEntity != null && blockEntity.data instanceof BlockEntity ? (BlockEntity) blockEntity.data : null;
     }
 
     // 从任意一格向观察者左侧回溯，找到整块牌的左端（渲染与编辑都从左端开始）。

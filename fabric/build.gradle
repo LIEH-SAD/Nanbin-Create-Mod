@@ -96,6 +96,17 @@ tasks.register("setupFiles") {
 
 sourceSets.main.resources.srcDir(generatedResources)
 
+// The mixin compatibility level must not exceed the Java level used for this version:
+// 1.16.5 is compiled for Java 8, 1.17.1 for Java 16 and everything newer for Java 17.
+def mixinCompatibilityLevel = buildTools.javaLanguageVersion <= 8 ? "JAVA_8" : buildTools.javaLanguageVersion <= 16 ? "JAVA_16" : "JAVA_17"
+
+tasks.named("processResources") {
+	inputs.property("mixinCompatibilityLevel", mixinCompatibilityLevel)
+	filesMatching("nanbin.mixins.json") {
+		filter { line -> line.replace('"JAVA_17"', '"' + mixinCompatibilityLevel + '"') }
+	}
+}
+
 tasks.named("sourcesJar") {
     dependsOn("setupFiles")
 }

@@ -35,8 +35,8 @@ public final class PacketUpdateRoadNameData extends PacketHandler {
 	@Override
 	public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
 		final BlockEntity blockEntity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
-		if (blockEntity != null && blockEntity.data instanceof BlockRoadName.BlockEntity entity) {
-			entity.setTexts(texts);
+		if (blockEntity != null && blockEntity.data instanceof BlockRoadName.BlockEntity) {
+			((BlockRoadName.BlockEntity) blockEntity.data).setTexts(texts);
 		}
 	}
 }

@@ -157,7 +157,30 @@ public class RouteMapGenerator implements IGui {
         return trimmed.length() > 1 && trimmed.endsWith("线") ? trimmed.substring(0, trimmed.length() - 1) : trimmed;
     }
 
-    public record ResolvedRouteData(int themeColor, int routeColor, String routeNumber) { }
+    public static final class ResolvedRouteData {
+
+        private final int themeColor;
+        private final int routeColor;
+        private final String routeNumber;
+
+        public ResolvedRouteData(int themeColor, int routeColor, String routeNumber) {
+            this.themeColor = themeColor;
+            this.routeColor = routeColor;
+            this.routeNumber = routeNumber;
+        }
+
+        public int themeColor() {
+            return themeColor;
+        }
+
+        public int routeColor() {
+            return routeColor;
+        }
+
+        public String routeNumber() {
+            return routeNumber;
+        }
+    }
 
     /**
      * 吊板门上方站牌所需的显示数据，全部由站台 ID 解析（数据源与 RenderCRTStationName1 同源）。
@@ -166,7 +189,48 @@ public class RouteMapGenerator implements IGui {
      * @param nextStationName     线路下一站名，线路末站（非环线）时为 null
      * @param lineColor           线路颜色；无线路数据时回退为站色
      */
-    public record PSDStationData(String stationName, String previousStationName, String nextStationName, String routeNumber, String stationNumber, int lineColor) { }
+    public static final class PSDStationData {
+
+        private final String stationName;
+        private final String previousStationName;
+        private final String nextStationName;
+        private final String routeNumber;
+        private final String stationNumber;
+        private final int lineColor;
+
+        public PSDStationData(String stationName, String previousStationName, String nextStationName, String routeNumber, String stationNumber, int lineColor) {
+            this.stationName = stationName;
+            this.previousStationName = previousStationName;
+            this.nextStationName = nextStationName;
+            this.routeNumber = routeNumber;
+            this.stationNumber = stationNumber;
+            this.lineColor = lineColor;
+        }
+
+        public String stationName() {
+            return stationName;
+        }
+
+        public String previousStationName() {
+            return previousStationName;
+        }
+
+        public String nextStationName() {
+            return nextStationName;
+        }
+
+        public String routeNumber() {
+            return routeNumber;
+        }
+
+        public String stationNumber() {
+            return stationNumber;
+        }
+
+        public int lineColor() {
+            return lineColor;
+        }
+    }
 
     /**
      * 解析吊板门上方站牌所需数据。站名/车站编号取自站台与所属车站，
@@ -254,7 +318,59 @@ public class RouteMapGenerator implements IGui {
         }
     }
 
-    protected record StationPosition(float x, float y, boolean isCommon) { }
+    protected static final class StationPosition {
 
-    protected record StationPositionGrouped(StationPosition stationPosition, int stationOffset, IntArrayList interchangeColors, ObjectArrayList<String> interchangeNames) { }
+        private final float x;
+        private final float y;
+        private final boolean isCommon;
+
+        protected StationPosition(float x, float y, boolean isCommon) {
+            this.x = x;
+            this.y = y;
+            this.isCommon = isCommon;
+        }
+
+        protected float x() {
+            return x;
+        }
+
+        protected float y() {
+            return y;
+        }
+
+        protected boolean isCommon() {
+            return isCommon;
+        }
+    }
+
+    protected static final class StationPositionGrouped {
+
+        private final StationPosition stationPosition;
+        private final int stationOffset;
+        private final IntArrayList interchangeColors;
+        private final ObjectArrayList<String> interchangeNames;
+
+        protected StationPositionGrouped(StationPosition stationPosition, int stationOffset, IntArrayList interchangeColors, ObjectArrayList<String> interchangeNames) {
+            this.stationPosition = stationPosition;
+            this.stationOffset = stationOffset;
+            this.interchangeColors = interchangeColors;
+            this.interchangeNames = interchangeNames;
+        }
+
+        protected StationPosition stationPosition() {
+            return stationPosition;
+        }
+
+        protected int stationOffset() {
+            return stationOffset;
+        }
+
+        protected IntArrayList interchangeColors() {
+            return interchangeColors;
+        }
+
+        protected ObjectArrayList<String> interchangeNames() {
+            return interchangeNames;
+        }
+    }
 }

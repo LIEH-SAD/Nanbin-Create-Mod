@@ -70,9 +70,11 @@ public final class PacketUpdateStationInfoSignData extends PacketHandler {
     @Override
     public void runServer(MinecraftServer minecraftServer, ServerPlayerEntity serverPlayerEntity) {
         final BlockEntity blockEntity = serverPlayerEntity.getEntityWorld().getBlockEntity(blockPos);
-        if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1.BlockEntity entity) {
+        if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1.BlockEntity) {
+            final BlockCRTStationInfo1.BlockEntity entity = (BlockCRTStationInfo1.BlockEntity) blockEntity.data;
             entity.setSignData(signIds, selectedIds);
-        } else if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1Double.BlockEntity entity) {
+        } else if (blockEntity != null && blockEntity.data instanceof BlockCRTStationInfo1Double.BlockEntity) {
+            final BlockCRTStationInfo1Double.BlockEntity entity = (BlockCRTStationInfo1Double.BlockEntity) blockEntity.data;
             entity.setSignData(isFront, signIds, selectedIds);
         }
     }

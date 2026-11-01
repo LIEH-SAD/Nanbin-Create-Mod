@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:crt_fence_1"
+    },
+    {
+      "item": "nanbin:crt_lift_tips"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_fence_lift_tips_1",
+    "count": 1
+  }
+}

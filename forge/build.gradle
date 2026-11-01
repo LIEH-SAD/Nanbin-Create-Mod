@@ -45,6 +45,12 @@ tasks.processResources {
 	from(branchResources) {
 		into ""
 	}
+	// Mixin only accepts a compatibility level up to the Java level this version is compiled with.
+	def mixinCompatibilityLevel = buildTools.javaLanguageVersion <= 8 ? "JAVA_8" : buildTools.javaLanguageVersion <= 16 ? "JAVA_16" : "JAVA_17"
+	inputs.property("mixinCompatibilityLevel", mixinCompatibilityLevel)
+	filesMatching("nanbin.mixins.json") {
+		filter { line -> line.replace('"JAVA_17"', '"' + mixinCompatibilityLevel + '"') }
+	}
 }
 
 jarJar.enable()

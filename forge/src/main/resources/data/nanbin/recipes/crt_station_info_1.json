@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "c:iron_ingots"
+    },
+    {
+      "item": "minecraft:glass_pane"
+    },
+    {
+      "tag": "c:redstone_dusts"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_station_info_1",
+    "count": 2
+  }
+}

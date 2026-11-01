@@ -1,5 +1,8 @@
 package com.Nanbin.mapping;
 
+// 1.16.5 uses net.minecraft.util.NonNullList / net.minecraft.item.ItemStack; only 1.17+ is supported here
+//? if >=1.17 {
+
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import org.mtr.mapping.annotation.MappedMethod;
@@ -39,3 +42,4 @@ public class DefaultedItemStackList extends HolderBase<NonNullList<ItemStack>>
         return this.data.get(i);
     }
 }
+//?}

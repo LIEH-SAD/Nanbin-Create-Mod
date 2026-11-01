@@ -91,7 +91,8 @@ public class BlockCRTStationName2 extends BlockStationNameBase implements Direct
             pos = this.getPos2().offset(IBlock.getStatePropertySafe(this.getCachedState2(), FACING).rotateYClockwise());
 
             org.mtr.mapping.holder.BlockEntity blockEntity = this.getWorld2().getBlockEntity(pos);
-            if (blockEntity.data instanceof BlockEntity entity) {
+            if (blockEntity.data instanceof BlockEntity) {
+                final BlockEntity entity = (BlockEntity) blockEntity.data;
                 entity.setPlatformId(platformId);
                 entity.markDirty2();
             } else {
