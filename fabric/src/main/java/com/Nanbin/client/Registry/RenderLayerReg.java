@@ -24,6 +24,7 @@ public class RenderLayerReg {
         BlockRenderLayerHelper.putBlock(Blocks.CRT_TICKET_3_ENTER, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_TICKET_3_EXIT, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.CRT_TICKET_MACHINE_1, RenderLayer.getCutout());
+        BlockRenderLayerHelper.putBlock(Blocks.CRT_TICKET_DISPLAY_1, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.BLUEFENCE, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.BLUEFENCE_TOP, RenderLayer.getCutout());
         BlockRenderLayerHelper.putBlock(Blocks.GREENFENCE, RenderLayer.getCutout());
