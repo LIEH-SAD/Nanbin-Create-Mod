@@ -93,10 +93,10 @@ public class NanbinUIConfigItem extends NanbinUIComponent {
 			final int iconY = y + (HEIGHT - ICON_SIZE) / 2;
 			// 必须先重置着色器颜色，否则图标会被上一步的着色器颜色染色
 			//? if <1.17 {
-			/*RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-			*///?} else {
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			//?}
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			//?} else {
+			/*RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			*///?}
 			final GuiDrawing iconDrawing = new GuiDrawing(graphicsHolder);
 			iconDrawing.beginDrawingTexture(icon);
 			iconDrawing.drawTexture(x + TEXT_INSET, iconY, x + TEXT_INSET + ICON_SIZE, iconY + ICON_SIZE, 0.0F, 0.0F, 1.0F, 1.0F);

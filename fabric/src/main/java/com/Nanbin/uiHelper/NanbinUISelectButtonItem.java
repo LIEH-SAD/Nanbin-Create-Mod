@@ -121,10 +121,10 @@ public class NanbinUISelectButtonItem extends NanbinUIComponent {
 		final Identifier texture = on ? ON_TEXTURE : OFF_TEXTURE;
 		// 重置着色器颜色，避免贴图被上一处绘制颜色染色（1.16.5 用 color4f，1.17+ 用 setShaderColor）
 		//? if <1.17 {
-		/*RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-		*///?} else {
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		//?}
+		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+		//?} else {
+		/*RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		*///?}
 		guiDrawing.beginDrawingTexture(texture);
 		guiDrawing.drawTexture(buttonX, buttonY, buttonX + BUTTON_WIDTH, buttonY + BUTTON_HEIGHT,
 				0.0F, 0.0F, 1.0F, 1.0F);
