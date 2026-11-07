@@ -90,6 +90,17 @@ public class NanbinUIScreen extends ScreenExtension {
 		return addConfig(TextHelper.literal(label), onClick);
 	}
 
+	/** 选择型配置项：左侧名称，右侧一个 2:1 贴图开关按钮（移植自 Fake_Redstone）。 */
+	public NanbinUISelectButtonItem addSelectButton(MutableText label, java.util.function.BooleanSupplier selected,
+			@Nullable Runnable onClick) {
+		return addComponent(new NanbinUISelectButtonItem(label, selected, onClick));
+	}
+
+	public NanbinUISelectButtonItem addSelectButton(String label, java.util.function.BooleanSupplier selected,
+			@Nullable Runnable onClick) {
+		return addSelectButton(TextHelper.literal(label), selected, onClick);
+	}
+
 	/**
 	 * label 为 null 时文本框占满整行；只能在 {@link #buildComponents()} 之后调用
 	 * （需要已初始化的文本渲染器）。

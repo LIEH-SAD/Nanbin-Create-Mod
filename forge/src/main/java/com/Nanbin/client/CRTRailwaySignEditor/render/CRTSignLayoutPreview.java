@@ -54,7 +54,9 @@ public final class CRTSignLayoutPreview {
 		}
 
 		// 布局（预览每帧都要用它做命中测试；文本测量有缓存，开销很小）
-		final CRTSignLayoutFrame frame = CRTSignLayoutPainter.layout(layout, data);
+		final String layoutJson = layout.toJson();
+		final CRTSignLayoutFrame frame = CRTSignLayoutPainter.layoutCached(layout, data, cacheKey,
+				layoutJson == null ? 0 : layoutJson.hashCode());
 		final float contentRatio = Math.min(width / Math.max(1.0F, frame.width), height / Math.max(1.0F, frame.height));
 		final float drawWidth = Math.max(1.0F, frame.width * contentRatio);
 		final float drawHeight = Math.max(1.0F, frame.height * contentRatio);

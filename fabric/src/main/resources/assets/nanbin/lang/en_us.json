@@ -553,5 +553,10 @@
   "gui.nanbin.crt_editor.thumb.route_info": "Line/号线",
   "gui.nanbin.crt_editor.field.route_info_hint": "Colors and numbers come from MTR: pick routes under MTR data binding below.",
   "gui.nanbin.crt_editor.field.route_info_label_zh": "Label (Chinese)",
-  "gui.nanbin.crt_editor.field.route_info_label_en": "Label (English)"
+  "gui.nanbin.crt_editor.field.route_info_label_en": "Label (English)",
+  "gui.nanbin.config.dark_mode": "Dark Mode",
+  "gui.nanbin.crt_editor.category.addon_signs": "Add-on signs",
+  "gui.nanbin.crt_editor.field.icon_color": "Icon color",
+  "gui.nanbin.crt_editor.field.icon_color_hint": "Recolors the icon's vector strokes. Leave transparent to keep the original texture.",
+  "gui.nanbin.crt_editor.canvas.icon_tip": "Icon: %s (click to select, drag to reorder)"
 }

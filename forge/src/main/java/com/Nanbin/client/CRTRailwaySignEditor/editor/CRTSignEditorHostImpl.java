@@ -12,6 +12,7 @@ import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.BlockPos;
+import org.mtr.mapping.holder.Direction;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.screen.DashboardListItem;
 import org.mtr.mod.screen.EditStationScreen;
@@ -33,6 +34,42 @@ public final class CRTSignEditorHostImpl implements CRTSignEditorHost {
 	@Override
 	public BlockPos getSignPos() {
 		return signPos;
+	}
+
+	@Override
+	public int getSignCells() {
+		try {
+			final org.mtr.mapping.holder.ClientWorld world = org.mtr.mapping.holder.MinecraftClient.getInstance().getWorldMapped();
+			if (world == null) {
+				return 0;
+			}
+			final org.mtr.mapping.holder.BlockState state = world.getBlockState(signPos);
+			if (state.getBlock().data instanceof org.mtr.mod.block.BlockRailwaySign) {
+				return ((org.mtr.mod.block.BlockRailwaySign) state.getBlock().data).length;
+			}
+			if (state.getBlock().data instanceof BlockCRTRailwaySignWall1) {
+				final java.util.List<BlockPos> run = BlockCRTRailwaySignWall1.collectRun(
+						org.mtr.mapping.holder.BlockView.cast(world), signPos);
+				return Math.max(1, run.size() * BlockCRTRailwaySignWall1.CELLS_PER_BLOCK);
+			}
+		} catch (Exception ignored) {
+		}
+		return 0;
+	}
+
+	@Override
+	public Direction getFacing() {
+		try {
+			final org.mtr.mapping.holder.ClientWorld world = org.mtr.mapping.holder.MinecraftClient.getInstance().getWorldMapped();
+			if (world != null) {
+				final org.mtr.mapping.holder.BlockState state = world.getBlockState(signPos);
+				if (state.getBlock().data instanceof org.mtr.mod.block.BlockRailwaySign) {
+					return org.mtr.mod.block.IBlock.getStatePropertySafe(state, org.mtr.mod.block.BlockStationNameBase.FACING);
+				}
+			}
+		} catch (Exception ignored) {
+		}
+		return Direction.NORTH;
 	}
 
 	/**

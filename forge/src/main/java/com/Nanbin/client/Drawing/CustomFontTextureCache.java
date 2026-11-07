@@ -369,6 +369,12 @@ public class CustomFontTextureCache {
 		return fontType == null ? null : getRawFont(fontType);
 	}
 
+	/** 供 UI（编辑器界面）复用的原始 AWT 字体；字体文件缺失时返回 null。 */
+	@javax.annotation.Nullable
+	public Font getRawFontForUi(FontType fontType) {
+		return getRawFont(fontType);
+	}
+
 	private Font getRawFont(FontType fontType) {
 		Font rawFont = rawFonts.get(fontType);
 		if (rawFont == null) {

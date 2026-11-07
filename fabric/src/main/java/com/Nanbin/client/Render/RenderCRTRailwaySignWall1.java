@@ -136,8 +136,9 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 					final CRTSignDataResolver wallLayoutData =
 							new CRTSignDataResolver(entity::getRouteNumber,
 									com.Nanbin.packet.ClientPacketHelper.findStationForSelectionCached(pos));
-					final com.Nanbin.client.JavaScriptSupport.JSSignTextureBaker.Baked baked = CRTJsLayoutBake.isJsStyle(layout)
-							? CRTJsLayoutBake.bake(layout, wallLayoutData, "crt_layout_wall:" + pos.toShortString(), signLayoutJson.hashCode(), facing)
+					final boolean jsStyle = CRTJsLayoutBake.isJsStyle(layout);
+					final com.Nanbin.client.JavaScriptSupport.JSSignTextureBaker.Baked baked = jsStyle
+							? CRTJsLayoutBake.bake(layout, wallLayoutData, "crt_layout_wall:" + pos.toShortString(), signLayoutJson.hashCode(), facing, cellCount)
 							: CRTSignLayoutPainter.bake(layout, wallLayoutData, "crt_layout_wall:" + pos.toShortString(), signLayoutJson.hashCode());
 					if (baked != null) {
 						final float plateWidth = (float) cellCount * CELL_WIDTH;
@@ -158,6 +159,19 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 						MainRenderer.scheduleRender(baked.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformations.transform(graphicsHolderNew, offset);
 							IDrawing.drawTexture(graphicsHolderNew, drawX, drawY, drawWidth, drawHeight, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
+							graphicsHolderNew.pop();
+						});
+						return;
+					}
+
+					if (jsStyle) {
+						// JS 样式烘焙失败：只画牌面底色，不回退旧格子渲染（与编辑器预览一致）
+						final float jsPlateWidth = (float) cellCount * CELL_WIDTH;
+						final float jsPlateHeight = CONTENT_HEIGHT;
+						final int layoutBackground = layout.backgroundColor | 0xFF000000;
+						MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+							storedMatrixTransformations.transform(graphicsHolderNew, offset);
+							IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, jsPlateWidth, jsPlateHeight, 0.003125F, facing, layoutBackground, GraphicsHolder.getDefaultLight());
 							graphicsHolderNew.pop();
 						});
 						return;

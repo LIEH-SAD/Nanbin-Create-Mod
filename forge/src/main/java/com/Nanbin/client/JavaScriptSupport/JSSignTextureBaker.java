@@ -38,6 +38,8 @@ public final class JSSignTextureBaker {
 	private static final Map<String, Baked> CACHE = new HashMap<>();
 	private static final Map<String, Long> FAILURES = new HashMap<>();
 	private static final Map<Identifier, NativeImage> IMAGE_CACHE = new HashMap<>();
+	/** 贴图缓存代际：资源重载 +1，用于让外部派生的重着色缓存失效。 */
+	private static int imageVersion = 0;
 	private static final Set<Identifier> MISSING_IMAGES = new HashSet<>();
 	private static final Map<Identifier, Long> PENDING_DESTROY = new HashMap<>();
 	private static int textureCounter = 0;
@@ -212,6 +214,17 @@ public final class JSSignTextureBaker {
 		});
 	}
 
+	/** 取贴图像素（已缓存）；给图标重着色等外部派生用途使用。 */
+	@Nullable
+	public static NativeImage getTextureImage(Identifier textureId) {
+		return getImage(textureId);
+	}
+
+	/** 贴图缓存代际（资源重载会变化）。 */
+	public static int getImageVersion() {
+		return imageVersion;
+	}
+
 	/** 取贴图像素：按资源路径读 PNG 并缓存。 */
 	@Nullable
 	private static NativeImage getImage(Identifier textureId) {
@@ -254,6 +267,7 @@ public final class JSSignTextureBaker {
 
 	/** 资源重载后清空，避免继续用已失效的像素缓存。 */
 	public static void clearCaches() {
+		imageVersion++;
 		for (final Baked baked : CACHE.values()) {
 			PENDING_DESTROY.put(baked.identifier, System.currentTimeMillis());
 		}

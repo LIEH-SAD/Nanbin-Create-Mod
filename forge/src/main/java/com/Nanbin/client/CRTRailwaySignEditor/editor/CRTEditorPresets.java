@@ -102,8 +102,13 @@ public final class CRTEditorPresets {
 		public List<CRTSignElement> materialize() {
 			final List<CRTSignElement> copies = new ArrayList<>();
 			for (final CRTSignElement element : elements) {
-				if (element != null) {
+				if (element == null) {
+					continue;
+				}
+				try {
 					copies.add(element.copy());
+				} catch (Throwable ignored) {
+					// 单个元素复制失败不应让整个预设插入崩溃
 				}
 			}
 			return copies;

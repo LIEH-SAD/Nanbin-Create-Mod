@@ -1,8 +1,10 @@
 package com.Nanbin.client.Screen;
 
 import com.Nanbin.client.CRTRailwaySignEditor.editor.*;
+import com.Nanbin.client.ClientData.NanbinClientConfig;
 import com.Nanbin.client.CRTRailwaySignEditor.render.CRTSignLayoutFrame;
 import com.Nanbin.client.CRTRailwaySignEditor.render.CRTSignLayoutPainter;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTSignRegistry;
 import com.Nanbin.client.CRTRailwaySignEditor.render.CRTJsLayoutBake;
 import com.Nanbin.client.CRTRailwaySignEditor.render.CRTSignLayoutPreview;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
@@ -201,6 +203,32 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 	private CRTSignLayoutPreview.Transform previewTransform;
 	private int lastMouseX;
 	private int lastMouseY;
+	/** 当前帧布局 JSON 哈希（与 preview 的布局缓存共用）。 */
+	private int currentLayoutHash;
+	/** 上一次同步到屏幕坐标的几何签名（相同则跳过重建，省掉每帧分配）。 */
+	private float lastSyncX = Float.NaN;
+	private float lastSyncY = Float.NaN;
+	private float lastSyncW = Float.NaN;
+	private float lastSyncH = Float.NaN;
+	private float lastSyncScale = Float.NaN;
+	private int lastSyncLayoutHash;
+	private int lastSyncSelectionHash;
+	/** 手动拖拽过的侧栏宽度（-1 = 自动比例）；双击分栏线恢复 -1。 */
+	private int customLeftWidth = -1;
+	private int customRightWidth = -1;
+	private boolean resizingLeft;
+	private boolean resizingRight;
+	private int resizeStartMouseX;
+	private int resizeStartWidth;
+	private long lastDividerClickTime;
+	private int lastDividerKind;
+	/** 画布拖动平移：按下空白/中键后，拖动超过阈值才平移；松手未移动则按“空白单击”处理。 */
+	private boolean canvasPanCandidate;
+	private boolean canvasPanning;
+	private double canvasPanPressX;
+	private double canvasPanPressY;
+	private double canvasPanStartScrollX;
+	private double canvasPanStartScrollY;
 	private long lastCanvasClickTime;
 	private double lastCanvasClickX;
 	private double lastCanvasClickY;
@@ -366,6 +394,8 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 		this.data = data == null ? CRTSignDataContext.EMPTY : data;
 		this.host = host;
 		this.cacheKey = "crt_editor:" + this.signPos.toShortString();
+		// 配置屏幕里的「深色模式」开关（默认浅色）
+		CRTEditorTheme.applyDarkMode(NanbinClientConfig.isDarkMode());
 	}
 
 	// ================================================================ 内部数据类
@@ -631,23 +661,42 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 		final int screenHeight = Math.max(1, getHeightMapped());
 		topBarRect.set(0, 0, screenWidth, TOP_BAR_HEIGHT);
 
-		// 侧栏宽度：网页固定 260；MC 逻辑分辨率较小时按比例压缩，保证中栏可用
-		int side = CRTEditorWidgets.clamp(screenWidth * 30 / 100, 150, CRTEditorTheme.PANEL_WIDTH);
-		if (leftCollapsed) {
-			side = 0;
-		}
-		final int minimumCenter = Math.min(200, Math.max(120, screenWidth / 3));
-		int leftWidth = leftCollapsed ? 0 : side;
-		int rightWidth = rightCollapsed ? 0 : side;
-		if (leftWidth + rightWidth + minimumCenter > screenWidth) {
-			final int excess = leftWidth + rightWidth + minimumCenter - screenWidth;
-			if (!leftCollapsed && !rightCollapsed) {
-				leftWidth = Math.max(120, leftWidth - excess / 2);
-				rightWidth = Math.max(120, rightWidth - excess + (leftWidth - (side - excess / 2)));
-				rightWidth = Math.max(120, side - Math.max(0, excess - (side - leftWidth)));
-				if (leftWidth + rightWidth + minimumCenter > screenWidth) {
-					leftWidth = Math.max(110, screenWidth - rightWidth - minimumCenter);
+		// 侧栏宽度：网页固定 260；屏幕较小时按比例压缩，中栏永远保留可编辑的最小宽度
+		final int preferredSide = CRTEditorWidgets.clamp(screenWidth * 26 / 100, 132, CRTEditorTheme.PANEL_WIDTH);
+		int leftWidth = leftCollapsed ? 0 : preferredSide;
+		int rightWidth = rightCollapsed ? 0 : preferredSide;
+		// 中栏至少占 1/3（上限 320、下限 140），两侧栏平分剩余空间
+		final int minimumCenter = CRTEditorWidgets.clamp(screenWidth / 3, 140, 320);
+		final int spaceForSides = Math.max(0, screenWidth - minimumCenter);
+		if (leftWidth + rightWidth > spaceForSides) {
+			if (leftWidth > 0 && rightWidth > 0) {
+				final int half = Math.max(110, spaceForSides / 2);
+				leftWidth = Math.min(leftWidth, half);
+				rightWidth = Math.min(rightWidth, Math.max(110, spaceForSides - leftWidth));
+				if (leftWidth + rightWidth > spaceForSides) {
+					leftWidth = Math.max(0, spaceForSides - rightWidth);
 				}
+			} else if (leftWidth > 0) {
+				leftWidth = spaceForSides;
+			} else {
+				rightWidth = spaceForSides;
+			}
+		}
+		// 用户手动拖拽过的分栏宽度优先（双击分栏线恢复自动比例）
+		if (!leftCollapsed && customLeftWidth > 0) {
+			leftWidth = CRTEditorWidgets.clamp(customLeftWidth, 120, 420);
+		}
+		if (!rightCollapsed && customRightWidth > 0) {
+			rightWidth = CRTEditorWidgets.clamp(customRightWidth, 120, 420);
+		}
+		// 中栏保底：两侧总宽超过可用空间时优先压缩较宽的一侧
+		final int centerFloor = CRTEditorWidgets.clamp(screenWidth / 4, 120, 280);
+		int guard = 0;
+		while (leftWidth + rightWidth + centerFloor > screenWidth && (leftWidth > 0 || rightWidth > 0) && guard++ < screenWidth) {
+			if (rightWidth >= leftWidth) {
+				rightWidth = Math.max(0, rightWidth - 2);
+			} else {
+				leftWidth = Math.max(0, leftWidth - 2);
 			}
 		}
 		final int bodyY = TOP_BAR_HEIGHT;
@@ -732,6 +781,8 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 	}
 
 	private void markEdited(boolean structural) {
+		// 内容变化：命中测试几何/预览缓存立即失效，避免拖动用的是旧坐标
+		previewTransform = null;
 		layoutDirty = true;
 		lastEditTime = System.currentTimeMillis();
 		if (structural) {
@@ -793,8 +844,6 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 		int right = getWidthMapped() - 4;
 		final CRTEditorWidgets.Button close = addTopButton(right, 38, tr("gui.nanbin.crt_editor.close"), CRTEditorWidgets.ButtonStyle.SECONDARY, this::onClose2);
 		right = close.x - 4;
-		final CRTEditorWidgets.Button save = addTopButton(right, 38, tr("gui.nanbin.crt_editor.save"), CRTEditorWidgets.ButtonStyle.PRIMARY, this::saveNow);
-		right = save.x - 4;
 		final CRTEditorWidgets.Button redo = addTopButton(right, 34, tr("gui.nanbin.crt_editor.redo"), CRTEditorWidgets.ButtonStyle.TOOL, this::redo);
 		redo.enabled = history.canRedo();
 		right = redo.x - 4;
@@ -1062,23 +1111,58 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 		paletteItems.add(spaceItem);
 		y += cardHeight + 8;
 
-		// ── CRT 预设：crt_signs.json 里未被网页图标覆盖的“图标+文字”牌 ──
-		addPaletteHeader(tr("gui.nanbin.crt_editor.category.crt_presets"), x0, y);
-		y += PALETTE_HEADER_HEIGHT + 4;
-		final java.util.List<CRTPresetCatalog.Entry> crtPresets = CRTPresetCatalog.entries();
+		// ── CRT 预设：仅显示当前资源包里真实存在的“图标+文字”牌（crt_signs.json 被清空时自动隐藏） ──
+		final java.util.List<CRTPresetCatalog.Entry> crtPresets = new java.util.ArrayList<>();
+		for (final CRTPresetCatalog.Entry entry : CRTPresetCatalog.entries()) {
+			if (CRTSignRegistry.getSign(entry.signId) != null) {
+				crtPresets.add(entry);
+			}
+		}
 		final int presetWidth = (contentW - directionGap) / 2;
 		final int presetHeight = 40;
-		for (int i = 0; i < crtPresets.size(); i++) {
-			final CRTPresetCatalog.Entry preset = crtPresets.get(i);
-			final PaletteItem presetItem = new PaletteItem(false, crtPresetLabel(preset), CRTSignElementType.ICON,
-					preset.signId, null, null);
-			presetItem.x = x0 + (i % 2) * (presetWidth + directionGap);
-			presetItem.y = y + (i / 2) * (presetHeight + directionGap);
-			presetItem.w = presetWidth;
-			presetItem.h = presetHeight;
-			paletteItems.add(presetItem);
+		if (!crtPresets.isEmpty()) {
+			addPaletteHeader(tr("gui.nanbin.crt_editor.category.crt_presets"), x0, y);
+			y += PALETTE_HEADER_HEIGHT + 4;
+			for (int i = 0; i < crtPresets.size(); i++) {
+				final CRTPresetCatalog.Entry preset = crtPresets.get(i);
+				final PaletteItem presetItem = new PaletteItem(false, crtPresetLabel(preset), CRTSignElementType.ICON,
+						preset.signId, null, null);
+				presetItem.x = x0 + (i % 2) * (presetWidth + directionGap);
+				presetItem.y = y + (i / 2) * (presetHeight + directionGap);
+				presetItem.w = presetWidth;
+				presetItem.h = presetHeight;
+				paletteItems.add(presetItem);
+			}
+			y += ((crtPresets.size() + 1) / 2) * (presetHeight + directionGap) + 6;
 		}
-		y += ((crtPresets.size() + 1) / 2) * (presetHeight + directionGap) + 6;
+
+		// ── 追加包标志：从 assets/<namespace>/crt_signs/*.json 或旧 crt_signs.json 加载、
+		//    且不属于内置表/预设的额外标志，直接读注册表动态生成卡片 ──
+		final java.util.Set<String> presetIds = new java.util.HashSet<>();
+		for (final CRTPresetCatalog.Entry entry : CRTPresetCatalog.entries()) {
+			presetIds.add(entry.signId);
+		}
+		final java.util.List<String> extraSignIds = new java.util.ArrayList<>();
+		for (final String signId : CRTSignRegistry.getExtraSignIds()) {
+			if (!presetIds.contains(signId) && CRTSignRegistry.getSign(signId) != null) {
+				extraSignIds.add(signId);
+			}
+		}
+		if (!extraSignIds.isEmpty()) {
+			addPaletteHeader(tr("gui.nanbin.crt_editor.category.addon_signs"), x0, y);
+			y += PALETTE_HEADER_HEIGHT + 4;
+			for (int i = 0; i < extraSignIds.size(); i++) {
+				final String signId = extraSignIds.get(i);
+				final PaletteItem addonItem = new PaletteItem(false, CRTSignRegistry.getSignLabel(signId),
+						CRTSignElementType.ICON, signId, null, null);
+				addonItem.x = x0 + (i % 2) * (presetWidth + directionGap);
+				addonItem.y = y + (i / 2) * (presetHeight + directionGap);
+				addonItem.w = presetWidth;
+				addonItem.h = presetHeight;
+				paletteItems.add(addonItem);
+			}
+			y += ((extraSignIds.size() + 1) / 2) * (presetHeight + directionGap) + 6;
+		}
 		leftContentHeight = LEFT_TAB_AREA + y;
 
 		// 每张卡片准备一个示例元素，用真实渲染烘焙缩略图（添加时深拷贝）
@@ -1155,6 +1239,15 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 
 	/** 打开「存为预设」命名弹窗（网页 §3.1.3 的 prompt 等价物）。 */
 	private void openPresetNameModal() {
+		try {
+			openPresetNameModalInternal();
+		} catch (Throwable e) {
+			closePresetNameModal();
+			com.Nanbin.InitClient.LOGGER.warn("CRT editor: failed to open preset modal", e);
+		}
+	}
+
+	private void openPresetNameModalInternal() {
 		final int cardWidth = Math.min(264, Math.max(170, getWidthMapped() - 40));
 		final int cardHeight = 92;
 		presetModalRect.set((getWidthMapped() - cardWidth) / 2, (getHeightMapped() - cardHeight) / 2, cardWidth, cardHeight);
@@ -1189,6 +1282,17 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 
 	/** 保存当前选中元素（或当前行）为命名预设。 */
 	private void confirmPresetSave() {
+		try {
+			confirmPresetSaveInternal();
+		} catch (Throwable e) {
+			// 预设只是便捷功能：任何异常都不允许把游戏带崩
+			closePresetNameModal();
+			toast(tr("gui.nanbin.crt_editor.preset.save_failed"), true);
+			com.Nanbin.InitClient.LOGGER.warn("CRT editor: failed to save preset", e);
+		}
+	}
+
+	private void confirmPresetSaveInternal() {
 		final List<CRTSignElement> source = presetSourceElements();
 		if (source.isEmpty()) {
 			toast(tr("gui.nanbin.crt_editor.preset.no_elements"), true);
@@ -1223,6 +1327,14 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 	/** 预设来源：有选中 → 选中的元素（视觉序）；否则当前行（最后一行）。 */
 	private List<CRTSignElement> presetSourceElements() {
 		final List<CRTSignElement> result = new ArrayList<>();
+		try {
+			collectPresetSourceElements(result);
+		} catch (Throwable ignored) {
+		}
+		return result;
+	}
+
+	private void collectPresetSourceElements(List<CRTSignElement> result) {
 		if (!selection.isEmpty()) {
 			for (final String id : visualElementIds()) {
 				if (!selection.contains(id)) {
@@ -1233,17 +1345,29 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 					result.add(ref.element);
 				}
 			}
-			return result;
+			return;
 		}
 		if (!layout.rows.isEmpty()) {
 			final CRTSignLayout.Row row = layout.rows.get(layout.rows.size() - 1);
 			result.addAll(row.elements);
 		}
-		return result;
+		return;
 	}
 
 	/** 插入预设：追加到当前行（最后一行）末尾，复制元素并选中新元素。 */
 	private void insertPreset(CRTEditorPresets.Preset preset) {
+		try {
+			insertPresetInternal(preset);
+		} catch (Throwable e) {
+			toast(tr("gui.nanbin.crt_editor.preset.empty_preset"), true);
+			com.Nanbin.InitClient.LOGGER.warn("CRT editor: failed to insert preset", e);
+		}
+	}
+
+	private void insertPresetInternal(CRTEditorPresets.Preset preset) {
+		if (preset == null) {
+			return;
+		}
 		final CRTSignLayout.Row target = targetRowForAdd();
 		if (target == null) {
 			toast(tr("gui.nanbin.crt_editor.preset.no_target_row"), true);
@@ -1272,6 +1396,15 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 		if (preset == null) {
 			return;
 		}
+		try {
+			deletePresetInternal(preset);
+		} catch (Throwable e) {
+			toast(tr("gui.nanbin.crt_editor.preset.save_failed"), true);
+			com.Nanbin.InitClient.LOGGER.warn("CRT editor: failed to delete preset", e);
+		}
+	}
+
+	private void deletePresetInternal(CRTEditorPresets.Preset preset) {
 		if (!preset.id.equals(armedDeletePresetId)) {
 			armedDeletePresetId = preset.id;
 			toast(tr("gui.nanbin.crt_editor.preset.delete_confirm", preset.name), true);
@@ -1319,7 +1452,7 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 			final boolean deleteHover = hover && card.deleteRect(screenY).contains(mouseX, mouseY);
 			final boolean armed = card.preset.id.equals(armedDeletePresetId);
 			c.fillRoundBordered(card.x, screenY, card.w, card.h, CRTEditorWidgets.RADIUS,
-					hover ? 0xFFFFFFFF : 0xFFFAFBFC, deleteHover || hover ? CRTEditorTheme.ACCENT : CRTEditorTheme.BORDER);
+					hover ? CRTEditorTheme.CARD_BG_HOVER : CRTEditorTheme.CARD_BG, deleteHover || hover ? CRTEditorTheme.ACCENT : CRTEditorTheme.BORDER);
 			// 名称 + 元素数量
 			c.textClipped(card.preset.name, card.x + 6, screenY + 5, card.w - 28, hover ? CRTEditorTheme.ACCENT : CRTEditorTheme.TEXT);
 			c.scaledTextClipped(tr("gui.nanbin.crt_editor.preset.count", card.preset.elements.size()),
@@ -1344,7 +1477,7 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 			// 删除圆钮（右上角）
 			final Rect deleteRect = card.deleteRect(screenY);
 			c.fillRoundBordered(deleteRect.x, deleteRect.y, deleteRect.w, deleteRect.h, 3.0F,
-					armed || deleteHover ? 0xFFFEE2E2 : 0xFFFFFFFF,
+					armed || deleteHover ? 0xFFFEE2E2 : CRTEditorTheme.CONTROL_BG,
 					armed || deleteHover ? CRTEditorTheme.DANGER : CRTEditorTheme.BORDER);
 			c.textCentered("✕", deleteRect.x + deleteRect.w / 2, deleteRect.y + (deleteRect.h - CRTEditorWidgets.FONT_HEIGHT) / 2 + 1,
 					armed || deleteHover ? CRTEditorTheme.DANGER : CRTEditorTheme.TEXT_DIM);
@@ -1471,7 +1604,7 @@ public class CRTSignEditorScreen extends ScreenExtension implements CRTEditorWid
 			}
 			final boolean hover = mouseX >= screenX && mouseX < screenX + item.w && mouseY >= screenY && mouseY < screenY + item.h;
 			final boolean dragging = draggingPaletteItem == item;
-			final int background = hover ? 0xFFFFFFFF : 0xFFFAFBFC;
+			final int background = hover ? CRTEditorTheme.CARD_BG_HOVER : CRTEditorTheme.CARD_BG;
 			c.fillRoundBordered(screenX, screenY, item.w, item.h, CRTEditorWidgets.RADIUS, background,
 					hover ? CRTEditorTheme.ACCENT : CRTEditorTheme.BORDER);
 			if (dragging) {
@@ -1642,7 +1775,6 @@ case EXIT_INFO:
 				break;
 			case ICON:
 				c.fillRound(x + 2, centerY - 6, 12, 12, 2.0F, CRTEditorTheme.SURFACE_SOFT);
-				c.textCentered("↕", x + 8, centerY - 4, CRTEditorTheme.TEXT_DIM);
 				c.textClipped(tr("gui.nanbin.crt_editor.thumb.icon"), x + 17, centerY - 4, w - 17, CRTEditorTheme.TEXT_DIM);
 				break;
 			case SPACE:
@@ -1861,6 +1993,10 @@ case EXIT_INFO:
 		pushHistory(key);
 		mutation.run();
 		markEdited(false);
+		// 自动保存：同一个节流窗口内最多一次，避免拖动/输入时每帧写方块数据
+		if (System.currentTimeMillis() - lastSaveTime >= SAVE_THROTTLE_MS) {
+			saveNow();
+		}
 	}
 
 	// ================================================================ 剪贴板
@@ -2870,6 +3006,31 @@ case EXIT_INFO:
 		rfY += 6;
 	}
 
+
+	/** 控件展开（如色板）后把它滚到右栏可视区域内，避免“看不到/点不到色板”。 */
+	private void ensureRightWidgetVisible(@Nullable CRTEditorWidgets.Widget widget) {
+		if (widget == null || rightPanelRect.w <= 0) {
+			return;
+		}
+		widget.h = widget.getHeight();
+		final int padding = 6;
+		final int bodyTop = rightBodyRect.y + padding;
+		final int bodyBottom = rightBodyRect.y + rightBodyRect.h - padding;
+		boolean changed = false;
+		final int bottom = widget.y + widget.h;
+		if (bottom > bodyBottom) {
+			rightScroll = Math.max(0, rightScroll + (bottom - bodyBottom));
+			changed = true;
+		} else if (widget.y < bodyTop) {
+			rightScroll = Math.max(0, rightScroll - (bodyTop - widget.y));
+			changed = true;
+		}
+		if (changed) {
+			widgetsDirty = true;
+			rebuildRightWidgets();
+		}
+	}
+
 	private <T extends CRTEditorWidgets.Widget> T rfAdd(T widget) {
 		widget.setBounds(rfX, rfY, rfW);
 		widget.h = widget.getHeight();
@@ -3293,6 +3454,12 @@ case EXIT_INFO:
 							() -> rotationIndex(element.rotation),
 							index -> editDiscrete(null, () -> element.rotation = rotations[CRTEditorWidgets.clamp(index, 0, 3)])));
 				}
+				rfLabel(tr("gui.nanbin.crt_editor.field.icon_color"));
+				rfAdd(createColorPicker("element.icon_color", () -> element.iconColor,
+						value -> editContinuous("element.icon_color", () -> element.iconColor = value <= 0 ? null : value), true));
+				rfAdd(new CRTEditorWidgets.SwatchRow(() -> element.iconColor,
+						value -> editContinuous("element.icon_color", () -> element.iconColor = value)));
+				rfHint(tr("gui.nanbin.crt_editor.field.icon_color_hint"));
 				break;
 			}
 			case ARROW: {
@@ -3376,12 +3543,16 @@ case EXIT_INFO:
 		rfLabel(tr("gui.nanbin.crt_editor.field.color"));
 		rfAdd(createColorPicker(element.id + ".color", () -> element.color,
 				value -> editContinuous(element.id + ":color", () -> element.color = value), false));
+		rfAdd(new CRTEditorWidgets.SwatchRow(() -> element.color,
+				value -> editContinuous(element.id + ":color", () -> element.color = value)));
 		if (element.type == CRTSignElementType.EXIT) {
 			rfHint(tr("gui.nanbin.crt_editor.field.exit_bg_fixed"));
 		} else {
 			rfLabel(tr("gui.nanbin.crt_editor.field.background"));
 			rfAdd(createColorPicker(element.id + ".bg", () -> element.backgroundColor,
 					value -> editContinuous(element.id + ":bg", () -> element.backgroundColor = value < 0 ? null : value), true));
+			rfAdd(new CRTEditorWidgets.SwatchRow(() -> element.backgroundColor,
+					value -> editContinuous(element.id + ":bg", () -> element.backgroundColor = value)));
 		}
 		if (element.type == CRTSignElementType.NUMBER_LINE) {
 			rfLabel(tr("gui.nanbin.crt_editor.field.text_color"));
@@ -3801,10 +3972,14 @@ case EXIT_INFO:
 		ensureWidgets();
 		lastMouseX = mouseX;
 		lastMouseY = mouseY;
-		layoutCanvas();
+		if (previewTransform == null) {
+			// 首帧 / 编辑后的失效帧：用近似几何兜底；有 previewTransform 时由 drawCanvas 统一同步
+			layoutCanvas();
+		}
 		updateHover();
 		final CRTEditorWidgets.Ctx c = frameCtx(graphicsHolder, mouseX, mouseY, delta);
 		drawScreenBackground(c);
+		drawPanelResizeHints(c);
 		drawCanvas(c);
 		renderPalette(c);
 		drawLeftScrollbar(c);
@@ -3912,7 +4087,7 @@ case EXIT_INFO:
 			if (section.y + section.h < rightBodyRect.y || section.y > rightBodyRect.y + rightBodyRect.h) {
 				continue;
 			}
-			c.fillRoundBordered(section.x, section.y, section.w, section.h, 8.0F, 0xFFFFFFFF, CRTEditorTheme.BORDER_SOFT);
+			c.fillRoundBordered(section.x, section.y, section.w, section.h, 8.0F, CRTEditorTheme.PANEL_BG, CRTEditorTheme.BORDER_SOFT);
 		}
 		for (final TextLine line : rightTexts) {
 			final int lineHeight = Math.max(CRTEditorWidgets.LINE_HEIGHT, Math.round(CRTEditorWidgets.FONT_HEIGHT * line.scale) + 1);
@@ -3958,7 +4133,7 @@ case EXIT_INFO:
 			final int ghostX = CRTEditorWidgets.clamp((int) lastMouseX - ghostWidth / 2, 0, Math.max(0, getWidthMapped() - ghostWidth));
 			final int ghostY = CRTEditorWidgets.clamp((int) lastMouseY - ghostHeight / 2, 0, Math.max(0, getHeightMapped() - ghostHeight));
 			c.fillRound(ghostX - 1, ghostY - 1, ghostWidth + 2, ghostHeight + 2, 7.0F, 0xFFDDE2E9);
-			c.fillRoundBordered(ghostX, ghostY, ghostWidth, ghostHeight, 6.0F, 0xFFFFFFFF, CRTEditorTheme.ACCENT);
+			c.fillRoundBordered(ghostX, ghostY, ghostWidth, ghostHeight, 6.0F, CRTEditorTheme.PANEL_BG, CRTEditorTheme.ACCENT);
 			c.textCenteredClipped(draggingPaletteItem.label, ghostX + ghostWidth / 2, ghostY + 8, ghostWidth - 8, CRTEditorTheme.TEXT);
 			c.textCentered(tr("gui.nanbin.crt_editor.drag.drop_hint"), ghostX + ghostWidth / 2, ghostY + 22, CRTEditorTheme.TEXT_DIM);
 		}
@@ -3988,19 +4163,22 @@ case EXIT_INFO:
 			return;
 		}
 		c.fillRound(x - 1, y - 1, boxWidth + 2, 16, 6.0F, 0xFFDDE2E9);
-		c.fillRoundBordered(x, y, boxWidth, 14, 5.0F, toastError ? 0xFFFEF2F2 : 0xFFFFFFFF, toastError ? 0xFFFECACA : CRTEditorTheme.BORDER);
+		c.fillRoundBordered(x, y, boxWidth, 14, 5.0F, toastError ? 0xFFFEF2F2 : CRTEditorTheme.PANEL_BG, toastError ? 0xFFFECACA : CRTEditorTheme.BORDER);
 		c.fill(x, y + 2, x + 2, y + 12, toastError ? CRTEditorTheme.DANGER : CRTEditorTheme.OK);
 		c.text(text, x + 7, y + 3, toastError ? 0xFF991B1B : CRTEditorTheme.TEXT);
 	}
 
 	private void drawPresetNameModal(CRTEditorWidgets.Ctx c) {
+		if (presetModalRect.w <= 0 || presetModalRect.h <= 0) {
+			return;
+		}
 		final int width = getWidthMapped();
 		final int height = getHeightMapped();
 		// 全屏遮罩（网页 modal-mask 的 MC 近似）+ 白色卡片
 		c.fill(0, 0, width, height, 0xFFE9EDF2);
 		final Rect rect = presetModalRect;
 		c.fillRound(rect.x - 2, rect.y - 1, rect.w + 4, rect.h + 3, 9.0F, 0xFFDDE2E9);
-		c.fillRoundBordered(rect.x, rect.y, rect.w, rect.h, 8.0F, 0xFFFFFFFF, CRTEditorTheme.BORDER);
+		c.fillRoundBordered(rect.x, rect.y, rect.w, rect.h, 8.0F, CRTEditorTheme.PANEL_BG, CRTEditorTheme.BORDER);
 		c.scaledTextClipped(tr("gui.nanbin.crt_editor.preset.name_title"), rect.x + 12, rect.y + 10, rect.w - 24,
 				CRTEditorWidgets.FONT_SCALE_TITLE, CRTEditorTheme.TEXT);
 		for (final CRTEditorWidgets.Widget widget : modalWidgets) {
@@ -4015,7 +4193,7 @@ case EXIT_INFO:
 		final int x = CRTEditorWidgets.clamp(lastMouseX + 8, 2, Math.max(2, getWidthMapped() - textWidth - 10));
 		final int y = CRTEditorWidgets.clamp(lastMouseY - 13, 2, Math.max(2, getHeightMapped() - 14));
 		c.fillRound(x - 1, y - 1, textWidth + 10, 13, 4.0F, 0xFFDDE2E9);
-		c.fillRoundBordered(x, y, textWidth + 8, 11, 3.0F, 0xFFFFFFFF, CRTEditorTheme.BORDER);
+		c.fillRoundBordered(x, y, textWidth + 8, 11, 3.0F, CRTEditorTheme.PANEL_BG, CRTEditorTheme.BORDER);
 		c.text(clipped, x + 4, y + 1, CRTEditorTheme.TEXT);
 	}
 
@@ -4059,6 +4237,21 @@ case EXIT_INFO:
 
 	/** 从渲染层返回的真实布局帧同步命中测试几何（行/元素屏幕矩形、行控件位置）。 */
 	private void syncCanvasFromTransform(CRTSignLayoutPreview.Transform transform) {
+		// 几何/选择/布局都没变时跳过重建（鼠标移动不会触发重新分配）
+		final int selectionHash = selection.hashCode();
+		if (transform.x == lastSyncX && transform.y == lastSyncY && transform.width == lastSyncW
+				&& transform.height == lastSyncH && transform.scale == lastSyncScale
+				&& currentLayoutHash == lastSyncLayoutHash && selectionHash == lastSyncSelectionHash
+				&& transform.frame.rows.size() == canvasRows.size()) {
+			return;
+		}
+		lastSyncX = transform.x;
+		lastSyncY = transform.y;
+		lastSyncW = transform.width;
+		lastSyncH = transform.height;
+		lastSyncScale = transform.scale;
+		lastSyncLayoutHash = currentLayoutHash;
+		lastSyncSelectionHash = selectionHash;
 		canvasRows.clear();
 		canvasElements.clear();
 		rowChromeButtons.clear();
@@ -4259,7 +4452,7 @@ case EXIT_INFO:
 		final boolean dragging = paddingDragActive && paddingDragSide == side
 				&& target.element.id.equals(paddingDragElementId);
 		final boolean hover = !dragging && rect.contains(lastMouseX, lastMouseY) && elementOverlaysActive();
-		final int background = dragging ? CRTEditorTheme.ACCENT : (hover ? CRTEditorTheme.ACCENT_SOFT : 0xFFFFFFFF);
+		final int background = dragging ? CRTEditorTheme.ACCENT : (hover ? CRTEditorTheme.ACCENT_SOFT : CRTEditorTheme.CONTROL_BG);
 		final int border = dragging || hover ? CRTEditorTheme.ACCENT : CRTEditorTheme.SELECTION_SOFT;
 		c.fillRoundBordered(rect.x, rect.y, rect.w, rect.h, 2.0F, background, border);
 		final int grip = dragging ? 0xFFFFFFFF : CRTEditorTheme.ACCENT;
@@ -4624,6 +4817,16 @@ case EXIT_INFO:
 	}
 
 	/** JS 整牌样式画布：按脚本烘焙整张贴图绘制；元素编辑锁定（与旧 JS 编辑一致）。 */
+
+	/** 当前牌面实际格数：host 优先，未知时按布局宽/行高估算。 */
+	private int resolvePreviewSignCells() {
+		final int fromHost = host == null ? 0 : host.getSignCells();
+		if (fromHost > 0) {
+			return fromHost;
+		}
+		return Math.max(1, Math.round(layout.layoutWidth() / Math.max(1.0F, layout.rowHeight)));
+	}
+
 	private void drawJsCanvas(CRTEditorWidgets.Ctx c) {
 		previewTransform = null;
 		canvasRows.clear();
@@ -4633,6 +4836,13 @@ case EXIT_INFO:
 		elementToolbarButtons.clear();
 		signContentW = Math.max(1.0F, layout.layoutWidth());
 		signContentH = Math.max(1.0F, layout.layoutHeight());
+		final int jsCells = resolvePreviewSignCells();
+		if (CRTJsLayoutBake.isJsStyle(layout)) {
+			// JS 整牌样式：内容区比例必须等于牌面（cells×0.5 : 0.5），否则预览会被拉伸/世界会留边
+			final float unit = Math.max(1.0F, layout.rowHeight);
+			signContentW = Math.max(1, jsCells) * unit;
+			signContentH = unit;
+		}
 		final float availableWidth = Math.max(24.0F, canvasViewportRect.w - CANVAS_PADDING * 2.0F - CANVAS_RIGHT_GUTTER);
 		final float availableHeight = Math.max(24.0F, canvasViewportRect.h - CANVAS_PADDING * 2.0F);
 		final float fitScale = Math.min(availableWidth / signContentW, availableHeight / signContentH);
@@ -4646,9 +4856,14 @@ case EXIT_INFO:
 		signScreenX = canvasViewportRect.x + (canvasViewportRect.w - CANVAS_RIGHT_GUTTER) / 2.0F - signScreenW / 2.0F + canvasScrollX;
 		signScreenY = canvasViewportRect.y + canvasViewportRect.h / 2.0F - signScreenH / 2.0F + canvasScrollY;
 		final String layoutJson = layout.toJson();
-		final JSSignTextureBaker.Baked baked = CRTJsLayoutBake.bake(layout, data, cacheKey,
-				layoutJson == null ? 0L : layoutJson.hashCode(), Direction.NORTH);
+		// 朝向必须世界/预览一致：否则按朝向绘制内容的 JS 脚本会在两边显示不同
+		final Direction previewFacing = host == null ? Direction.NORTH : host.getFacing();
+		final JSSignTextureBaker.Baked baked = CRTJsLayoutBake.bake(layout, data, cacheKey + ":facing:" + previewFacing.asRotation(),
+				layoutJson == null ? 0L : layoutJson.hashCode(), previewFacing, jsCells);
 		enableScissor(canvasViewportRect);
+		// 与世界渲染一致：先画整牌底色，再叠 JS 烘焙贴图（避免脚本背景之外的透明区域在预览里显示成灰色画布）
+		c.fill(Math.round(signScreenX), Math.round(signScreenY), Math.round(signScreenX + signScreenW),
+				Math.round(signScreenY + signScreenH), layout.backgroundColor | 0xFF000000);
 		if (baked != null) {
 			drawBakedTexture(c, baked, Math.round(signScreenX), Math.round(signScreenY),
 					Math.max(1, Math.round(signScreenW)), Math.max(1, Math.round(signScreenH)));
@@ -4686,7 +4901,9 @@ case EXIT_INFO:
 			return;
 		}
 		// 先用渲染层布局帧确定牌面尺寸（预览据此等比缩放），再交给渲染层画贴图
-		final CRTSignLayoutFrame frame = CRTSignLayoutPainter.layout(layout, data);
+		final String layoutJson = layout.toJson();
+		currentLayoutHash = layoutJson == null ? 0 : layoutJson.hashCode();
+		final CRTSignLayoutFrame frame = CRTSignLayoutPainter.layoutCached(layout, data, cacheKey, currentLayoutHash);
 		signContentW = Math.max(1.0F, frame.width);
 		signContentH = Math.max(1.0F, frame.height);
 		final float availableWidth = Math.max(24.0F, canvasViewportRect.w - CANVAS_PADDING * 2.0F - CANVAS_RIGHT_GUTTER);
@@ -4832,7 +5049,12 @@ case EXIT_INFO:
 		final int fill = element.backgroundColor != null ? element.backgroundColor : 0xFFEDF2FE;
 		c.fillRound(x1, y1, x2 - x1, y2 - y1, 2.0F, fill);
 		c.border(x1, y1, x2, y2, 0xFFBBD0F7);
-		final String text = elementDisplayText(element);
+		final String text = element.type == CRTSignElementType.ICON ? "" : elementDisplayText(element);
+		if (element.type == CRTSignElementType.ICON && x2 - x1 > 6 && y2 - y1 > 6) {
+			final JSSignTextureBaker.Baked thumb = elementThumbnail(element, Math.max(8.0F, layout.rowHeight),
+					cacheKey + ":canvas:" + element.id + ":" + iconCanvasSignature(element));
+			drawBakedTexture(c, thumb, x1 + 1, y1 + 1, x2 - x1 - 2, y2 - y1 - 2);
+		}
 		if (!text.isEmpty() && x2 - x1 > 6 && y2 - y1 > 6) {
 			float scale = Math.min((y2 - y1) * 0.42F / CRTEditorWidgets.FONT_HEIGHT, (x2 - x1 - 4.0F) / Math.max(1, c.textWidth(text)));
 			scale = Math.max(0.4F, Math.min(2.2F, scale));
@@ -4843,11 +5065,30 @@ case EXIT_INFO:
 		if (element.binding != CRTSignElement.DataBinding.NONE) {
 			c.fillRound(x2 - 4, y1 + 2, 2, 2, 1.0F, CRTEditorTheme.ACCENT);
 		}
+		if (hovered && element.type == CRTSignElementType.ICON) {
+			c.setTooltip(tr("gui.nanbin.crt_editor.canvas.icon_tip", iconDisplayName(element)));
+		}
 		if (selected) {
 			drawSelectionOutline(c, canvasElement);
 		} else if (hovered) {
 			c.border(x1, y1, x2, y2, 0xFF7AA3F0);
 		}
+	}
+
+
+	/** 画布图标缩略图的缓存签名（图标/旋转/颜色变化才重新烘焙）。 */
+	private static String iconCanvasSignature(CRTSignElement element) {
+		return (element.icon == null ? "" : element.icon) + "|" + element.rotation + "|"
+				+ (element.iconColor == null ? "none" : Integer.toHexString(element.iconColor));
+	}
+
+	/** 图标元素悬浮提示里显示的名字（追加包优先用 customText）。 */
+	private static String iconDisplayName(CRTSignElement element) {
+		if (element.icon == null || element.icon.trim().isEmpty()) {
+			return tr("gui.nanbin.crt_editor.element.icon");
+		}
+		final String label = CRTSignRegistry.getSignLabel(element.icon.trim());
+		return label == null || label.isEmpty() ? element.icon.trim() : label;
 	}
 
 	private void drawSelectionOutline(CRTEditorWidgets.Ctx c, CanvasElement canvasElement) {
@@ -5003,6 +5244,56 @@ case EXIT_INFO:
 			return;
 		}
 		// 空白：双击复位缩放，否则取消选中
+		beginCanvasPanCandidate(mouseX, mouseY);
+	}
+
+	/** 记录一次可能的画布拖动（空白左键 / 中键）。 */
+
+	/** 分栏拖拽把手的命中半宽（GUI 像素）。 */
+	private static final int DIVIDER_GRAB = 3;
+
+	private boolean isOverLeftDivider(double mouseX, double mouseY) {
+		return leftPanelRect.w > 0 && Math.abs(mouseX - (leftPanelRect.x + leftPanelRect.w)) <= DIVIDER_GRAB
+				&& mouseY >= TOP_BAR_HEIGHT && mouseY <= getHeightMapped();
+	}
+
+	private boolean isOverRightDivider(double mouseX, double mouseY) {
+		return rightPanelRect.w > 0 && Math.abs(mouseX - rightPanelRect.x) <= DIVIDER_GRAB
+				&& mouseY >= TOP_BAR_HEIGHT && mouseY <= getHeightMapped();
+	}
+
+	/** 鼠标悬停/拖拽分栏线时画一条强调色竖线（不占内容区）。 */
+	private void drawPanelResizeHints(CRTEditorWidgets.Ctx c) {
+		if (leftPanelRect.w > 0 && (resizingLeft || isOverLeftDivider(lastMouseX, lastMouseY))) {
+			final int x = leftPanelRect.x + leftPanelRect.w - 1;
+			c.fill(x - 1, TOP_BAR_HEIGHT, x + 1, getHeightMapped(), CRTEditorTheme.ACCENT);
+		}
+		if (rightPanelRect.w > 0 && (resizingRight || isOverRightDivider(lastMouseX, lastMouseY))) {
+			final int x = rightPanelRect.x;
+			c.fill(x, TOP_BAR_HEIGHT, x + 2, getHeightMapped(), CRTEditorTheme.ACCENT);
+		}
+	}
+
+	private void beginCanvasPanCandidate(double mouseX, double mouseY) {
+		canvasPanCandidate = true;
+		canvasPanning = false;
+		canvasPanPressX = mouseX;
+		canvasPanPressY = mouseY;
+		canvasPanStartScrollX = canvasScrollX;
+		canvasPanStartScrollY = canvasScrollY;
+	}
+
+	/** 松手时处理空白单击语义（未拖动时）：双击复位缩放，否则取消选中。 */
+	private void finishCanvasPanCandidate(double mouseX, double mouseY, int button) {
+		final boolean moved = Math.abs(mouseX - canvasPanPressX) + Math.abs(mouseY - canvasPanPressY) > 2.0;
+		canvasPanCandidate = false;
+		if (canvasPanning) {
+			canvasPanning = false;
+			return;
+		}
+		if (moved || button != 0) {
+			return;
+		}
 		final long now = System.currentTimeMillis();
 		final double distance = Math.abs(mouseX - lastCanvasClickX) + Math.abs(mouseY - lastCanvasClickY);
 		if (now - lastCanvasClickTime < 300L && distance < 10.0) {
@@ -5103,6 +5394,11 @@ case EXIT_INFO:
 		lastMouseY = (int) mouseY;
 		ensureWidgets();
 		layoutCanvas();
+		if (button == 2 && canvasViewportRect.contains(mouseX, mouseY)) {
+			// 中键拖动 = 平移画布（缩放后常用）
+			beginCanvasPanCandidate(mouseX, mouseY);
+			return true;
+		}
 		if (button != 0) {
 			return super.mouseClicked2(mouseX, mouseY, button);
 		}
@@ -5118,6 +5414,40 @@ case EXIT_INFO:
 			return true;
 		}
 		if (openDropdown != null && openDropdown.popupClicked(c, mouseX, mouseY)) {
+			return true;
+		}
+		// 分栏拖拽把手：左右栏边缘 ±3px，双击恢复自动比例
+		final long dividerNow = System.currentTimeMillis();
+		if (isOverLeftDivider(mouseX, mouseY)) {
+			if (dividerNow - lastDividerClickTime < 300L && lastDividerKind == 1) {
+				customLeftWidth = -1;
+				lastDividerKind = 0;
+				updateLayout();
+				rebuildAllWidgets();
+				layoutCanvas();
+				return true;
+			}
+			lastDividerClickTime = dividerNow;
+			lastDividerKind = 1;
+			resizingLeft = true;
+			resizeStartMouseX = (int) mouseX;
+			resizeStartWidth = leftPanelRect.w;
+			return true;
+		}
+		if (isOverRightDivider(mouseX, mouseY)) {
+			if (dividerNow - lastDividerClickTime < 300L && lastDividerKind == 2) {
+				customRightWidth = -1;
+				lastDividerKind = 0;
+				updateLayout();
+				rebuildAllWidgets();
+				layoutCanvas();
+				return true;
+			}
+			lastDividerClickTime = dividerNow;
+			lastDividerKind = 2;
+			resizingRight = true;
+			resizeStartMouseX = (int) mouseX;
+			resizeStartWidth = rightPanelRect.w;
 			return true;
 		}
 		// 右栏滚动条
@@ -5142,6 +5472,7 @@ case EXIT_INFO:
 			return true;
 		}
 		if (rightBodyRect.contains(mouseX, mouseY) && dispatchWidgets(c, rightWidgets, mouseX, mouseY)) {
+			ensureRightWidgetVisible(pressedWidget);
 			return true;
 		}
 		if (leftPanelRect.w > 0 && leftPanelRect.contains(mouseX, mouseY) && dispatchWidgets(c, leftWidgets, mouseX, mouseY)) {
@@ -5220,9 +5551,18 @@ case EXIT_INFO:
 	public boolean mouseReleased2(double mouseX, double mouseY, int button) {
 		lastMouseX = (int) mouseX;
 		lastMouseY = (int) mouseY;
+		if (resizingLeft || resizingRight) {
+			resizingLeft = false;
+			resizingRight = false;
+			return true;
+		}
 		if (rightScrollbarDragging || leftScrollbarDragging) {
 			rightScrollbarDragging = false;
 			leftScrollbarDragging = false;
+			return true;
+		}
+		if (canvasPanCandidate) {
+			finishCanvasPanCandidate(mouseX, mouseY, button);
 			return true;
 		}
 		if (paddingDragActive) {
@@ -5293,6 +5633,20 @@ case EXIT_INFO:
 	public boolean mouseDragged2(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
 		lastMouseX = (int) mouseX;
 		lastMouseY = (int) mouseY;
+		if (resizingLeft) {
+			customLeftWidth = CRTEditorWidgets.clamp((int) (resizeStartWidth + (mouseX - resizeStartMouseX)), 120, 420);
+			updateLayout();
+			rebuildAllWidgets();
+			layoutCanvas();
+			return true;
+		}
+		if (resizingRight) {
+			customRightWidth = CRTEditorWidgets.clamp((int) (resizeStartWidth - (mouseX - resizeStartMouseX)), 120, 420);
+			updateLayout();
+			rebuildAllWidgets();
+			layoutCanvas();
+			return true;
+		}
 		if (rightScrollbarDragging) {
 			updateRightScrollFromScrollbar(mouseY);
 			return true;
@@ -5308,6 +5662,19 @@ case EXIT_INFO:
 		}
 		if (pressedWidget != null && pressedWidget.mouseDragged(c, mouseX, mouseY, button, deltaX, deltaY)) {
 			return true;
+		}
+		if (canvasPanCandidate) {
+			final double dx = mouseX - canvasPanPressX;
+			final double dy = mouseY - canvasPanPressY;
+			if (!canvasPanning && Math.abs(dx) + Math.abs(dy) > 2.0) {
+				canvasPanning = true;
+			}
+			if (canvasPanning) {
+				canvasScrollX = (float) (canvasPanStartScrollX + dx);
+				canvasScrollY = (float) (canvasPanStartScrollY + dy);
+				layoutCanvas();
+				return true;
+			}
 		}
 		if (pressedPaletteItem != null) {
 			if (draggingPaletteItem == null
@@ -5363,11 +5730,12 @@ case EXIT_INFO:
 			return true;
 		}
 		if (canvasViewportRect.contains(mouseX, mouseY)) {
-			if (ScreenExtension.hasControlDown2()) {
-				changeCanvasZoom(amount > 0 ? 1.15F : 1.0F / 1.15F);
-			} else if (canvasZoom > 1.0F) {
-				canvasScrollY += (float) (amount * 16.0);
-				layoutCanvas();
+			if (ScreenExtension.hasShiftDown2()) {
+				canvasScrollX += (float) (amount * 18.0);
+			} else {
+				// 滚轮直接缩放画布（与常见编辑器一致），Ctrl 为更大步进
+				final float step = ScreenExtension.hasControlDown2() ? 1.3F : 1.15F;
+				changeCanvasZoom(amount > 0 ? step : 1.0F / step);
 			}
 			return true;
 		}

@@ -49,6 +49,17 @@ public final class CRTJsLayoutBake {
 	@Nullable
 	public static JSSignTextureBaker.Baked bake(@Nullable CRTSignLayout layout, @Nullable CRTSignDataContext data,
 			String cacheKey, long contentKey, Direction facing) {
+		return bake(layout, data, cacheKey, contentKey, facing, 0);
+	}
+
+	/**
+	 * 同上，但由调用方给出牌面实际格数（铁路牌 = signIds.length，墙挂牌 = 方块数 × 每块格数）。
+	 * JS 贴图宽高比必须与牌面一致（牌宽 = 格数 × 0.5、牌高 = 0.5），否则世界渲染会等比缩放留黑边，
+	 * 表现为“JS 内容没有铺满牌面”，与编辑器预览不一致。
+	 */
+	@Nullable
+	public static JSSignTextureBaker.Baked bake(@Nullable CRTSignLayout layout, @Nullable CRTSignDataContext data,
+			String cacheKey, long contentKey, Direction facing, int plateCells) {
 		if (!isJsStyle(layout)) {
 			return null;
 		}
@@ -58,8 +69,10 @@ public final class CRTJsLayoutBake {
 			// 不能把设计像素（如 3584）直接当 JS 单位——烘焙器会按 176 px/单位出图，
 			// 3584 单位会生成 10 万像素宽的贴图，瞬间卡死/爆内存。
 			final float cellSize = 0.5F;
-			final int cellCount = Math.min(64, Math.max(1,
-					Math.round(layout.layoutWidth() / (float) Math.max(1, layout.rowHeight))));
+			// 牌面实际格数优先（与世界渲染 plateWidth = cells × 0.5 完全一致）
+			final int cellCount = plateCells > 0
+					? Math.min(64, Math.max(1, plateCells))
+					: Math.min(64, Math.max(1, Math.round(layout.layoutWidth() / (float) Math.max(1, layout.rowHeight))));
 			final float width = cellCount * cellSize;
 			final String[] lineIds = new String[cellCount];
 			for (int i = 0; i < cellCount; i++) {
@@ -93,10 +106,17 @@ public final class CRTJsLayoutBake {
 							new JSSignEngine.JSSignContext(lineIds, 0, selectedIds, routeNumbers, background, cellSize, signKey,
 									BlockPos.fromLong(0L), routeNumberMap, width),
 							scriptId)));
-		} catch (Throwable ignored) {
+		} catch (Throwable e) {
+			final long now = System.currentTimeMillis();
+			if (now - lastFailureLogAt > 5000L) {
+				lastFailureLogAt = now;
+				com.Nanbin.InitClient.LOGGER.warn("CRT JS layout bake failed (script={}, key={})", layout.jsStyleId, cacheKey, e);
+			}
 			return null;
 		}
 	}
+
+	private static long lastFailureLogAt = 0L;
 
 	private static void idsAdd(LongAVLTreeSet set, long id) {
 		set.add(id);

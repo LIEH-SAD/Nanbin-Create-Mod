@@ -200,6 +200,30 @@ public final class CRTSignLayoutPainter {
 	}
 
 	/**
+	 * 带缓存的布局（编辑器/预览用）：同一 cacheKey + 布局哈希在 {@link #FRAME_CACHE_MAX_AGE_MS} 内
+	 * 复用最近一帧，避免每帧重复测文本；世界渲染的 {@link #bake} 也走同一份缓存。
+	 */
+	public static CRTSignLayoutFrame layoutCached(@Nullable CRTSignLayout layout, @Nullable CRTSignDataContext data,
+			@Nullable String cacheKey, int layoutHash) {
+		if (layout == null) {
+			return new CRTSignLayoutFrame(1.0F, 1.0F);
+		}
+		final String key = cacheKey == null ? "default" : cacheKey;
+		final long now = System.currentTimeMillis();
+		synchronized (FRAME_CACHE) {
+			final FrameCache cached = FRAME_CACHE.get(key);
+			if (cached != null && cached.layoutHash == layoutHash && now - cached.time < FRAME_CACHE_MAX_AGE_MS) {
+				return cached.frame;
+			}
+		}
+		final CRTSignLayoutFrame frame = layoutInternal(layout, data, layoutHash);
+		synchronized (FRAME_CACHE) {
+			FRAME_CACHE.put(key, new FrameCache(layoutHash, now, frame));
+		}
+		return frame;
+	}
+
+	/**
 	 * 实际布局实现。
 	 *
 	 * @param knownLayoutHash 已算好的 layout JSON 哈希（&lt; 0 表示内部自行计算），
@@ -528,6 +552,14 @@ public final class CRTSignLayoutPainter {
 		}
 		final float x = originX + metrics.padLeft;
 		final float y = originY + metrics.padTop;
+		// 自定义颜色：把贴图的矢量部分重着色（旋转在重着色时一并烘焙，避免额外矩阵）
+		if (element.iconColor != null) {
+			final org.mtr.mapping.holder.NativeImage tinted = CRTSignIconTint.tint(sign, element.iconColor, sign.getFlipTexture(), metrics.iconRotation);
+			if (tinted != null) {
+				sink.drawImage(tinted, x, y, size, size, -1);
+				return;
+			}
+		}
 		if (metrics.iconRotation != 0) {
 			sink.drawTextureRotated(texture, x + size / 2.0F, y + size / 2.0F, size, size,
 					(float) Math.toRadians(metrics.iconRotation), -1);

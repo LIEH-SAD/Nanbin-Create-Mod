@@ -95,10 +95,25 @@ public class BuildTools {
         if (minecraftVersion.equals("1.20.4")) {
             return "9.0.0"; // TODO latest version not working
         }
-        final String modIdString = "modmenu";
-        String modMenuVersion = new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split(".jar")[0].replace(modIdString + "-", "");
-        System.out.println("ModMenu version: " + modMenuVersion);
-        return modMenuVersion;
+        try {
+            final String modIdString = "modmenu";
+            String modMenuVersion = new ModId(modIdString, ModProvider.MODRINTH).getModFiles(minecraftVersion, ModLoader.FABRIC, "").get(0).fileName.split(".jar")[0].replace(modIdString + "-", "");
+            System.out.println("ModMenu version: " + modMenuVersion);
+            return modMenuVersion;
+        } catch (Exception e) {
+            // Modrinth 接口被限流/离线时用本地 Gradle 缓存里已有的版本，避免整次构建失败
+            final String fallbackVersion;
+            switch (minecraftVersion) {
+                case "1.16.5": fallbackVersion = "1.16.23"; break;
+                case "1.17.1": fallbackVersion = "2.0.17"; break;
+                case "1.18.2": fallbackVersion = "3.2.5"; break;
+                case "1.19.2": fallbackVersion = "4.2.0-beta.2"; break;
+                case "1.19.4": fallbackVersion = "6.3.1"; break;
+                default: fallbackVersion = "7.2.2"; break;
+            }
+            System.out.println("ModMenu version: " + fallbackVersion + " (fallback)");
+            return fallbackVersion;
+        }
     }
 
     public String getFiltersVersion() {

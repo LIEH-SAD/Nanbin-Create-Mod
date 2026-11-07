@@ -8,6 +8,7 @@ import org.mtr.mapping.holder.BlockPos;
 import org.mtr.mapping.holder.ClientWorld;
 import org.mtr.mapping.holder.Identifier;
 import org.mtr.mapping.holder.MinecraftClient;
+import org.mtr.mapping.holder.MutableText;
 import org.mtr.mapping.mapper.ResourceManagerHelper;
 import org.mtr.mod.Init;
 import org.mtr.mod.client.CustomResourceLoader;
@@ -45,11 +46,17 @@ public final class CRTSignRegistry {
 	public static final String SURFACE_CRT = "crt";
 
 	private static final Identifier SIGNS_ID = new Identifier("nanbin", "crt_signs.json");
+	/** 旧文件名（重命名前）：继续支持旧追加包。 */
+	private static final Identifier LEGACY_SIGNS_ID = new Identifier("nanbin", "signs.json");
 	/** 本 mod 方块类的包名前缀，用于识别「CRT 类导视」。 */
 	private static final String NANBIN_BLOCK_PACKAGE_PREFIX = "com.Nanbin.";
 
 	private static final Map<String, SignResource> SIGNS = new LinkedHashMap<>();
 	private static final Map<String, Set<String>> WHITELISTS = new LinkedHashMap<>();
+	/** 代码内置的 27 个基础图标 id（与编辑器网页图标一一对应）。 */
+	private static final Set<String> BUILT_IN_IDS = new LinkedHashSet<>();
+	/** 所有从 signs JSON（旧单文件或追加包目录）加载的 id。 */
+	private static final Set<String> JSON_IDS = new LinkedHashSet<>();
 
 	private CRTSignRegistry() {
 	}
@@ -59,20 +66,41 @@ public final class CRTSignRegistry {
 		SIGNS.clear();
 		WHITELISTS.clear();
 		SignTextStyleConfig.clear();
+		BUILT_IN_IDS.clear();
+		JSON_IDS.clear();
 
-		// 与编辑器网页图标一一对应的内置图标：定义已从 crt_signs.json 合并进代码
+		// 1) 与编辑器网页图标一一对应的内置图标：定义已从 crt_signs.json 合并进代码（永远可用）
 		try {
-			loadSigns(JsonParser.parseString(CRTBuiltInSignIcons.JSON));
+			loadSigns(JsonParser.parseString(CRTBuiltInSignIcons.JSON), true, false);
 		} catch (Exception e) {
 			Init.LOGGER.error("Failed to load built-in CRT sign icons", e);
 		}
 
-		// 其余标志（文字牌预设）仍从 crt_signs.json 读取
+		// 2) 旧格式单文件：资源包可覆盖/追加（assets/nanbin/crt_signs.json，多包会合并）
 		ResourceManagerHelper.readAllResources(SIGNS_ID, inputStream -> {
 			try {
-				loadSigns(Config.readResource(inputStream));
+				loadSigns(Config.readResource(inputStream), false, false);
 			} catch (Exception e) {
 				Init.LOGGER.error("Failed to load custom railway signs from {}", SIGNS_ID, e);
+			}
+		});
+
+		// 2b) 旧文件名兼容：assets/nanbin/signs.json（重命名前的追加包）
+		ResourceManagerHelper.readAllResources(LEGACY_SIGNS_ID, inputStream -> {
+			try {
+				loadSigns(Config.readResource(inputStream), false, false);
+			} catch (Exception e) {
+				Init.LOGGER.error("Failed to load legacy railway signs from {}", LEGACY_SIGNS_ID, e);
+			}
+		});
+
+		// 3) 追加包目录：任意命名空间的 assets/<namespace>/crt_signs/*.json
+		//    （不声明 whitelist 时默认启用 crt，方便第三方追加包直接使用）
+		ResourceManagerHelper.readDirectory("crt_signs", (identifier, inputStream) -> {
+			try {
+				loadSigns(Config.readResource(inputStream), false, true);
+			} catch (Exception e) {
+				Init.LOGGER.error("Failed to load CRT sign add-on pack {}", identifier, e);
 			}
 		});
 
@@ -81,7 +109,7 @@ public final class CRTSignRegistry {
 	}
 
 	/** 解析一份 signs JSON（结构同 crt_signs.json），把标志写进注册表。 */
-	private static void loadSigns(JsonElement element) {
+	private static void loadSigns(JsonElement element, boolean builtIn, boolean defaultCrtWhitelist) {
 		final JsonReader reader = new JsonReader(element);
 		reader.iterateReaderArray("signs", () -> {
 		}, signReader -> {
@@ -93,8 +121,16 @@ public final class CRTSignRegistry {
 					whitelist.add(value.trim().toLowerCase(Locale.ROOT));
 				}
 			});
+			if (defaultCrtWhitelist && whitelist.isEmpty()) {
+				whitelist.add(SURFACE_CRT);
+			}
 			SIGNS.put(sign.signId, sign);
 			WHITELISTS.put(sign.signId, whitelist);
+			if (builtIn) {
+				BUILT_IN_IDS.add(sign.signId);
+			} else {
+				JSON_IDS.add(sign.signId);
+			}
 			// 自定义文字样式（MTR 不识别这些键，只由本 mod 使用）
 			SignTextStyleConfig.put(sign.signId, new SignTextStyle(
 					SignTextStyleConfig.parseColor(signReader.getString("textColor", "")),
@@ -102,6 +138,49 @@ public final class CRTSignRegistry {
 					signReader.getBoolean("textBold", false)
 			));
 		});
+	}
+
+	/** 所有已加载的标志 id（内置 + 旧单文件 + 追加包），按字母序。 */
+	public static List<String> getAllSignIds() {
+		final List<String> ids = new ArrayList<>(SIGNS.keySet());
+		Collections.sort(ids);
+		return ids;
+	}
+
+	/** 从 signs JSON（旧单文件或追加包）加载、且不在代码内置表里的额外标志 id。 */
+	public static List<String> getExtraSignIds() {
+		final List<String> ids = new ArrayList<>();
+		for (final String signId : JSON_IDS) {
+			if (!BUILT_IN_IDS.contains(signId)) {
+				ids.add(signId);
+			}
+		}
+		Collections.sort(ids);
+		return ids;
+	}
+
+	/** 追加包标志在编辑器里的显示名：优先用 SignResource 的自定义文字，否则用 id 美化。 */
+	public static String getSignLabel(String signId) {
+		final SignResource sign = getSign(signId);
+		if (sign != null) {
+			try {
+				final MutableText text = sign.getCustomText();
+				if (text != null) {
+					final String value = text.getString();
+					if (value != null && !value.trim().isEmpty()) {
+						return value.trim();
+					}
+				}
+			} catch (Exception ignored) {
+			}
+		}
+		String label = signId == null ? "" : signId;
+		if (label.startsWith("crt_")) {
+			label = label.substring(4);
+		} else if (label.startsWith("nanbin_")) {
+			label = label.substring(7);
+		}
+		return label.replace('_', ' ');
 	}
 
 	/** crt_signs.json / 内置表里的标志；不存在时返回 null。 */

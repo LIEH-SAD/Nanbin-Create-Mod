@@ -551,5 +551,10 @@
   "gui.nanbin.crt_editor.thumb.route_info": "号线/Line",
   "gui.nanbin.crt_editor.field.route_info_hint": "线路颜色与编号直接取 MTR 数据：在下方「MTR 数据绑定」选择多条线路即可。",
   "gui.nanbin.crt_editor.field.route_info_label_zh": "标签中文",
-  "gui.nanbin.crt_editor.field.route_info_label_en": "标签英文"
+  "gui.nanbin.crt_editor.field.route_info_label_en": "标签英文",
+  "gui.nanbin.config.dark_mode": "深色模式",
+  "gui.nanbin.crt_editor.category.addon_signs": "追加包标志",
+  "gui.nanbin.crt_editor.field.icon_color": "图标颜色",
+  "gui.nanbin.crt_editor.field.icon_color_hint": "把图标贴图的线条/矢量部分改成所选颜色；留空/透明则保持原贴图。",
+  "gui.nanbin.crt_editor.canvas.icon_tip": "图标：%s（点击选中，拖动排序）"
 }

@@ -199,6 +199,9 @@ public final class CRTSignElement {
 	public String icon = "elevator";
 	/** 图标旋转角度：-90 / 0 / 90 / 180。 */
 	public int rotation = 0;
+	/** 图标重着色（把贴图的矢量部分替换成该颜色）；null = 保持原贴图颜色。 */
+	@Nullable
+	public Integer iconColor;
 
 	// ─── MTR 数据绑定（本 mod 扩展） ──────────────────────────────────
 
@@ -243,6 +246,7 @@ public final class CRTSignElement {
 		widthRatio = 0.5F;
 		icon = "elevator";
 		rotation = 0;
+		iconColor = null;
 		showArrow = true;
 		binding = DataBinding.NONE;
 		bindingIds.clear();
@@ -310,9 +314,17 @@ public final class CRTSignElement {
 		}
 	}
 
-	/** 复制一份（深拷贝，剪贴板/撤销用）。 */
+	/** 复制一份（深拷贝，剪贴板/撤销用）；JSON 往返异常时回退到按类型重建，绝不返回 null。 */
 	public CRTSignElement copy() {
-		final CRTSignElement copy = fromJson(toJson());
+		CRTSignElement copy = null;
+		try {
+			copy = fromJson(toJson());
+		} catch (Throwable ignored) {
+		}
+		if (copy == null) {
+			final CRTSignElementType safeType = type == null ? CRTSignElementType.SPACE : type;
+			copy = new CRTSignElement(safeType);
+		}
 		copy.id = newId();
 		return copy;
 	}
@@ -402,6 +414,9 @@ public final class CRTSignElement {
 			case ICON:
 				props.addProperty("icon", icon);
 				props.addProperty("rotation", rotation);
+				if (iconColor != null) {
+					props.addProperty("iconColor", String.format(java.util.Locale.ROOT, "#%08X", iconColor));
+				}
 				break;
 			default:
 				break;
@@ -543,6 +558,7 @@ public final class CRTSignElement {
 				result.icon = getString(props, "icon", "elevator");
 				final int rotation = getInt(props, "rotation", 0);
 				result.rotation = rotation == -90 || rotation == 0 || rotation == 90 || rotation == 180 ? rotation : 0;
+				result.iconColor = parseColorNullable(getString(props, "iconColor", ""));
 				break;
 			default:
 				break;

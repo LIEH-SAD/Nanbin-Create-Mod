@@ -148,8 +148,9 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 							// 车站上下文用于出口信息条（EXIT_INFO）的目的地查询；坐标查询有 2 秒缓存
 							final CRTSignDataResolver layoutData = new CRTSignDataResolver(entity::getRouteNumber,
 									ClientPacketHelper.findStationForSelectionCached(pos));
-							final JSSignTextureBaker.Baked baked = CRTJsLayoutBake.isJsStyle(layout)
-									? CRTJsLayoutBake.bake(layout, layoutData, "crt_layout:" + pos.toShortString(), signLayoutJson.hashCode(), facing)
+							final boolean jsStyle = CRTJsLayoutBake.isJsStyle(layout);
+							final JSSignTextureBaker.Baked baked = jsStyle
+									? CRTJsLayoutBake.bake(layout, layoutData, "crt_layout:" + pos.toShortString(), signLayoutJson.hashCode(), facing, signIds == null ? 0 : signIds.length)
 									: CRTSignLayoutPainter.bake(layout, layoutData, "crt_layout:" + pos.toShortString(), signLayoutJson.hashCode());
 							if (baked != null) {
 								final float plateWidth = 0.5F * (float) signIds.length;
@@ -170,6 +171,20 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 								MainRenderer.scheduleRender(baked.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 									storedMatrixTransformations.transform(graphicsHolderNew, offset);
 									IDrawing.drawTexture(graphicsHolderNew, drawX, drawY, drawWidth, drawHeight, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
+									graphicsHolderNew.pop();
+								});
+								graphicsHolder.pop();
+								return;
+							}
+
+							if (jsStyle) {
+								// JS 样式烘焙失败：不回退到旧格子渲染（否则会与编辑器预览不一致），只画牌面底色
+								final float plateWidth = 0.5F * (float) signIds.length;
+								final float plateHeight = 0.5F;
+								final int layoutBackground = layout.backgroundColor | 0xFF000000;
+								MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+									storedMatrixTransformations.transform(graphicsHolderNew, offset);
+									IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, plateWidth, plateHeight, 0.003125F, facing, layoutBackground, GraphicsHolder.getDefaultLight());
 									graphicsHolderNew.pop();
 								});
 								graphicsHolder.pop();

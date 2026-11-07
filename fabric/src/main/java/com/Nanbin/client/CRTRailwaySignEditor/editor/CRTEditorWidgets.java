@@ -143,17 +143,11 @@ public final class CRTEditorWidgets {
 		}
 
 		public int textWidth(@Nullable String text) {
-			if (text == null || text.isEmpty()) {
-				return 0;
-			}
-			return GraphicsHolder.getTextWidth(text);
+			return CRTEditorFont.width(text, 1.0F);
 		}
 
 		public int textWidth(@Nullable TextRenderer renderer, @Nullable String text) {
-			if (text == null || text.isEmpty()) {
-				return 0;
-			}
-			return renderer == null ? textWidth(text) : renderer.getWidth(text);
+			return CRTEditorFont.width(text, 1.0F);
 		}
 
 		public void fill(int x1, int y1, int x2, int y2, int color) {
@@ -247,10 +241,7 @@ public final class CRTEditorWidgets {
 		}
 
 		public void text(@Nullable String text, int x, int y, int color) {
-			if (graphics == null || text == null || text.isEmpty()) {
-				return;
-			}
-			graphics.drawText(text, x, y, color, false, GraphicsHolder.getDefaultLight());
+			CRTEditorFont.draw(graphics, text, x, y, 1.0F, color);
 		}
 
 		public void textCentered(@Nullable String text, int centerX, int y, int color) {
@@ -261,50 +252,36 @@ public final class CRTEditorWidgets {
 			text(text, right - textWidth(text), y, color);
 		}
 
-		/** 单行裁剪绘制（超宽用省略号不必要，直接 trim 到宽度）。 */
+		/** 单行裁剪绘制（超宽直接 trim 到宽度，不加省略号）。 */
 		public void textClipped(@Nullable String text, int x, int y, int maxWidth, int color) {
 			if (graphics == null || text == null || text.isEmpty() || maxWidth <= 0) {
 				return;
 			}
-			final TextRenderer renderer = textRenderer;
-			final String clipped = renderer == null ? text : renderer.trimToWidth(text, maxWidth);
-			text(clipped, x, y, color);
+			text(CRTEditorFont.trimToWidth(text, 1.0F, maxWidth), x, y, color);
 		}
 
 		public void textCenteredClipped(@Nullable String text, int centerX, int y, int maxWidth, int color) {
 			if (graphics == null || text == null || maxWidth <= 0) {
 				return;
 			}
-			final TextRenderer renderer = textRenderer;
-			final String clipped = renderer == null ? text : renderer.trimToWidth(text, Math.max(0, maxWidth - 2));
-			textCentered(clipped, centerX, y, color);
+			textCentered(CRTEditorFont.trimToWidth(text, 1.0F, Math.max(0, maxWidth - 2)), centerX, y, color);
 		}
 
 		/** 缩放绘制文字（卡片图标、画布内元素文字用）。 */
 		public void scaledText(@Nullable String text, int x, int y, float scale, int color) {
-			if (graphics == null || text == null || text.isEmpty() || scale <= 0.0F) {
-				return;
-			}
-			graphics.push();
-			graphics.translate(x, y, 0);
-			graphics.scale(scale, scale, 1.0F);
-			graphics.drawText(text, 0, 0, color, false, GraphicsHolder.getDefaultLight());
-			graphics.pop();
+			CRTEditorFont.draw(graphics, text, x, y, scale, color);
 		}
 
 		public int scaledTextWidth(@Nullable String text, float scale) {
-			return Math.round(textWidth(text) * scale);
+			return Math.round(CRTEditorFont.width(text, scale));
 		}
 
-		/** 缩放绘制 + 宽度裁剪（用于面板标题/分组标题等可能超长的文字）。 */
+		/** 缩放绘制 + 宽度裁剪（用于面板标题 / 分组标题等可能超长的文字）。 */
 		public void scaledTextClipped(@Nullable String text, int x, int y, int maxWidth, float scale, int color) {
 			if (graphics == null || text == null || text.isEmpty() || maxWidth <= 0 || scale <= 0.0F) {
 				return;
 			}
-			final TextRenderer renderer = textRenderer;
-			final int allowed = Math.max(1, Math.round(maxWidth / scale));
-			final String clipped = renderer == null ? text : renderer.trimToWidth(text, allowed);
-			scaledText(clipped, x, y, scale, color);
+			scaledText(CRTEditorFont.trimToWidth(text, scale, maxWidth), x, y, scale, color);
 		}
 
 		/** 缩放绘制 + 居中 + 宽度裁剪。 */
@@ -312,9 +289,7 @@ public final class CRTEditorWidgets {
 			if (graphics == null || text == null || text.isEmpty() || maxWidth <= 0 || scale <= 0.0F) {
 				return;
 			}
-			final TextRenderer renderer = textRenderer;
-			final int allowed = Math.max(1, Math.round(maxWidth / scale));
-			final String clipped = renderer == null ? text : renderer.trimToWidth(text, allowed);
+			final String clipped = CRTEditorFont.trimToWidth(text, scale, Math.max(0, maxWidth - 2));
 			scaledText(clipped, centerX - scaledTextWidth(clipped, scale) / 2, y, scale, color);
 		}
 
@@ -483,7 +458,7 @@ public final class CRTEditorWidgets {
 					fg = selected || hover ? CRTEditorTheme.ACCENT : CRTEditorTheme.TEXT_DIM;
 					break;
 				case DASHED:
-					bg = hover ? 0xFFFFFFFF : 0xB8FFFFFF;
+					bg = hover ? CRTEditorTheme.CARD_BG_HOVER : CRTEditorTheme.CARD_BG;
 					border = hover ? CRTEditorTheme.ACCENT : 0xFFB6C0CC;
 					fg = hover ? CRTEditorTheme.ACCENT : CRTEditorTheme.TEXT_DIM;
 					break;
@@ -577,7 +552,7 @@ public final class CRTEditorWidgets {
 					c.fill(x + 4 + i, boxY + 7 - i, x + 5 + i, boxY + 9 - i, 0xFFFFFFFF);
 				}
 			} else {
-				c.fillRoundBordered(x, boxY, 11, 11, 2.5F, hover ? CRTEditorTheme.BUTTON_BG_HOVER : 0xFFFFFFFF, hover ? CRTEditorTheme.ACCENT : CRTEditorTheme.BORDER);
+				c.fillRoundBordered(x, boxY, 11, 11, 2.5F, hover ? CRTEditorTheme.BUTTON_BG_HOVER : CRTEditorTheme.CONTROL_BG, hover ? CRTEditorTheme.ACCENT : CRTEditorTheme.BORDER);
 			}
 			c.textClipped(label, x + 16, y + (h - FONT_HEIGHT) / 2 + 1, Math.max(0, w - 16), enabled ? CRTEditorTheme.TEXT : CRTEditorTheme.BUTTON_DISABLED_TEXT);
 			hoverTooltip(c);
@@ -1357,6 +1332,70 @@ public final class CRTEditorWidgets {
 			final int maxVisible = Math.min(options.size(), 10);
 			popupScroll = clamp(popupScroll - (int) Math.signum(amount), 0, Math.max(0, options.size() - maxVisible));
 			return true;
+		}
+	}
+
+
+	/**
+	 * 内联色板：直接把预设颜色排成两行展示，点击立即生效；用于颜色选择器下方，
+	 * 避免“点开色板后色板在面板下方看不见、以为不能选色”的问题。
+	 */
+	public static final class SwatchRow extends Widget {
+		private static final int COLUMNS = 6;
+		private static final int CELL = 14;
+		private static final int CELL_GAP = 4;
+		private final java.util.function.Supplier<Integer> getter;
+		private final java.util.function.IntConsumer setter;
+
+		public SwatchRow(java.util.function.Supplier<Integer> getter, java.util.function.IntConsumer setter) {
+			super(0, 0);
+			this.getter = getter;
+			this.setter = setter;
+		}
+
+		@Override
+		public int getHeight() {
+			final int rows = (PALETTE_COLORS.length + COLUMNS - 1) / COLUMNS;
+			return rows * (CELL + CELL_GAP);
+		}
+
+		@Override
+		public void render(Ctx c) {
+			if (!visible) {
+				return;
+			}
+			final Integer value = getter.get();
+			for (int i = 0; i < PALETTE_COLORS.length; i++) {
+				final int column = i % COLUMNS;
+				final int row = i / COLUMNS;
+				final int sx = x + column * (CELL + CELL_GAP);
+				final int sy = y + row * (CELL + CELL_GAP);
+				final int color = PALETTE_COLORS[i];
+				final boolean active = value != null && (value & 0xFFFFFF) == (color & 0xFFFFFF);
+				final boolean hover = enabled && c.mouseX >= sx && c.mouseX < sx + CELL && c.mouseY >= sy && c.mouseY < sy + CELL;
+				c.fillRoundBordered(sx, sy, CELL, CELL, 3.0F, color, active || hover ? CRTEditorTheme.ACCENT : 0xFFB9C1CB);
+				if (hover) {
+					c.setTooltip(PALETTE_NAMES[i] + " " + toHex(color));
+				}
+			}
+		}
+
+		@Override
+		public boolean mouseClicked(Ctx c, double mouseX, double mouseY, int button) {
+			if (button != 0 || !enabled) {
+				return false;
+			}
+			for (int i = 0; i < PALETTE_COLORS.length; i++) {
+				final int column = i % COLUMNS;
+				final int row = i / COLUMNS;
+				final int sx = x + column * (CELL + CELL_GAP);
+				final int sy = y + row * (CELL + CELL_GAP);
+				if (mouseX >= sx && mouseX < sx + CELL && mouseY >= sy && mouseY < sy + CELL) {
+					setter.accept(PALETTE_COLORS[i]);
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 
