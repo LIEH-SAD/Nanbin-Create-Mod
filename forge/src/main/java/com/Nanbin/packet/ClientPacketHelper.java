@@ -36,11 +36,52 @@ public final class ClientPacketHelper {
                 openRailwaySignWallScreen(world, blockPos, state);
                 return;
             }
+            if (state.getBlock().data instanceof com.Nanbin.Registry.RegBlock.BlockCRTRailwaySign) {
+                openCRTSignScreen(world, blockPos);
+                return;
+            }
         }
         openRailwaySignScreen(blockPos);
     }
 
-    // 墙挂指示牌：任意一格用刷子打开整条牌的编辑器，内容按格拼成一行。
+    /**
+     * 打开 CRT 铁路指示牌的自由布局编辑器（{@link CRTSignEditorScreen}，网页编辑器风格）。
+     *
+     * <p>数据流：方块实体 NBT 里的 {@code crt_sign_layout} JSON → 布局模型 → 编辑器；
+     * 保存走 {@link PacketUpdateCRTSignLayout}。旧存档没有布局时先用 signIds 自动转一份
+     * （关闭时若不修改则不回写，世界渲染继续走旧格子渲染，外观不变）。</p>
+     */
+    public static void openCRTSignScreen(org.mtr.mapping.holder.ClientWorld world, BlockPos blockPos) {
+        final org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(blockPos);
+        if (blockEntity != null && blockEntity.data instanceof org.mtr.mod.block.BlockRailwaySign.BlockEntity) {
+            final org.mtr.mod.block.BlockRailwaySign.BlockEntity entity = (org.mtr.mod.block.BlockRailwaySign.BlockEntity) blockEntity.data;
+            final java.util.function.LongFunction<String> routeNumberGetter;
+            final String savedLayoutJson;
+            if (entity instanceof com.Nanbin.Registry.RegBlock.BlockCRTRailwaySign.BlockEntityCRTRailwaySign) {
+                final com.Nanbin.Registry.RegBlock.BlockCRTRailwaySign.BlockEntityCRTRailwaySign crtEntity = (com.Nanbin.Registry.RegBlock.BlockCRTRailwaySign.BlockEntityCRTRailwaySign) entity;
+                routeNumberGetter = crtEntity::getRouteNumber;
+                savedLayoutJson = crtEntity.getSignLayout();
+            } else {
+                routeNumberGetter = color -> "";
+                savedLayoutJson = "";
+            }
+            final boolean hasSavedLayout = savedLayoutJson != null && !savedLayoutJson.isEmpty();
+            com.Nanbin.signage.crt.CRTSignLayout layout = hasSavedLayout ? com.Nanbin.signage.crt.CRTSignLayout.fromJson(savedLayoutJson) : null;
+            if (layout == null) {
+                layout = com.Nanbin.client.signage.CRTSignLegacyImporter.convert(entity.getSignIds(), entity.getSelectedIds(), routeNumberGetter);
+            }
+            final com.Nanbin.client.signage.CRTSignDataResolver data = new com.Nanbin.client.signage.CRTSignDataResolver(routeNumberGetter);
+            final String baselineJson = hasSavedLayout ? savedLayoutJson : layout.toJson();
+            final CRTSignEditorHost host = new CRTSignEditorHostImpl(blockPos, baselineJson);
+            final CRTSignEditorScreen screen = new CRTSignEditorScreen(null, blockPos, layout, data, host);
+            openScreen(screen, screenExtension -> screenExtension instanceof CRTSignEditorScreen);
+            return;
+        }
+        // 兜底：实体类型不符时仍用原版界面，避免刷子点击没有任何反应
+        openRailwaySignScreen(blockPos);
+    }
+
+    /** 墙挂指示牌：任意一格用刷子打开整条牌的编辑器；布局存在整条牌的起始方块实体上。 */
     public static void openRailwaySignWallScreen(org.mtr.mapping.holder.ClientWorld world, BlockPos blockPos, org.mtr.mapping.holder.BlockState state) {
         final org.mtr.mapping.holder.BlockView view = org.mtr.mapping.holder.BlockView.cast(world);
         final BlockPos start = BlockCRTRailwaySignWall1.findStart(view, blockPos, state);
@@ -48,10 +89,12 @@ public final class ClientPacketHelper {
         if (run.isEmpty()) {
             return;
         }
-        // 每个方块两格内容：编辑器按格展开，长度 = 方块数 × 2
+        // 每个方块两格内容：旧数据转换时按格展开，长度 = 方块数 × 2
         final int cellsPerBlock = BlockCRTRailwaySignWall1.CELLS_PER_BLOCK;
         final String[] cells = new String[run.size() * cellsPerBlock];
         final LongAVLTreeSet selectedIds = new LongAVLTreeSet();
+        java.util.function.LongFunction<String> routeNumberGetter = color -> "";
+        String savedLayoutJson = "";
         for (int i = 0; i < run.size(); i++) {
             final BlockCRTRailwaySignWall1.BlockEntity entity = BlockCRTRailwaySignWall1.getBlockEntity(view, run.get(i));
             if (entity != null) {
@@ -59,13 +102,22 @@ public final class ClientPacketHelper {
                     cells[i * cellsPerBlock + j] = entity.getSignId(j);
                 }
                 selectedIds.addAll(entity.getSelectedIds());
+                if (i == 0) {
+                    routeNumberGetter = entity::getRouteNumber;
+                    savedLayoutJson = entity.getSignLayout();
+                }
             }
         }
-        final String[][] splitCells = new String[][]{cells};
-        final List<LongAVLTreeSet> lineSelectedIds = new ArrayList<>();
-        lineSelectedIds.add(selectedIds);
-        final RailwaySignDoubleScreen screen = new RailwaySignDoubleScreen(start, 1, cells.length, splitCells, lineSelectedIds, true, () -> Registry.sendPacketToServer(new PacketUpdateRailwaySignWallData1(start, splitCells[0], selectedIds)));
-        openScreen(screen, screenExtension -> screenExtension instanceof RailwaySignDoubleScreen);
+        final boolean hasSavedLayout = savedLayoutJson != null && !savedLayoutJson.isEmpty();
+        com.Nanbin.signage.crt.CRTSignLayout layout = hasSavedLayout ? com.Nanbin.signage.crt.CRTSignLayout.fromJson(savedLayoutJson) : null;
+        if (layout == null) {
+            layout = com.Nanbin.client.signage.CRTSignLegacyImporter.convert(cells, selectedIds, routeNumberGetter);
+        }
+        final com.Nanbin.client.signage.CRTSignDataResolver data = new com.Nanbin.client.signage.CRTSignDataResolver(routeNumberGetter);
+        final String baselineJson = hasSavedLayout ? savedLayoutJson : layout.toJson();
+        final CRTSignEditorHost host = new CRTSignEditorHostImpl(start, baselineJson);
+        final CRTSignEditorScreen screen = new CRTSignEditorScreen(null, start, layout, data, host);
+        openScreen(screen, screenExtension -> screenExtension instanceof CRTSignEditorScreen);
     }
 
     public static void openRailwaySignScreen(BlockPos blockPos) {
@@ -143,7 +195,7 @@ public final class ClientPacketHelper {
     }
 
     /** 打开 StationInfo 专用的双行指示牌编辑器（2 行 × 8 格）。 */
-    public static void openRailwaySignDoubleScreen(BlockPos blockPos, boolean isFront) {
+    public static void openCRTSignDoubleScreen(BlockPos blockPos, boolean isFront) {
         final org.mtr.mapping.holder.ClientWorld world = MinecraftClient.getInstance().getWorldMapped();
         if (world == null) {
             return;
@@ -177,7 +229,7 @@ public final class ClientPacketHelper {
         final boolean hasData = blockEntity != null;
         final String[][] finalSignIds = signIds;
         final List<LongAVLTreeSet> finalSelectedIds = selectedIds;
-        openScreen(new RailwaySignDoubleScreen(blockPos, lines, length, finalSignIds, finalSelectedIds, hasData, () -> Registry.sendPacketToServer(new PacketUpdateStationInfoSignData(blockPos, finalSignIds, finalSelectedIds, isFront))), screen -> screen instanceof RailwaySignDoubleScreen);
+        openScreen(new CRTSignDoubleScreen(blockPos, lines, length, finalSignIds, finalSelectedIds, hasData, () -> Registry.sendPacketToServer(new PacketUpdateStationInfoSignData(blockPos, finalSignIds, finalSelectedIds, isFront))), screen -> screen instanceof CRTSignDoubleScreen);
     }
 
     public static void openScreen(ScreenExtension screenExtension, Predicate<ScreenExtension> isInstance) {

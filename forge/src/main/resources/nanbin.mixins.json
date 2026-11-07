@@ -6,7 +6,7 @@
   "mixins": [
   ],
   "client": [
-    "CustomResourceLoaderMixin",
+    "CRTSignLoaderMixin",
     "RailwaySignScreenMixin",
     "RenderRailwaySignMixin"
   ],

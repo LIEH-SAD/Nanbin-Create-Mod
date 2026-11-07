@@ -1,5 +1,6 @@
 package com.Nanbin.mixin;
 
+import com.Nanbin.client.ClientData.CRTSignRegistry;
 import com.Nanbin.client.ClientData.SignClipboard;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
 import com.Nanbin.client.Screen.CustomTextScreen;
@@ -9,6 +10,7 @@ import com.Nanbin.client.Screen.RailwaySignClearConfirmScreen;
 import com.Nanbin.uiHelper.NanbinHorizontalScrollBar;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import org.mtr.mapping.holder.*;
@@ -16,6 +18,7 @@ import org.mtr.mapping.mapper.ButtonWidgetExtension;
 import org.mtr.mapping.mapper.ScreenExtension;
 import org.mtr.mapping.mapper.TextHelper;
 import org.mtr.mod.InitClient;
+import org.mtr.mod.client.CustomResourceLoader;
 import org.mtr.mod.client.IDrawing;
 import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.packet.PacketUpdateRailwaySignConfig;
@@ -29,6 +32,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -102,6 +106,22 @@ public abstract class RailwaySignScreenMixin {
 		}
 	}
 
+	/**
+	 * 只在 CRT 类导视上追加 crt_signs.json 里的标志；原版 MTR 导视牌保持原版可选列表不变。
+	 *
+	 * <p>必须在 MTR 构造函数读取 {@code CustomResourceLoader.getSortedSignIds()} 的那一刻替换返回值：
+	 * MTR 紧接着会用 {@code allSignIds.size()} 分配 {@code buttonsSelection} 数组，
+	 * 在构造函数返回后再追加会让数组变短，{@code init2()} 一打开界面就数组越界。</p>
+	 */
+	@Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lorg/mtr/mod/client/CustomResourceLoader;getSortedSignIds()Lorg/mtr/libraries/it/unimi/dsi/fastutil/objects/ObjectArrayList;"))
+	private ObjectArrayList<String> nanbin$appendCrtSigns() {
+		final ObjectArrayList<String> signIds = CustomResourceLoader.getSortedSignIds();
+		if (CRTSignRegistry.isCrtSignPosition(signPos)) {
+			CRTSignRegistry.appendSignsFor(signIds, CRTSignRegistry.SURFACE_CRT);
+		}
+		return signIds;
+	}
+
 	@Inject(method = "setNewSignId", at = @At("HEAD"), cancellable = true)
 	private void nanbin$openRouteNumberSelector(String signId, CallbackInfo ci) {
 		// JS 样式已启用时整屏锁定，禁止修改格子内容
@@ -109,8 +129,8 @@ public abstract class RailwaySignScreenMixin {
 			ci.cancel();
 			return;
 		}
-		// 自定义文本指示牌：直接打开文本输入屏幕
-		if ("nanbin_custom_text".equals(signId) || "nanbin_custom_text_flipped".equals(signId)) {
+		// 自定义文本指示牌：直接打开文本输入屏幕（兼容历史遗留的 nanbin_custom_text1 等 id）
+		if (signId != null && signId.startsWith("nanbin_custom_text")) {
 			if (editingIndex < 0 || editingIndex >= signIds.length) {
 				return;
 			}

@@ -65,6 +65,11 @@ public final class JSSignTextureBaker {
 		}
 	}
 
+	/** 每世界单位烘焙的像素数（供其它烘焙管线计算贴图分辨率）。 */
+	public static float getPixelsPerWorldUnit() {
+		return PX_PER_WORLD;
+	}
+
 	/**
 	 * 取（必要时重烘焙）某块 JS 牌面的贴图。
 	 *
@@ -79,6 +84,33 @@ public final class JSSignTextureBaker {
 	 */
 	@Nullable
 	public static Baked bake(String signKey, long contentKey, float originX, float originY, float width, float height, Runnable painter) {
+		return bake(signKey, contentKey, originX, originY, width, height, 0.0F, painter);
+	}
+
+	/**
+	 * 同上，但允许调用方指定「每坐标单位烘焙多少像素」。
+	 *
+	 * <p>CRT 导视牌自由布局的坐标是「设计像素」，希望 1 设计像素 ≈ 1 贴图像素，
+	 * 因此传 {@code pxPerUnit = 1}（宽高也直接用设计像素），而不是 0 走世界单位自适应。
+	 * 传入 &lt;= 0 时行为与原方法完全一致（按 {@link #PX_PER_WORLD} 自适应）。</p>
+	 *
+	 * @param pxPerUnit 每坐标单位的烘焙像素数；&lt;= 0 表示按世界单位自动计算
+	 */
+	@Nullable
+	public static Baked bake(String signKey, long contentKey, float originX, float originY, float width, float height, float pxPerUnit, Runnable painter) {
+		return bake(signKey, contentKey, originX, originY, width, height, pxPerUnit, 0L, painter);
+	}
+
+	/**
+	 * 完整版：额外指定重烘焙间隔。
+	 *
+	 * <p>JS 脚本牌面有动画/时钟，需要每秒重烘；而 CRT 自由布局是静态内容，
+	 * 内容指纹不变时没必要每秒重烘（内容一变仍会立即重烘）。调用方按需传更大的间隔。</p>
+	 *
+	 * @param refreshMs 内容不变时的最长复用时间（毫秒）；&lt;= 0 表示默认 {@link #REFRESH_MS}
+	 */
+	@Nullable
+	public static Baked bake(String signKey, long contentKey, float originX, float originY, float width, float height, float pxPerUnit, long refreshMs, Runnable painter) {
 		if (width <= 0.0F || height <= 0.0F) {
 			return null;
 		}
@@ -86,8 +118,9 @@ public final class JSSignTextureBaker {
 		final long now = System.currentTimeMillis();
 		processPendingDestroy(now);
 
+		final long maxAge = refreshMs > 0L ? refreshMs : REFRESH_MS;
 		final Baked cached = CACHE.get(signKey);
-		if (cached != null && cached.contentKey == contentKey && now - cached.bakedAt < REFRESH_MS) {
+		if (cached != null && cached.contentKey == contentKey && now - cached.bakedAt < maxAge) {
 			return cached;
 		}
 
@@ -96,9 +129,16 @@ public final class JSSignTextureBaker {
 			return null;
 		}
 
-		float density = PX_PER_WORLD;
-		while (width * density > MAX_CANVAS_WIDTH && density > MIN_PX_PER_WORLD) {
-			density /= 2.0F;
+		final float density;
+		if (pxPerUnit > 0.0F) {
+			// 调用方指定分辨率（自由布局：1 设计像素 = 1 贴图像素）
+			density = pxPerUnit;
+		} else {
+			float autoDensity = PX_PER_WORLD;
+			while (width * autoDensity > MAX_CANVAS_WIDTH && autoDensity > MIN_PX_PER_WORLD) {
+				autoDensity /= 2.0F;
+			}
+			density = autoDensity;
 		}
 
 		final Canvas canvas = new Canvas(Math.max(1, Math.round(width * density)), Math.max(1, Math.round(height * density)), originX, originY, density);
@@ -250,6 +290,23 @@ public final class JSSignTextureBaker {
 		}
 
 		@Override
+		public void drawTextureFlipped(Identifier textureId, float x, float y, float width, float height, int color) {
+			if (width <= 0.0F || height <= 0.0F) {
+				return;
+			}
+			if (WHITE_TEXTURE.equals(textureId)) {
+				canvas.fillRect(x, y, width, height, color == -1 ? 0xFFFFFFFF : color);
+				return;
+			}
+			final NativeImage image = getImage(textureId);
+			if (image == null) {
+				complete = false;
+				return;
+			}
+			canvas.drawImageFlipped(image, x, y, width, height, color);
+		}
+
+		@Override
 		public void drawImage(NativeImage image, float x, float y, float width, float height, int color) {
 			if (width > 0.0F && height > 0.0F) {
 				canvas.drawImage(image, x, y, width, height, color);
@@ -262,6 +319,39 @@ public final class JSSignTextureBaker {
 				return;
 			}
 			canvas.fillRotatedRect(centerX, centerY, width, height, radians, color == -1 ? 0xFFFFFFFF : color);
+		}
+
+		@Override
+		public void fillRect(float x, float y, float width, float height, int color) {
+			if (width <= 0.0F || height <= 0.0F) {
+				return;
+			}
+			canvas.fillRect(x, y, width, height, color == -1 ? 0xFFFFFFFF : color);
+		}
+
+		@Override
+		public void fillPolygon(float[] xs, float[] ys, int color) {
+			if (xs == null || ys == null || xs.length < 3 || xs.length != ys.length) {
+				return;
+			}
+			canvas.fillPolygon(xs, ys, color == -1 ? 0xFFFFFFFF : color);
+		}
+
+		@Override
+		public void drawTextureRotated(Identifier textureId, float centerX, float centerY, float width, float height, float radians, int color) {
+			if (width <= 0.0F || height <= 0.0F) {
+				return;
+			}
+			if (WHITE_TEXTURE.equals(textureId)) {
+				canvas.fillRotatedRect(centerX, centerY, width, height, radians, color == -1 ? 0xFFFFFFFF : color);
+				return;
+			}
+			final NativeImage image = getImage(textureId);
+			if (image == null) {
+				complete = false;
+				return;
+			}
+			canvas.drawImageRotated(image, centerX, centerY, width, height, radians, color);
 		}
 	}
 
@@ -331,6 +421,33 @@ public final class JSSignTextureBaker {
 			}
 		}
 
+		/** 与 {@link #drawImage} 相同，但按贴图源水平镜像（flipTexture）。 */
+		private void drawImageFlipped(NativeImage image, float x, float y, float w, float h, int tint) {
+			final int sourceWidth = image.getWidth();
+			final int sourceHeight = image.getHeight();
+			if (sourceWidth <= 0 || sourceHeight <= 0) {
+				return;
+			}
+			final int x0 = toPixelX(x);
+			final int y0 = toPixelY(y);
+			final int x1 = toPixelX(x + w);
+			final int y1 = toPixelY(y + h);
+			final int destWidth = x1 - x0;
+			final int destHeight = y1 - y0;
+			if (destWidth <= 0 || destHeight <= 0) {
+				return;
+			}
+			final int tintAbgr = tint == -1 ? -1 : argbToAbgr(tint);
+			for (int py = Math.max(0, y0); py < Math.min(height, y1); py++) {
+				final int sourceY = (int) ((long) (py - y0) * sourceHeight / destHeight);
+				for (int px = Math.max(0, x0); px < Math.min(width, x1); px++) {
+					final int sourceX = sourceWidth - 1 - (int) ((long) (px - x0) * sourceWidth / destWidth);
+					final int color = image.getColor(sourceX, sourceY);
+					blendPixel(px, py, tintAbgr == -1 ? color : applyTint(color, tintAbgr));
+				}
+			}
+		}
+
 		private void fillRotatedRect(float centerX, float centerY, float w, float h, float radians, int argb) {
 			final float halfW = w * density / 2.0F;
 			final float halfH = h * density / 2.0F;
@@ -353,6 +470,110 @@ public final class JSSignTextureBaker {
 					if (Math.abs(localX) <= halfW + 0.5F && Math.abs(localY) <= halfH + 0.5F) {
 						blendPixel(px, py, abgr);
 					}
+				}
+			}
+		}
+
+		/** 实心多边形光栅化：扫描线交点 + 2×2 超采样做边缘抗锯齿（箭头元素用）。 */
+		private void fillPolygon(float[] xs, float[] ys, int argb) {
+			final int pointCount = xs.length;
+			if (pointCount < 3) {
+				return;
+			}
+			// 转换到画布像素坐标
+			final float[] pointX = new float[pointCount];
+			final float[] pointY = new float[pointCount];
+			float minX = Float.MAX_VALUE;
+			float minY = Float.MAX_VALUE;
+			float maxX = -Float.MAX_VALUE;
+			float maxY = -Float.MAX_VALUE;
+			for (int i = 0; i < pointCount; i++) {
+				pointX[i] = (xs[i] - originX) * density;
+				pointY[i] = (ys[i] - originY) * density;
+				minX = Math.min(minX, pointX[i]);
+				minY = Math.min(minY, pointY[i]);
+				maxX = Math.max(maxX, pointX[i]);
+				maxY = Math.max(maxY, pointY[i]);
+			}
+			final int x0 = Math.max(0, (int) Math.floor(minX));
+			final int y0 = Math.max(0, (int) Math.floor(minY));
+			final int x1 = Math.min(width, (int) Math.ceil(maxX));
+			final int y1 = Math.min(height, (int) Math.ceil(maxY));
+			final int baseAlpha = (argb >>> 24) & 0xFF;
+			final int rgb = argb & 0xFFFFFF;
+			final float[] sampleOffset = {0.25F, 0.75F};
+			for (int py = y0; py < y1; py++) {
+				for (int px = x0; px < x1; px++) {
+					int insideCount = 0;
+					for (final float offsetY : sampleOffset) {
+						for (final float offsetX : sampleOffset) {
+							if (insidePolygon(px + offsetX, py + offsetY, pointX, pointY)) {
+								insideCount++;
+							}
+						}
+					}
+					if (insideCount <= 0) {
+						continue;
+					}
+					final int alpha = baseAlpha * insideCount / 4;
+					if (alpha > 0) {
+						blendPixel(px, py, (alpha << 24) | rgb);
+					}
+				}
+			}
+		}
+
+		/** 奇偶规则点在多边形内判定。 */
+		private static boolean insidePolygon(float x, float y, float[] pointX, float[] pointY) {
+			boolean inside = false;
+			for (int i = 0, j = pointX.length - 1; i < pointX.length; j = i++) {
+				final boolean crosses = (pointY[i] > y) != (pointY[j] > y);
+				if (crosses) {
+					final float intersectX = (pointX[j] - pointX[i]) * (y - pointY[i]) / (pointY[j] - pointY[i]) + pointX[i];
+					if (x < intersectX) {
+						inside = !inside;
+					}
+				}
+			}
+			return inside;
+		}
+
+		/** 旋转贴图采样：目标像素中心逆旋转回贴图局部坐标后最近邻取样（图标 rotation 用）。 */
+		private void drawImageRotated(NativeImage image, float centerX, float centerY, float w, float h, float radians, int tint) {
+			final int sourceWidth = image.getWidth();
+			final int sourceHeight = image.getHeight();
+			if (sourceWidth <= 0 || sourceHeight <= 0) {
+				return;
+			}
+			final float centerPixelX = (centerX - originX) * density;
+			final float centerPixelY = (centerY - originY) * density;
+			final float halfWidth = w * density / 2.0F;
+			final float halfHeight = h * density / 2.0F;
+			if (halfWidth <= 0.0F || halfHeight <= 0.0F) {
+				return;
+			}
+			final float cos = (float) Math.cos(radians);
+			final float sin = (float) Math.sin(radians);
+			final float radius = (float) Math.sqrt(halfWidth * halfWidth + halfHeight * halfHeight) + 1.0F;
+			final int x0 = Math.max(0, (int) Math.floor(centerPixelX - radius));
+			final int x1 = Math.min(width, (int) Math.ceil(centerPixelX + radius));
+			final int y0 = Math.max(0, (int) Math.floor(centerPixelY - radius));
+			final int y1 = Math.min(height, (int) Math.ceil(centerPixelY + radius));
+			final int tintAbgr = tint == -1 ? -1 : argbToAbgr(tint);
+			for (int py = y0; py < y1; py++) {
+				final float dy = py + 0.5F - centerPixelY;
+				for (int px = x0; px < x1; px++) {
+					final float dx = px + 0.5F - centerPixelX;
+					// 逆旋转（正向 = SVG rotate 的顺时针）
+					final float localX = dx * cos + dy * sin;
+					final float localY = -dx * sin + dy * cos;
+					if (Math.abs(localX) > halfWidth || Math.abs(localY) > halfHeight) {
+						continue;
+					}
+					final int sourceX = Math.max(0, Math.min(sourceWidth - 1, (int) ((localX + halfWidth) / (2.0F * halfWidth) * sourceWidth)));
+					final int sourceY = Math.max(0, Math.min(sourceHeight - 1, (int) ((localY + halfHeight) / (2.0F * halfHeight) * sourceHeight)));
+					final int color = image.getColor(sourceX, sourceY);
+					blendPixel(px, py, tintAbgr == -1 ? color : applyTint(color, tintAbgr));
 				}
 			}
 		}

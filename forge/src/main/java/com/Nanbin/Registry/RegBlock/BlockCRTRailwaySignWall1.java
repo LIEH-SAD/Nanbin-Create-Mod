@@ -179,11 +179,15 @@ public class BlockCRTRailwaySignWall1 extends BlockExtension implements IBlock, 
         private static final String KEY_SELECTED_IDS = "selected_ids";
         private static final String KEY_ROUTE_COLORS = "wall_route_colors";
         private static final String KEY_ROUTE_NUMBERS = "wall_route_numbers";
+        /** 网页编辑器式的自由布局（JSON，存在整条牌的第一个方块实体上）；空串 = 继续用旧格子数据。 */
+        private static final String KEY_SIGN_LAYOUT = "crt_sign_layout";
 
         private final String[] signIds = new String[CELLS_PER_BLOCK];
         private final LongAVLTreeSet selectedIds = new LongAVLTreeSet();
         // 颜色 -> 线路编号；MTR 客户端数据只有 SimplifiedRoute，只能服务端解析后随 NBT 同步。
         private final Long2ObjectOpenHashMap<String> routeNumbers = new Long2ObjectOpenHashMap<>();
+        /** 自由布局 JSON。 */
+        private String signLayout = "";
 
         public BlockEntity(BlockPos pos, BlockState state) {
             super(BlockEntityTypes.CRT_RAILWAY_SIGN_WALL_1.get(), pos, state);
@@ -196,6 +200,17 @@ public class BlockCRTRailwaySignWall1 extends BlockExtension implements IBlock, 
 
         public LongAVLTreeSet getSelectedIds() {
             return selectedIds;
+        }
+
+        /** 自由布局 JSON；空 = 未使用新编辑器。 */
+        public String getSignLayout() {
+            return signLayout == null ? "" : signLayout;
+        }
+
+        /** 服务端写入自由布局并同步给客户端。 */
+        public void setSignLayout(String layoutJson) {
+            signLayout = layoutJson == null ? "" : layoutJson;
+            markDirty2();
         }
 
         public void copySelectedIds(LongAVLTreeSet ids) {
@@ -221,6 +236,7 @@ public class BlockCRTRailwaySignWall1 extends BlockExtension implements IBlock, 
         @Override
         public void readCompoundTag(CompoundTag compoundTag) {
             super.readCompoundTag(compoundTag);
+            signLayout = compoundTag.getString(KEY_SIGN_LAYOUT);
             for (int i = 0; i < CELLS_PER_BLOCK; i++) {
                 String signId = compoundTag.getString(KEY_SIGN_ID_PREFIX + i);
                 if (signId.isEmpty() && i == 0) {
@@ -246,6 +262,7 @@ public class BlockCRTRailwaySignWall1 extends BlockExtension implements IBlock, 
         @Override
         public void writeCompoundTag(CompoundTag compoundTag) {
             super.writeCompoundTag(compoundTag);
+            compoundTag.putString(KEY_SIGN_LAYOUT, signLayout == null ? "" : signLayout);
             for (int i = 0; i < CELLS_PER_BLOCK; i++) {
                 compoundTag.putString(KEY_SIGN_ID_PREFIX + i, signIds[i] == null ? "" : signIds[i]);
             }

@@ -1,7 +1,12 @@
 package com.Nanbin.client.Render;
 
 import com.Nanbin.Registry.RegBlock.BlockCRTRailwaySign;
+import com.Nanbin.client.Drawing.CRTSignDrawing;
+import com.Nanbin.client.Drawing.CRTSignLayoutPainter;
+import com.Nanbin.client.Drawing.CRTSignView;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
+import com.Nanbin.client.signage.CRTSignDataResolver;
+import com.Nanbin.signage.crt.CRTSignLayout;
 import com.Nanbin.client.Drawing.CustomFontTextureCache.FontType;
 import com.Nanbin.client.Drawing.FontRenderUtils;
 import com.Nanbin.client.Drawing.SignTextStyleConfig;
@@ -90,6 +95,9 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 			if (state.getBlock().data instanceof BlockRailwaySign) {
 				BlockRailwaySign block = (BlockRailwaySign)state.getBlock().data;
 				String[] signIds = entity.getSignIds();
+				// 先取自由布局：新编辑器创建的牌可能没有任何旧 signIds，此时不能因"全空"提前 return
+				final String signLayoutJson = entity.getSignLayout();
+				final CRTSignLayout layout = CRTSignLayout.fromJson(signLayoutJson);
 				if (signIds != null && signIds.length == block.length) {
 					// Skip rendering when all cells are empty
 					boolean allEmpty = true;
@@ -99,7 +107,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 							break;
 						}
 					}
-					if (allEmpty) {
+					if (allEmpty && layout == null) {
 						return;
 					}
 
@@ -122,18 +130,6 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 					final boolean isJSStyle = JSSignConfig.getStyleScriptId(signIds) != null;
 					hasAnyBackground = true;
 
-					Map<Long, String> routeNameByColor = new HashMap();
-
-					try {
-						ObjectBidirectionalIterator storedMatrixTransformations = MinecraftClientData.getInstance().simplifiedRoutes.iterator();
-
-						while(storedMatrixTransformations.hasNext()) {
-							SimplifiedRoute route = (SimplifiedRoute)storedMatrixTransformations.next();
-							routeNameByColor.put((long)route.getColor(), route.getName());
-						}
-					} catch (Exception var24) {
-					}
-
 					StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations((double)0.5F + (double)pos.getX(), (double)0.53125F + (double)pos.getY(), (double)0.5F + (double)pos.getZ());
 					storedMatrixTransformations.add((graphicsHolderNew) -> {
 						graphicsHolderNew.rotateYDegrees(-facing.asRotation());
@@ -145,6 +141,41 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 					graphicsHolder.rotateYDegrees(-facing.asRotation());
 					graphicsHolder.rotateZDegrees(180.0F);
 					graphicsHolder.translate((double)((float)block.getXStart() / 16.0F) - (double)0.5F, (double)0.0F, -0.06875000009313226);
+
+					// 自由布局（网页编辑器模型）：有布局数据时整块牌由布局绘制类烘焙成一张贴图来画
+					if (layout != null) {
+						try {
+							final JSSignTextureBaker.Baked baked = CRTSignLayoutPainter.bake(layout, new CRTSignDataResolver(entity::getRouteNumber), "crt_layout:" + pos.toShortString(), signLayoutJson.hashCode());
+							if (baked != null) {
+								final float plateWidth = 0.5F * (float) signIds.length;
+								final float plateHeight = 0.5F;
+								final float designWidth = Math.max(1.0F, baked.width);
+								final float designHeight = Math.max(1.0F, baked.height);
+								final float fitScale = Math.min(plateWidth / designWidth, plateHeight / designHeight);
+								final float drawWidth = designWidth * fitScale;
+								final float drawHeight = designHeight * fitScale;
+								final float drawX = (plateWidth - drawWidth) / 2.0F;
+								final float drawY = (plateHeight - drawHeight) / 2.0F;
+								final int layoutBackground = layout.backgroundColor | 0xFF000000;
+								MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+									storedMatrixTransformations.transform(graphicsHolderNew, offset);
+									IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, plateWidth, plateHeight, 0.003125F, facing, layoutBackground, GraphicsHolder.getDefaultLight());
+									graphicsHolderNew.pop();
+								});
+								MainRenderer.scheduleRender(baked.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+									storedMatrixTransformations.transform(graphicsHolderNew, offset);
+									IDrawing.drawTexture(graphicsHolderNew, drawX, drawY, drawWidth, drawHeight, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
+									graphicsHolderNew.pop();
+								});
+								graphicsHolder.pop();
+								return;
+							}
+						} catch (Throwable e) {
+							// 布局渲染失败时回退到旧格子渲染，不能让一块牌子把整个世界渲染搞崩
+							Init.LOGGER.warn("CRT sign layout render failed at {}, falling back to cell rendering", pos.toShortString(), e);
+						}
+					}
+
 					if (hasAnyBackground) {
 						int unifiedBg = 0;
 
@@ -184,26 +215,11 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 						renderJSStyleSign(styleScriptId, storedMatrixTransformations, pos, signIds, entity.getSelectedIds(), entity.getRouteNumbers(), facing, jsBackgroundColor, 0.5F, routeNumberMap);
 						graphicsHolder.pop();
 					} else {
-						int unifiedBg = 0;
-						for(int i = 0; i < signIds.length; ++i) {
-							if (signIds[i] != null && !signIds[i].isEmpty() && cellBackgroundColors[i] != 0) {
-								unifiedBg = cellBackgroundColors[i];
-								break;
-							}
-						}
-						final int globalBg = unifiedBg != 0 ? unifiedBg : 16777215;
-						for(int i = 0; i < signIds.length; ++i) {
-							if (signIds[i] != null && !isRouteNumberV2(signIds[i])) {
-								int cellBg = cellBackgroundColors[i] != 0 ? cellBackgroundColors[i] : 16777215;
-								drawSignCRT(graphicsHolder, storedMatrixTransformations, pos, signIds[i], 0.5F * (float)i, 0.0F, 0.5F, RenderRailwaySign.getMaxWidth(signIds, i, false), RenderRailwaySign.getMaxWidth(signIds, i, true), entity.getSelectedIds(), entity.getRouteNumbers(), facing, cellBg, (textureId, x, y, size, flipTexture) -> MainRenderer.scheduleRender(textureId, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
-									storedMatrixTransformations.transform(graphicsHolderNew, offset);
-									IDrawing.drawTexture(graphicsHolderNew, x, y, size, size, flipTexture ? 1.0F : 0.0F, 0.0F, flipTexture ? 0.0F : 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
-									graphicsHolderNew.pop();
-								}), false, signIds, globalBg);
-							}
-						}
-
-						renderRouteNumberV2Regions(storedMatrixTransformations, entity, signIds, facing, 0.5F, routeNameByColor, cellBackgroundColors);
+						// 非 JS 样式：底板已在上方画过，这里交给与界面预览共用的绘制类
+						final CRTSignView signView = new CRTSignView(signIds, entity.getSelectedIds(), entity.getRouteNumbers(), entity::getRouteNumber, null)
+								.geometry(0.5F, 0.5F, facing)
+								.cellOverrides(null, cellBackgroundColors);
+						CRTSignDrawing.draw(signView, graphicsHolder, storedMatrixTransformations, false);
 						graphicsHolder.pop();
 					}
 				} else {
@@ -219,22 +235,29 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 	public static void drawSignCRT(GraphicsHolder graphicsHolder, @Nullable StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String signId, float x, float y, float size, float cellWidth, float maxWidthLeft, float maxWidthRight, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, RenderRailwaySign.DrawTexture drawTexture, boolean transparentBlack, String[] signIds, int globalBgColor) {
 		SignResource sign = RenderRailwaySign.getSign(signId);
+		final JSDrawSink signSink = JSDrawSink.current();
 		if (sign != null) {
 			boolean isExit = signId.equals("exit_letter") || signId.equals("exit_letter_flipped");
 			boolean isLine = signId.equals("line") || signId.equals("line_flipped");
 			boolean isPlatform = signId.equals("platform") || signId.equals("platform_flipped");
 			// 格宽大于内容高时（如旧墙挂牌每格 1.0）非自定义文字贴图需在格内水平居中；一般情况 cellWidth == size，偏移为 0。
 			float centeredX = x + (cellWidth - size) / 2.0F;
-			if (storedMatrixTransformations == null) {
+			if (storedMatrixTransformations == null && signSink == null) {
 				RenderRailwaySign.drawSign(graphicsHolder, (StoredMatrixTransformations)null, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
 			} else if (!isExit && !isLine && !isPlatform) {
 				if (!sign.hasCustomText) {
-					RenderRailwaySign.drawSign(graphicsHolder, storedMatrixTransformations, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
+					if (signSink != null) {
+						// 画布模式（界面预览）：MTR 的 drawSign 会走 MainRenderer 调度，收不进画布
+						CRTSignDrawing.drawIconIntoCanvas(signSink, sign, x, cellWidth, y, size, backgroundColor);
+					} else {
+						RenderRailwaySign.drawSign(graphicsHolder, storedMatrixTransformations, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
+					}
 				} else {
 					boolean flipCustomText = sign.getFlipCustomText();
 					boolean isSmall = sign.getSmall();
 					boolean isStation = signId.equals("station") || signId.equals("station_flipped");
-					boolean isStationNameCRT = signId.equals("crt_station_name");
+					// crt_signs.json 里既有 crt_station_name 也有历史遗留的 crt_station_name1，都按站名处理
+					boolean isStationNameCRT = signId.startsWith("crt_station_name");
 					boolean isRouteNumber = signId.equals("crt_route_number") || signId.equals("crt_route_number_flipped");
 					boolean isJSSign = signId.startsWith("crt_js_");
 					boolean isStationBox = isStation && cellWidth > size;
@@ -271,6 +294,9 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 						}
 					}
 				}
+			} else if (signSink != null) {
+				// 画布模式：原版 MTR 特殊标志（出口字母 / 线路 / 站台）只画贴图，文字仍由 MTR 渲染
+				CRTSignDrawing.drawIconIntoCanvas(signSink, sign, x, cellWidth, y, size, backgroundColor);
 			} else {
 				RenderRailwaySign.drawSign(graphicsHolder, storedMatrixTransformations, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
 			}
@@ -278,7 +304,8 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 	}
 
 	private static String resolveSignText(String signId, SignResource sign, LongAVLTreeSet selectedIds, String[] routeNumbers, boolean isStation, boolean isRouteNumber) {
-		if (signId != null && (signId.equals("nanbin_custom_text") || signId.equals("nanbin_custom_text_flipped"))) {
+		// 自定义文字：crt_signs.json 里 id 既有 nanbin_custom_text，也有历史遗留的 nanbin_custom_text1 等
+		if (signId != null && signId.startsWith("nanbin_custom_text")) {
 			String customText = JSSignEngine.readCustomText(selectedIds);
 			if (!customText.isEmpty()) {
 				return customText;
@@ -662,6 +689,11 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 	}
 
 	private static void drawSolidRect(StoredMatrixTransformations storedMatrixTransformations, Direction facing, float x, float y, float width, float height, int color) {
+		final JSDrawSink sink = JSDrawSink.current();
+		if (sink != null) {
+			sink.drawTexture(WHITE_TEXTURE, x, y, width, height, color);
+			return;
+		}
 		MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 			storedMatrixTransformations.transform(graphicsHolderNew, offset);
 			IDrawing.drawTexture(graphicsHolderNew, x, y, width, height, 0.0F, 0.0F, 1.0F, 1.0F, facing, color, GraphicsHolder.getDefaultLight());
@@ -686,6 +718,15 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 				float textH = (float)fitted.height * scale;
 				float textX = boxX + (boxW - textW) / 2.0F;
 				float textY = boxY + (boxH - textH) / 2.0F;
+				final JSDrawSink sink = JSDrawSink.current();
+				if (sink != null) {
+					if (fitted.image != null) {
+						sink.drawImage(fitted.image, textX, textY, textW, textH, -1);
+					} else {
+						sink.drawTexture(fitted.identifier, textX, textY, textW, textH, -1);
+					}
+					return;
+				}
 				MainRenderer.scheduleRender(fitted.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 					storedMatrixTransformations.transform(graphicsHolderNew, offset);
 					IDrawing.drawTexture(graphicsHolderNew, textX, textY, textW, textH, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());

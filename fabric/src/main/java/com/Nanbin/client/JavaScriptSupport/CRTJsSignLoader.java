@@ -9,11 +9,11 @@ import org.mtr.mod.config.Config;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public final class JSSignLoader {
+public final class CRTJsSignLoader {
 
-	private static final Identifier JS_SIGNS_CONFIG_ID = new Identifier("nanbin", "js_signs_config.json");
+	private static final Identifier JS_SIGNS_CONFIG_ID = new Identifier("nanbin", "crt_js_signs_config.json");
 
-	private JSSignLoader() {
+	private CRTJsSignLoader() {
 	}
 
 	public static void reload() {

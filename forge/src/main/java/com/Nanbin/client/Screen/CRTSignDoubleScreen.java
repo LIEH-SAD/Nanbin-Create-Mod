@@ -1,5 +1,6 @@
 package com.Nanbin.client.Screen;
 
+import com.Nanbin.client.ClientData.CRTSignRegistry;
 import com.Nanbin.client.ClientData.SignClipboard;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
 import com.Nanbin.packet.ClientPacketHelper;
@@ -29,11 +30,11 @@ import java.util.List;
 
 /**
  * 多行指示牌编辑器（N 行 × M 格，小图标），供各 CRT 方块共用。
- * 修改自天津地铁的 RailwaySignDoubleScreen，去掉了对 ziyue 模块的依赖。
+ * 修改自天津地铁的 CRTSignDoubleScreen，去掉了对 ziyue 模块的依赖。
  * 行数/列数/初始数据/保存动作均由调用方传入。
  */
 
-public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
+public class CRTSignDoubleScreen extends ScreenExtension implements IGui
 {
     protected final int lines;
     protected final int length;
@@ -75,7 +76,7 @@ public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
 
     protected final int buttonYStart;
 
-    public RailwaySignDoubleScreen(BlockPos signPos, int lines, int length, String[][] signIds, List<LongAVLTreeSet> selectedIds, boolean isRailwaySign, Runnable onSave) {
+    public CRTSignDoubleScreen(BlockPos signPos, int lines, int length, String[][] signIds, List<LongAVLTreeSet> selectedIds, boolean isRailwaySign, Runnable onSave) {
         super();
         this.signPos = signPos;
         this.lines = Math.max(lines, 1);
@@ -92,6 +93,8 @@ public class RailwaySignDoubleScreen extends ScreenExtension implements IGui
         final ClientWorld world = MinecraftClient.getInstance().getWorldMapped();
 
         allSignIds.addAll(CustomResourceLoader.getSortedSignIds());
+        // 该界面只被 CRT 类导视使用：追加 crt_signs.json 里白名单允许 CRT 的标志
+        CRTSignRegistry.appendSignsFor(allSignIds, CRTSignRegistry.SURFACE_CRT);
 
         // 与数据选择屏一致：车站出入口外的指示牌也要能找到所属车站
         final Station station = ClientPacketHelper.findStationForSelection(signPos);

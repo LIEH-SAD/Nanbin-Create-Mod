@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 从 nanbin:signs.json 中解析出来的、随告示牌标志一起注册的自定义文字样式。
+ * 从 nanbin:crt_signs.json 中解析出来的、随告示牌标志一起注册的自定义文字样式。
  * MTR 原版 {@code SignResource} 只识别 id/textureResource/backgroundColor/customText/
  * flipTexture/flipCustomText/small，故 textColor/textSize/textBold 由
- * {@link com.Nanbin.mixin.CustomResourceLoaderMixin} 单独读取后存到这里，
+ * {@link com.Nanbin.client.ClientData.CRTSignRegistry} 单独读取后存到这里，
  * 供渲染器（RenderCRTRailwaySign）调整线路编号等纯文字格子的显示。
  */
 public final class SignTextStyleConfig {

@@ -360,6 +360,15 @@ public class CustomFontTextureCache {
 		return text;
 	}
 
+	/**
+	 * 对外暴露已加载的 java.awt.Font（供 CRTSignTextMetrics / CRTSignLayoutPainter 做
+	 * 墨区测量与文字烘焙）。字体尚未加载成功时返回 null，调用方需自行回退近似度量。
+	 */
+	@Nullable
+	public Font getJavaFont(@Nullable FontType fontType) {
+		return fontType == null ? null : getRawFont(fontType);
+	}
+
 	private Font getRawFont(FontType fontType) {
 		Font rawFont = rawFonts.get(fontType);
 		if (rawFont == null) {

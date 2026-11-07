@@ -88,7 +88,10 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 				}
 			}
 		}
-		if (allEmpty) {
+		// 自由布局（存在整条牌起始方块实体上）：新编辑器创建的牌可能没有旧 signIds，不能因"全空"提前返回
+		final String signLayoutJson = entity.getSignLayout();
+		final com.Nanbin.signage.crt.CRTSignLayout layout = com.Nanbin.signage.crt.CRTSignLayout.fromJson(signLayoutJson);
+		if (allEmpty && layout == null) {
 			return;
 		}
 
@@ -124,6 +127,40 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 		graphicsHolder.rotateZDegrees(180.0F);
 		graphicsHolder.translate(CONTENT_OFFSET_X, 0.0D, CONTENT_OFFSET_Z);
 		try {
+			// 自由布局（网页编辑器模型）：有布局数据时整条牌由布局绘制类烘焙成一张贴图来画
+			if (layout != null) {
+				try {
+					final com.Nanbin.client.JavaScriptSupport.JSSignTextureBaker.Baked baked = com.Nanbin.client.Drawing.CRTSignLayoutPainter.bake(layout,
+							new com.Nanbin.client.signage.CRTSignDataResolver(entity::getRouteNumber), "crt_layout_wall:" + pos.toShortString(), signLayoutJson.hashCode());
+					if (baked != null) {
+						final float plateWidth = (float) cellCount * CELL_WIDTH;
+						final float plateHeight = CONTENT_HEIGHT;
+						final float designWidth = Math.max(1.0F, baked.width);
+						final float designHeight = Math.max(1.0F, baked.height);
+						final float fitScale = Math.min(plateWidth / designWidth, plateHeight / designHeight);
+						final float drawWidth = designWidth * fitScale;
+						final float drawHeight = designHeight * fitScale;
+						final float drawX = (plateWidth - drawWidth) / 2.0F;
+						final float drawY = (plateHeight - drawHeight) / 2.0F;
+						final int layoutBackground = layout.backgroundColor | 0xFF000000;
+						MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+							storedMatrixTransformations.transform(graphicsHolderNew, offset);
+							IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, plateWidth, plateHeight, 0.003125F, facing, layoutBackground, GraphicsHolder.getDefaultLight());
+							graphicsHolderNew.pop();
+						});
+						MainRenderer.scheduleRender(baked.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
+							storedMatrixTransformations.transform(graphicsHolderNew, offset);
+							IDrawing.drawTexture(graphicsHolderNew, drawX, drawY, drawWidth, drawHeight, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
+							graphicsHolderNew.pop();
+						});
+						return;
+					}
+				} catch (Throwable e) {
+					// 布局渲染失败回退旧格子渲染
+					com.Nanbin.Init.LOGGER.warn("CRT wall sign layout render failed at {}, falling back to cell rendering", pos.toShortString(), e);
+				}
+			}
+
 			// 牌面底板：与旧牌一致放在不写深度的 LIGHT_TRANSLUCENT，并先于内容绘制。
 			MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
@@ -143,30 +180,11 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 				final int jsBackgroundColor = cellBackgroundColors[0] != 0 ? cellBackgroundColors[0] : 0;
 				RenderCRTRailwaySign.renderJSStyleLine(styleScriptId, storedMatrixTransformations, pos, signIds, selectedIds, routeNumbers, facing, jsBackgroundColor, CONTENT_HEIGHT, 0.0F, 0.0F, false, routeNumberMap, (float) cellCount * CELL_WIDTH);
 			} else {
-				final Map<Long, String> routeNameByColor = new HashMap<>();
-				try {
-					final ObjectBidirectionalIterator iterator = MinecraftClientData.getInstance().simplifiedRoutes.iterator();
-					while (iterator.hasNext()) {
-						final SimplifiedRoute route = (SimplifiedRoute) iterator.next();
-						routeNameByColor.put((long) route.getColor(), route.getName());
-					}
-				} catch (Exception ignored) {
-				}
-
-				final int globalBg = firstBackground != 0 ? firstBackground : 0xFFFFFF;
-				for (int i = 0; i < cellCount; i++) {
-					if (signIds[i] != null && !RenderCRTRailwaySign.isRouteNumberV2(signIds[i])) {
-						final int cellBg = cellBackgroundColors[i] != 0 ? cellBackgroundColors[i] : 0xFFFFFF;
-						final float cellX = CELL_WIDTH * (float) i;
-						RenderCRTRailwaySign.drawSignCRT(graphicsHolder, storedMatrixTransformations, pos, signIds[i], cellX, 0.0F, CONTENT_HEIGHT, CELL_WIDTH, RenderRailwaySign.getMaxWidth(signIds, i, false), RenderRailwaySign.getMaxWidth(signIds, i, true), selectedIds, routeNumbers, facing, cellBg, (textureId, x, y, size, flipTexture) -> MainRenderer.scheduleRender(textureId, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
-							storedMatrixTransformations.transform(graphicsHolderNew, offset);
-							IDrawing.drawTexture(graphicsHolderNew, x, y, size, size, flipTexture ? 1.0F : 0.0F, 0.0F, flipTexture ? 0.0F : 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
-							graphicsHolderNew.pop();
-						}), false, signIds, globalBg);
-					}
-				}
-
-				RenderCRTRailwaySign.renderRouteNumberV2Regions(storedMatrixTransformations, signIds, selectedIds, entity::getRouteNumber, cell -> null, facing, CONTENT_HEIGHT, CELL_WIDTH, routeNameByColor, cellBackgroundColors);
+				// 与铁路指示牌共用同一套绘制类；墙挂牌每格 1.0 宽、内容高 0.5
+				final com.Nanbin.client.Drawing.CRTSignView wallView = new com.Nanbin.client.Drawing.CRTSignView(signIds, selectedIds, routeNumbers, entity::getRouteNumber, null)
+						.geometry(CONTENT_HEIGHT, CELL_WIDTH, facing)
+						.cellOverrides(null, cellBackgroundColors);
+				com.Nanbin.client.Drawing.CRTSignDrawing.draw(wallView, graphicsHolder, storedMatrixTransformations, false);
 			}
 		} finally {
 			graphicsHolder.pop();

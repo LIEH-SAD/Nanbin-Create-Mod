@@ -90,7 +90,7 @@ public class StationInfoScreen extends MTRScreenBase implements IGui {
         final ButtonWidgetExtension signButton = new ButtonWidgetExtension(
                 centerX - BUTTON_WIDTH / 2, currentY, BUTTON_WIDTH, BUTTON_HEIGHT,
                 TextHelper.translatable("gui.nanbin.station_info.select_sign"),
-                button -> ClientPacketHelper.openRailwaySignDoubleScreen(blockPos, isFront)
+                button -> ClientPacketHelper.openCRTSignDoubleScreen(blockPos, isFront)
         );
         addChild(new ClickableWidget(signButton));
         currentY += BUTTON_HEIGHT + SPACING * 2;

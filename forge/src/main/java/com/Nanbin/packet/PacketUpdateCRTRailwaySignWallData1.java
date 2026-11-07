@@ -15,13 +15,13 @@ import org.mtr.mapping.tool.PacketBufferSender;
 import java.util.List;
 
 // 墙挂指示牌编辑保存：客户端把整条牌的格子内容一次性发回，服务端按当前连接长度分配给每个方块实体。
-public final class PacketUpdateRailwaySignWallData1 extends PacketHandler {
+public final class PacketUpdateCRTRailwaySignWallData1 extends PacketHandler {
 
     private final BlockPos startPos;
     private final String[] signIds;
     private final LongAVLTreeSet selectedIds;
 
-    public PacketUpdateRailwaySignWallData1(PacketBufferReceiver packetBufferReceiver) {
+    public PacketUpdateCRTRailwaySignWallData1(PacketBufferReceiver packetBufferReceiver) {
         startPos = BlockPos.fromLong(packetBufferReceiver.readLong());
         final int length = packetBufferReceiver.readInt();
         signIds = new String[length];
@@ -36,7 +36,7 @@ public final class PacketUpdateRailwaySignWallData1 extends PacketHandler {
         }
     }
 
-    public PacketUpdateRailwaySignWallData1(BlockPos startPos, String[] signIds, LongAVLTreeSet selectedIds) {
+    public PacketUpdateCRTRailwaySignWallData1(BlockPos startPos, String[] signIds, LongAVLTreeSet selectedIds) {
         this.startPos = startPos;
         this.signIds = signIds;
         this.selectedIds = selectedIds;

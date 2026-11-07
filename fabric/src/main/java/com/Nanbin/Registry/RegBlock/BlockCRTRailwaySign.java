@@ -4,6 +4,7 @@ import com.Nanbin.Blocks.Blocks;
 import com.Nanbin.Init;
 import com.Nanbin.entity.BlockEntityTypes;
 import com.Nanbin.mapping.TranslationProvider;
+import com.Nanbin.packet.PacketOpenBlockEntityScreen;
 import org.mtr.core.data.*;
 import org.mtr.core.data.Position;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -30,6 +31,31 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
     @Override
     public BlockEntityExtension createBlockEntity(BlockPos pos, BlockState state) {
         return new BlockEntityCRTRailwaySign(length, isOdd, pos, state);
+    }
+
+    /**
+     * 手持刷子点击时打开本 mod 的 CRT 专用编辑界面（不再走 MTR 原版 RailwaySignScreen）。
+     * 方块实体数据格式与原版一致，因此存档兼容；只是编辑界面换成了独立的屏幕。
+     */
+    @Nonnull
+    @Override
+    public ActionResult onUse2(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        return IBlock.checkHoldingBrush(world, player, () -> {
+            final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+            final Direction hitSide = hit.getSide();
+            if (hitSide == facing || hitSide == facing.getOpposite()) {
+                // 与 MTR 原版同样的端点解析：先按点击面的反方向找，找不到再试另一个方向，
+                // 仍找不到就退回被点击的方块本身（单端放置/存档中的异常情况）。
+                BlockPos endPos = findEndWithDirectionCRT(world, pos, hitSide.getOpposite(), false);
+                if (endPos == null) {
+                    endPos = findEndWithDirectionCRT(world, pos, hitSide, false);
+                }
+                if (endPos == null) {
+                    endPos = pos;
+                }
+                Init.REGISTRY.sendPacketToClient(ServerPlayerEntity.cast(player), new PacketOpenBlockEntityScreen(endPos));
+            }
+        });
     }
 
     /**
@@ -110,10 +136,14 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
         private static final String KEY_ROUTE_NUMBERS = "crt_route_numbers";
         /** 每格独立线路颜色，格式："<格子下标>:<颜色>,<颜色>;<格子下标>:<颜色>"（空=无单独设置）。 */
         private static final String KEY_CELL_COLORS = "crt_cell_colors";
+        /** 网页编辑器式的自由布局数据（JSON）；空字符串表示该牌仍使用旧的 signIds 格子数据。 */
+        private static final String KEY_SIGN_LAYOUT = "crt_sign_layout";
         /** 颜色 -> 线路编号。MTR 客户端数据只有 SimplifiedRoute（无 routeNumber），只能服务端解析后写入 NBT。 */
         private final Long2ObjectOpenHashMap<String> routeNumbers = new Long2ObjectOpenHashMap<>();
         /** 每格独立线路颜色：下标=格子，值为该格所在线路牌区域实际使用的线路颜色；null=沿用全局选择。 */
         private long[][] cellColors;
+        /** 自由布局 JSON；null/空 = 未使用新编辑器，继续按 signIds 渲染。 */
+        private String signLayout = "";
         private final BlockEntityTypeRegistryObject<BlockEntityCRTRailwaySign> blockEntityType;
 
         public BlockEntityCRTRailwaySign(int length, boolean isOdd, BlockPos pos, BlockState state) {
@@ -222,9 +252,26 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
             updateRouteNumbersFromServer();
         }
 
+        /** 自由布局 JSON；null/空 = 该牌未使用新编辑器。 */
+        @Nonnull
+        public String getSignLayout() {
+            return signLayout == null ? "" : signLayout;
+        }
+
+        /** 服务端写入自由布局并同步给客户端。 */
+        public void setSignLayout(@Nullable String layoutJson) {
+            signLayout = layoutJson == null ? "" : layoutJson;
+            if (!signLayout.isEmpty()) {
+                // 新布局会用到线路编号，顺手解析一次
+                updateRouteNumbersFromServer();
+            }
+            markDirty2();
+        }
+
         @Override
         public void readCompoundTag(CompoundTag compoundTag) {
             super.readCompoundTag(compoundTag);
+            signLayout = compoundTag.getString(KEY_SIGN_LAYOUT);
             routeNumbers.clear();
             final long[] colors = compoundTag.getLongArray(KEY_ROUTE_COLORS);
             final String joined = compoundTag.getString(KEY_ROUTE_NUMBERS);
@@ -267,6 +314,7 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
         @Override
         public void writeCompoundTag(CompoundTag compoundTag) {
             super.writeCompoundTag(compoundTag);
+            compoundTag.putString(KEY_SIGN_LAYOUT, signLayout == null ? "" : signLayout);
             final long[] colors = routeNumbers.keySet().toLongArray();
             final StringBuilder sb = new StringBuilder();
             for (int i = 0; i < colors.length; i++) {
