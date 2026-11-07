@@ -1,0 +1,10 @@
+﻿# Resource gaps that exist in the SOURCE tree as well (upstream parity, intentionally not fixed here).
+# tools/parity/registry.ps1 subtracts these from its problem count.
+#
+# - crt_psd_cab_door: the block id exists but the blockstate is still named ordinary_psd_cab_door.json
+#   in the source tree too, and no item model is shipped.
+# - crt_rigid_catenary_1 / crt_ticket_machine_2: recipes exist but models/item/*.json are missing
+#   in the source tree as well.
+crt_psd_cab_door
+crt_rigid_catenary_1
+crt_ticket_machine_2

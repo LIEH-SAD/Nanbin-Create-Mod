@@ -48,9 +48,21 @@ Write-Host ''
 
 $problems = 0
 
+# Resource gaps that also exist upstream (see known-resource-gaps.txt): reported separately, not counted.
+$knownGaps = @{}
+$gapsFile = Join-Path $PSScriptRoot 'known-resource-gaps.txt'
+if (Test-Path $gapsFile) {
+    Get-Content $gapsFile -Encoding utf8 | ForEach-Object {
+        $line = $_.Trim()
+        if ($line -eq '' -or $line.StartsWith('#')) { return }
+        $knownGaps[$line] = $true
+    }
+}
+
 Write-Host '--- resource completeness per block id ---'
 $missingRows = New-Object System.Collections.ArrayList
 foreach ($id in $blockIds) {
+    if ($knownGaps.ContainsKey($id)) { continue }
     $missingHere = @()
     $blockstateFile = Join-Path $assets "blockstates\$id.json"
     if (-not (Test-Path $blockstateFile)) {

@@ -47,28 +47,28 @@ function Run-Gradle([string]$arguments) {
 Push-Location $Target
 try {
     Write-Host '=== 1/9 class inventory ==='
-    $out = & .\tools\parity\classes.ps1 2>&1
+    $out = & .\tools\parity\classes.ps1 2>&1 6>&1
     $line = ($out | Where-Object { $_ -match '^MISSING' } | Select-Object -First 1)
     $ok = ($LASTEXITCODE -eq 0) -and ($line -match 'MISSING\s*:\s*0')
     Add-Result 'classes' $ok ($line -replace '\s+', ' ')
 
     Write-Host ''
     Write-Host '=== 2/9 resources + lang ==='
-    $out = & .\tools\parity\resources.ps1 2>&1
+    $out = & .\tools\parity\resources.ps1 2>&1 6>&1
     $bad = @($out | Where-Object { $_ -match 'missing=\s*[1-9]' -or $_ -match 'missing=\s*[1-9]\d*' })
     $ok = ($LASTEXITCODE -eq 0) -and ($bad.Count -eq 0)
     Add-Result 'resources' $ok ("missing groups: {0}" -f $bad.Count)
 
     Write-Host ''
     Write-Host '=== 3/9 registry x resources x recipes ==='
-    $out = & .\tools\parity\registry.ps1 2>&1
+    $out = & .\tools\parity\registry.ps1 2>&1 6>&1
     $resultLine = ($out | Where-Object { $_ -match '^RESULT' } | Select-Object -First 1)
     $ok = ($LASTEXITCODE -eq 0) -and ($resultLine -match 'RESULT:\s*OK')
     Add-Result 'registry' $ok $resultLine
 
     Write-Host ''
     Write-Host '=== 4/9 static audit ==='
-    $out = & .\tools\parity\audit.ps1 2>&1
+    $out = & .\tools\parity\audit.ps1 2>&1 6>&1
     $resultLine = ($out | Where-Object { $_ -match '^RESULT' } | Select-Object -First 1)
     $ok = ($LASTEXITCODE -eq 0) -and ($resultLine -match 'RESULT:\s*OK')
     Add-Result 'audit' $ok $resultLine
