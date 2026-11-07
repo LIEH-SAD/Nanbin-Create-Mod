@@ -1,10 +1,15 @@
 package com.Nanbin.packet;
 
+import com.Nanbin.Init;
 import com.Nanbin.Registry.RegBlock.BlockBusTicketProcessor;
+import com.Nanbin.Registry.RegBlock.BlockCRTAPGDoor2;
+import com.Nanbin.Registry.RegBlock.BlockCRTRailwaySign;
+import com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall1;
 import com.Nanbin.Registry.RegBlock.BlockCRTStationName1;
 import com.Nanbin.Registry.RegBlock.BlockCRTStationInfo1;
 import com.Nanbin.Registry.RegBlock.BlockCRTStationInfo1Double;
 import com.Nanbin.Registry.RegBlock.BlockRoadName;
+import com.Nanbin.Registry.RegBlock.base.BlockCustomColorBase;
 import com.Nanbin.mapping.Registry;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import mtr.data.TicketSystem;
@@ -30,6 +35,18 @@ public class PacketHandler {
 	public static final Identifier PACKET_OPEN_STATION_INFO = new Identifier("nanbin", "open_station_info");
 	public static final Identifier PACKET_UPDATE_STATION_INFO = new Identifier("nanbin", "update_station_info");
 	public static final Identifier PACKET_UPDATE_STATION_INFO_SIGN = new Identifier("nanbin", "update_station_info_sign");
+	/** 自定义颜色方块：保存颜色（来源 PacketUpdateCustomColor）。 */
+	public static final Identifier PACKET_UPDATE_CUSTOM_COLOR = new Identifier("nanbin", "update_custom_color");
+	/** 铁路导视牌：某格独立选择的线路颜色集合（来源 PacketUpdateRouteNameCell）。 */
+	public static final Identifier PACKET_UPDATE_ROUTE_NAME_CELL = new Identifier("nanbin", "update_route_name_cell");
+	/** 屏蔽门：下一班到站时间（来源 PacketUpdateTrainArrival）。 */
+	public static final Identifier PACKET_UPDATE_TRAIN_ARRIVAL = new Identifier("nanbin", "update_train_arrival");
+	/** CRT 导视牌自由布局 JSON（来源 PacketUpdateCRTSignLayout）。 */
+	public static final Identifier PACKET_UPDATE_CRT_SIGN_LAYOUT = new Identifier("nanbin", "update_crt_sign_layout");
+	/** 打开方块实体对应的屏幕（来源 PacketOpenBlockEntityScreen）。 */
+	public static final Identifier PACKET_OPEN_BLOCK_ENTITY_SCREEN = new Identifier("nanbin", "open_block_entity_screen");
+	/** 打开 CRT 站台/导视牌屏幕（来源 PacketOpenCRTPlatformScreen）。 */
+	public static final Identifier PACKET_OPEN_CRT_PLATFORM_SCREEN = new Identifier("nanbin", "open_crt_platform_screen");
 
 	/** 售票机充值选项：充值金额。 */
 	public static final int[] ADD_AMOUNTS = {10, 20, 30, 50, 100, 150, 200, 300};
@@ -143,6 +160,73 @@ public class PacketHandler {
 					entity.setSignData(isFront, signIds, selectedIds);
 				}
 			});
+		});
+
+		// 自定义颜色方块：保存颜色
+		Registry.registerReceiverC2S(PACKET_UPDATE_CUSTOM_COLOR, (server, player, buf) -> {
+			final BlockPos pos = buf.readBlockPos();
+			final int color = buf.readInt();
+			server.execute(() -> {
+				if (player.getWorld().getBlockEntity(pos) instanceof BlockCustomColorBase.BlockEntityBase entity) {
+					entity.setData(color);
+				}
+			});
+		});
+
+		// 铁路导视牌：某个格子独立选择的线路颜色集合
+		Registry.registerReceiverC2S(PACKET_UPDATE_ROUTE_NAME_CELL, (server, player, buf) -> {
+			final BlockPos pos = buf.readBlockPos();
+			final int signIndex = buf.readInt();
+			final int count = buf.readVarInt();
+			final long[] colors = new long[count];
+			for (int i = 0; i < count; i++) {
+				colors[i] = buf.readLong();
+			}
+			server.execute(() -> {
+				if (player.getWorld().getBlockEntity(pos) instanceof BlockCRTRailwaySign.BlockEntityCRTRailwaySign entity) {
+					entity.setCellColors(signIndex, colors);
+				}
+			});
+		});
+
+		// 屏蔽门：下一班到站时间（客户端据此渲染倒计时）
+		Registry.registerReceiverC2S(PACKET_UPDATE_TRAIN_ARRIVAL, (server, player, buf) -> {
+			final BlockPos pos = buf.readBlockPos();
+			final long arrivalTime = buf.readLong();
+			server.execute(() -> {
+				if (player.getWorld().getBlockEntity(pos) instanceof BlockCRTAPGDoor2.BlockEntity entity) {
+					entity.setNextTrainArrivalTime(arrivalTime);
+				}
+			});
+		});
+
+		// CRT 导视牌：自由布局 JSON（旧 signIds 数据继续按 legacy 回退渲染）
+		Registry.registerReceiverC2S(PACKET_UPDATE_CRT_SIGN_LAYOUT, (server, player, buf) -> {
+			final BlockPos pos = buf.readBlockPos();
+			final String layoutJson = buf.readString();
+			server.execute(() -> {
+				if (player.getWorld().getBlockEntity(pos) instanceof BlockCRTRailwaySign.BlockEntityCRTRailwaySign entity) {
+					entity.setSignLayout(layoutJson);
+				} else if (player.getWorld().getBlockEntity(pos) instanceof BlockCRTRailwaySignWall1.BlockEntity entity) {
+					entity.setSignLayout(layoutJson);
+				}
+			});
+		});
+	}
+
+	/** 布局 JSON 长度上限（MTR 包字符串上限 32767，留余量）。 */
+	private static final int MAX_LAYOUT_JSON_LENGTH = 30000;
+
+	/** 客户端 → 服务端：保存 CRT 导视牌布局；超长时丢弃并记日志，避免断开连接。 */
+	public static void sendUpdateSignLayout(BlockPos pos, String layoutJson) {
+		final String json = layoutJson == null ? "" : layoutJson;
+		if (json.length() > MAX_LAYOUT_JSON_LENGTH) {
+			Init.LOGGER.warn("CRT sign layout at {} is too long ({} chars), not sent", pos, json.length());
+			return;
+		}
+		Registry.sendPacketToServer(PACKET_UPDATE_CRT_SIGN_LAYOUT, buf -> {
+			buf.writeBlockPos(pos);
+			buf.writeString(json);
 		});
 	}
 }

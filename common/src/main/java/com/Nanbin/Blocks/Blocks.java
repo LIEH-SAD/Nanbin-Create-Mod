@@ -168,6 +168,15 @@ public class Blocks {
     public static final RegistrySupplier<Block> CRT_RAILWAY_SIGN_MIDDLE_EVEN_2 = BLOCKS.register("crt_railway_sign_middle_even_2", () -> new BlockCRTRailwaySignMiddle());
     public static final RegistrySupplier<Block> CRT_RAILWAY_SIGN_MIDDLE_COMMON = BLOCKS.register("crt_railway_sign_middle_common", () -> new BlockCRTRailwaySignMiddle());
 
+    // ---- 来源 3.1 新增：墙挂导视牌 / PSD Gen-1 屏蔽门系族 / 闸机状态屏 ----
+    public static final RegistrySupplier<Block> CRT_RAILWAY_SIGN_WALL_1 = BLOCKS.register("crt_railway_sign_wall_1", () -> new BlockCRTRailwaySignWall1(AbstractBlock.Settings.create().mapColor(MapColor.IRON_GRAY).requiresTool().nonOpaque()));
+    public static final RegistrySupplier<Block> CRT_RAILWAY_SIGN_WALL_2 = BLOCKS.register("crt_railway_sign_wall_2", () -> new BlockCRTRailwaySignWall2(AbstractBlock.Settings.create().mapColor(MapColor.IRON_GRAY).requiresTool().nonOpaque().luminance(state -> 0)));
+    public static final RegistrySupplier<Block> CRT_PSD_DOOR_1 = BLOCKS.register("crt_psd_door_1", BlockCRTPSDDoor1::new);
+    public static final RegistrySupplier<Block> CRT_PSD_GLASS_1 = BLOCKS.register("crt_psd_glass_1", BlockCRTPSDGlass1::new);
+    public static final RegistrySupplier<Block> CRT_PSD_GLASS_END_1 = BLOCKS.register("crt_psd_glass_end_1", BlockCRTPSDGlassEnd1::new);
+    public static final RegistrySupplier<Block> CRT_PSD_TOP_1 = BLOCKS.register("crt_psd_top_1", BlockCRTPSDTop1::new);
+    public static final RegistrySupplier<Block> CRT_TICKET_DISPLAY_1 = BLOCKS.register("crt_ticket_display_1", () -> new BlockCRTTicketDisplay1(AbstractBlock.Settings.create().mapColor(MapColor.IRON_GRAY).requiresTool().nonOpaque().luminance(state -> 5)));
+
     public static void init() {
         BLOCKS.register();
     }

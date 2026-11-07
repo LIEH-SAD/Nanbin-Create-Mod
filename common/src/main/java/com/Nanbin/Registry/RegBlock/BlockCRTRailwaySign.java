@@ -139,10 +139,14 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
 		private static final String KEY_ROUTE_NUMBERS = "crt_route_numbers";
 		/** 每格独立线路颜色，格式："<格子下标>:<颜色>,<颜色>;<格子下标>:<颜色>"（空=无单独设置）。 */
 		private static final String KEY_CELL_COLORS = "crt_cell_colors";
+		/** 网页编辑器式的自由布局（JSON）；空串 = 继续用旧格子数据。 */
+		private static final String KEY_SIGN_LAYOUT = "crt_sign_layout";
 		/** 颜色 -> 线路编号。 */
 		private final Long2ObjectOpenHashMap<String> routeNumbers = new Long2ObjectOpenHashMap<>();
 		/** 每格独立线路颜色：下标=格子，值为该格所在线路牌区域实际使用的线路颜色；null=沿用全局选择。 */
 		private long[][] cellColors;
+		/** 自由布局 JSON。 */
+		private String signLayout = "";
 
 		public BlockEntityCRTRailwaySign(int length, boolean isOdd, BlockPos pos, BlockState state) {
 			super(length, isOdd, pos, state);
@@ -248,9 +252,24 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
 			updateRouteNumbersFromServer();
 		}
 
+		/** 自由布局 JSON；空 = 该牌未使用新编辑器。 */
+		public String getSignLayout() {
+			return signLayout == null ? "" : signLayout;
+		}
+
+		/** 服务端写入自由布局并同步给客户端。 */
+		public void setSignLayout(@Nullable String layoutJson) {
+			signLayout = layoutJson == null ? "" : layoutJson;
+			// 新布局会用到线路编号，顺手解析一次
+			updateRouteNumbersFromServer();
+			markDirty();
+			syncData();
+		}
+
 		@Override
 		public void readCompoundTag(NbtCompound compoundTag) {
 			super.readCompoundTag(compoundTag);
+			signLayout = compoundTag.getString(KEY_SIGN_LAYOUT);
 			routeNumbers.clear();
 			final long[] colors = compoundTag.getLongArray(KEY_ROUTE_COLORS);
 			final String joined = compoundTag.getString(KEY_ROUTE_NUMBERS);
@@ -293,6 +312,7 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
 		@Override
 		public void writeCompoundTag(NbtCompound compoundTag) {
 			super.writeCompoundTag(compoundTag);
+			compoundTag.putString(KEY_SIGN_LAYOUT, signLayout == null ? "" : signLayout);
 			final long[] colors = routeNumbers.keySet().toLongArray();
 			final StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < colors.length; i++) {

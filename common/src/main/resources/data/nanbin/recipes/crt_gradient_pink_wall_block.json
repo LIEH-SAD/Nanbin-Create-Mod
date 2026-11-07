@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:crt_pink_wall_block"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_gradient_pink_wall_block",
+    "count": 1
+  }
+}

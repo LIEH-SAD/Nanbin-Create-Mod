@@ -7,8 +7,10 @@ import com.Nanbin.client.Drawing.FontRenderUtils;
 import com.Nanbin.client.Drawing.SignTextStyleConfig;
 import com.Nanbin.client.Drawing.CustomFontTextureCache.FontType;
 import com.Nanbin.client.JavaScriptSupport.JSDrawContext;
+import com.Nanbin.client.JavaScriptSupport.JSDrawSink;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
 import com.Nanbin.client.JavaScriptSupport.JSSignEngine;
+import com.Nanbin.mapping.GraphicsHolder;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import mtr.block.BlockRailwaySign;
 import mtr.block.IBlock;
@@ -19,6 +21,7 @@ import mtr.data.Route;
 import mtr.data.Station;
 import mtr.render.RenderRailwaySign;
 import mtr.render.MoreRenderLayers;
+import mtr.render.StoredMatrixTransformations;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -40,6 +43,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntFunction;
+import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 
 public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.BlockEntityCRTRailwaySign> {
@@ -441,7 +446,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 		}
 	}
 
-	private static boolean isRouteNumberV2(String signId) {
+	public static boolean isRouteNumberV2(String signId) {
 		return "crt_route_name".equals(signId) || "crt_route_name_flipped".equals(signId);
 	}
 

@@ -169,7 +169,7 @@ public final class StationInfoBandRenderer {
 	}
 
 	/** 在给定左上角 (x, y) 以 scale 绘制文本块。leftAlign=true 左对齐到 x；rightAlign=true 右对齐到 x；否则在 zoneW 内居中。 */
-	private static void drawTextBlock(Graphics2D g, TextBlock block, int x, int y, float scale, float zoneW) {
+	static void drawTextBlock(Graphics2D g, TextBlock block, int x, int y, float scale, float zoneW) {
 		if (!block.hasCjk && block.latinLines.isEmpty()) {
 			return;
 		}
@@ -200,8 +200,8 @@ public final class StationInfoBandRenderer {
 		}
 	}
 
-	/** 拆分为 CJK 单行 + 拉丁多行（最多 2 行），并测量整体尺寸。 */
-	private static TextBlock buildTextBlock(String text, Font rawFont, int fontSize, float latinFontRatio, float gapRatio, Color color, float resolutionScale, int wrapMaxWidthPx, boolean leftAlign, boolean rightAlign) {
+	/** 拆分为 CJK 单行 + 拉丁多行（按单词贪心换行），并测量整体尺寸。 */
+	static TextBlock buildTextBlock(String text, Font rawFont, int fontSize, float latinFontRatio, float gapRatio, Color color, float resolutionScale, int wrapMaxWidthPx, boolean leftAlign, boolean rightAlign) {
 		final String[] segments = text.split("\\|", -1);
 		final StringBuilder cjkBuilder = new StringBuilder();
 		final StringBuilder latinBuilder = new StringBuilder();
@@ -249,25 +249,22 @@ public final class StationInfoBandRenderer {
 		return rawFont.deriveFont(Font.PLAIN, Math.max(1, Math.round(fontSize * latinFontRatio * resolutionScale)));
 	}
 
-	/** Greedy word wrap: 第一行尽量填满，其余放到第二行。 */
+	/** 按单词贪心换行：单词放不下就另起一行；单个单词本身就超宽时独占一行。 */
 	private static List<String> wrapLatin(String text, Font font, int maxWidth) {
 		final List<String> lines = new ArrayList<>();
+		if (text == null || text.trim().isEmpty()) {
+			return lines;
+		}
 		final String[] words = text.trim().split("\\s+");
+		final int limit = Math.max(1, maxWidth);
 		StringBuilder current = new StringBuilder();
 		for (final String word : words) {
 			final String candidate = current.length() == 0 ? word : current + " " + word;
-			if (current.length() == 0 || FontRenderUtils.getStringWidth(candidate, font) <= maxWidth) {
-				current = new StringBuilder(candidate);
+			if (current.length() > 0 && FontRenderUtils.getStringWidth(candidate, font) > limit) {
+				lines.add(current.toString());
+				current = new StringBuilder(word);
 			} else {
-				if (lines.size() < 1) {
-					lines.add(current.toString());
-					current = new StringBuilder(word);
-				} else {
-					if (current.length() > 0) {
-						current.append(' ');
-					}
-					current.append(word);
-				}
+				current = new StringBuilder(candidate);
 			}
 		}
 		if (current.length() > 0) {
@@ -277,7 +274,7 @@ public final class StationInfoBandRenderer {
 	}
 
 	/** 文本块数据：CJK 单行 + 拉丁多行，颜色统一，含整体测量尺寸。 */
-	private static final class TextBlock {
+	static final class TextBlock {
 		final String cjk;
 		final Font cjkFont;
 		final Font latinFont;

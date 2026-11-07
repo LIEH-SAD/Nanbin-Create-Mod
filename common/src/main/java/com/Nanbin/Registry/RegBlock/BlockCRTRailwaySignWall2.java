@@ -1,0 +1,29 @@
+package com.Nanbin.Registry.RegBlock;
+
+import com.Nanbin.entity.BlockEntityTypes;
+import mtr.mappings.BlockEntityMapper;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.math.BlockPos;
+
+/**
+ * CRT 墙挂铁路指示牌2：行为、连接、数据完全继承 {@link BlockCRTRailwaySignWall1}，
+ * 使用自己的方块实体类型和渲染器（模型与发光独立）。
+ */
+public class BlockCRTRailwaySignWall2 extends BlockCRTRailwaySignWall1 {
+
+	public BlockCRTRailwaySignWall2(Settings settings) {
+		super(settings);
+	}
+
+	@Override
+	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
+		return new BlockEntity(pos, state);
+	}
+
+	public static class BlockEntity extends BlockCRTRailwaySignWall1.BlockEntity {
+
+		public BlockEntity(BlockPos pos, BlockState state) {
+			super(BlockEntityTypes.CRT_RAILWAY_SIGN_WALL_2.get(), pos, state);
+		}
+	}
+}

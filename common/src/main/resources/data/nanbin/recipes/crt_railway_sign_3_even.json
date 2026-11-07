@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:crt_railway_sign_pole"
+    },
+    {
+      "item": "minecraft:glass_pane"
+    },
+    {
+      "tag": "c:glowstone_dusts"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_railway_sign_3_even",
+    "count": 2
+  }
+}

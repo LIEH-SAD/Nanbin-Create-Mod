@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:blue_block"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_blue_wall_block",
+    "count": 1
+  }
+}

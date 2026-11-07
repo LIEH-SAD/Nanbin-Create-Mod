@@ -82,8 +82,33 @@ public class BlockCRTAPGDoor1 extends BlockPSDAPGDoorBase {
 
 	public static class BlockEntity extends BlockPSDAPGDoorBase.TileEntityPSDAPGDoorBase {
 
+		/** 下一次列车到站时间（毫秒时间戳，0 = 未知）。数据包层可写入本值用于门体提醒。 */
+		private static final String ARRIVAL_TIME_ID = "nextTrainArrivalTime";
+		private long nextTrainArrivalTime = 0;
+
 		public BlockEntity(BlockPos pos, BlockState state) {
 			super(BlockEntityTypes.CRT_APG_DOOR_1.get(), pos, state);
+		}
+
+		@Override
+		public void readCompoundTag(net.minecraft.nbt.NbtCompound compoundTag) {
+			nextTrainArrivalTime = compoundTag.getLong(ARRIVAL_TIME_ID);
+			super.readCompoundTag(compoundTag);
+		}
+
+		@Override
+		public void writeCompoundTag(net.minecraft.nbt.NbtCompound compoundTag) {
+			compoundTag.putLong(ARRIVAL_TIME_ID, nextTrainArrivalTime);
+			super.writeCompoundTag(compoundTag);
+		}
+
+		public void setNextTrainArrivalTime(long arrivalTime) {
+			this.nextTrainArrivalTime = arrivalTime;
+			markDirty();
+		}
+
+		public long getNextTrainArrivalTime() {
+			return nextTrainArrivalTime;
 		}
 	}
 }

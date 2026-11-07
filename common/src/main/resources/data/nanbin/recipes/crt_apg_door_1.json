@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:crt_psd_glass_end_1"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_apg_door_1",
+    "count": 1
+  }
+}

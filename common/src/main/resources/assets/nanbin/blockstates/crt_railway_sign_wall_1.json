@@ -1,0 +1,23 @@
+{
+	"variants": {
+		"facing=north,left=false,right=false": { "model": "nanbin:block/crt_railway_sign_wall_1_single" },
+		"facing=north,left=false,right=true": { "model": "nanbin:block/crt_railway_sign_wall_1_left" },
+		"facing=north,left=true,right=false": { "model": "nanbin:block/crt_railway_sign_wall_1_right" },
+		"facing=north,left=true,right=true": { "model": "nanbin:block/crt_railway_sign_wall_1_middle" },
+
+		"facing=east,left=false,right=false": { "model": "nanbin:block/crt_railway_sign_wall_1_single", "y": 90 },
+		"facing=east,left=false,right=true": { "model": "nanbin:block/crt_railway_sign_wall_1_left", "y": 90 },
+		"facing=east,left=true,right=false": { "model": "nanbin:block/crt_railway_sign_wall_1_right", "y": 90 },
+		"facing=east,left=true,right=true": { "model": "nanbin:block/crt_railway_sign_wall_1_middle", "y": 90 },
+
+		"facing=south,left=false,right=false": { "model": "nanbin:block/crt_railway_sign_wall_1_single", "y": 180 },
+		"facing=south,left=false,right=true": { "model": "nanbin:block/crt_railway_sign_wall_1_left", "y": 180 },
+		"facing=south,left=true,right=false": { "model": "nanbin:block/crt_railway_sign_wall_1_right", "y": 180 },
+		"facing=south,left=true,right=true": { "model": "nanbin:block/crt_railway_sign_wall_1_middle", "y": 180 },
+
+		"facing=west,left=false,right=false": { "model": "nanbin:block/crt_railway_sign_wall_1_single", "y": 270 },
+		"facing=west,left=false,right=true": { "model": "nanbin:block/crt_railway_sign_wall_1_left", "y": 270 },
+		"facing=west,left=true,right=false": { "model": "nanbin:block/crt_railway_sign_wall_1_right", "y": 270 },
+		"facing=west,left=true,right=true": { "model": "nanbin:block/crt_railway_sign_wall_1_middle", "y": 270 }
+	}
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:soundproofnet_up"
+    }
+  ],
+  "result": {
+    "item": "nanbin:soundproofnet_top",
+    "count": 1
+  }
+}

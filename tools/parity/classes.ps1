@@ -48,6 +48,16 @@ if (Test-Path $movesFile) {
     }
 }
 
+$skip = @{}
+$skipFile = Join-Path $PSScriptRoot 'known-skip.txt'
+if (Test-Path $skipFile) {
+    Get-Content $skipFile -Encoding utf8 | ForEach-Object {
+        $line = $_.Trim()
+        if ($line -eq '' -or $line.StartsWith('#')) { return }
+        $skip[$line] = $true
+    }
+}
+
 $sourceClasses = Get-JavaInventory $Source @('fabric')
 $targetClasses = Get-JavaInventory $Target @('common', 'fabric', 'forge')
 
@@ -56,8 +66,10 @@ foreach ($c in $targetClasses) { $targetSet[$c] = $true }
 
 $missing = New-Object System.Collections.ArrayList
 $mapped = New-Object System.Collections.ArrayList
+$skipped = 0
 foreach ($c in $sourceClasses) {
     if ($targetSet.ContainsKey($c)) { continue }
+    if ($skip.ContainsKey($c)) { $skipped++; continue }
     if ($moves.ContainsKey($c)) {
         $dest = $moves[$c]
         if ($targetSet.ContainsKey($dest)) { [void]$mapped.Add("$c => $dest"); continue }
@@ -76,6 +88,7 @@ $targetOnly = $targetClasses | Where-Object { -not $sourceSet.ContainsKey($_) -a
 Write-Host ("SOURCE classes : {0}" -f $sourceClasses.Count)
 Write-Host ("TARGET classes : {0}" -f $targetClasses.Count)
 Write-Host ("Mapped moves   : {0}" -f $mapped.Count)
+Write-Host ("Intentionally skipped: {0}" -f $skipped)
 Write-Host ("MISSING        : {0}" -f $missing.Count)
 Write-Host ("TARGET-only    : {0}" -f $targetOnly.Count)
 Write-Host ''

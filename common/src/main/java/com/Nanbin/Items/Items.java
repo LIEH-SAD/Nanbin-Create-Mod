@@ -5,6 +5,7 @@ import com.Nanbin.Init;
 import com.Nanbin.Registry.RegItem.ItemCRTAPG1;
 import com.Nanbin.Registry.RegItem.ItemCRTAPG2;
 import com.Nanbin.Registry.RegItem.ItemCRTEscalator;
+import com.Nanbin.Registry.RegItem.ItemCRTPSD1;
 import com.Nanbin.Registry.RegItem.ItemPhone;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -156,6 +157,16 @@ public class Items {
     public static final RegistrySupplier<Item> CRT_RAILWAY_SIGN_10_ODD = ITEMS.register("crt_railway_sign_10_odd", () -> new BlockItem(Blocks.CRT_RAILWAY_SIGN_10_ODD.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CRT_RAILWAY_SIGN_11_EVEN = ITEMS.register("crt_railway_sign_11_even", () -> new BlockItem(Blocks.CRT_RAILWAY_SIGN_11_EVEN.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CRT_RAILWAY_SIGN_11_ODD = ITEMS.register("crt_railway_sign_11_odd", () -> new BlockItem(Blocks.CRT_RAILWAY_SIGN_11_ODD.get(), new Item.Settings()));
+
+    // ---- 来源 3.1 新增：墙挂导视牌 / PSD Gen-1 屏蔽门系族 / 闸机状态屏 ----
+    // 屏蔽门 Gen-1 系列用自定义物品（放置朝向与竖高有别），不是普通 BlockItem
+    public static final RegistrySupplier<Item> CRT_PSD_DOOR_1 = ITEMS.register("crt_psd_door_1", () -> new ItemCRTPSD1(Blocks.CRT_PSD_DOOR_1.get(), new Item.Settings(), true));
+    public static final RegistrySupplier<Item> CRT_PSD_GLASS_1 = ITEMS.register("crt_psd_glass_1", () -> new ItemCRTPSD1(Blocks.CRT_PSD_GLASS_1.get(), new Item.Settings(), false));
+    public static final RegistrySupplier<Item> CRT_PSD_GLASS_END_1 = ITEMS.register("crt_psd_glass_end_1", () -> new ItemCRTPSD1(Blocks.CRT_PSD_GLASS_END_1.get(), new Item.Settings(), false));
+    public static final RegistrySupplier<Item> CRT_PSD_TOP_1 = ITEMS.register("crt_psd_top_1", () -> new BlockItem(Blocks.CRT_PSD_TOP_1.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> CRT_RAILWAY_SIGN_WALL_1 = ITEMS.register("crt_railway_sign_wall_1", () -> new BlockItem(Blocks.CRT_RAILWAY_SIGN_WALL_1.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> CRT_RAILWAY_SIGN_WALL_2 = ITEMS.register("crt_railway_sign_wall_2", () -> new BlockItem(Blocks.CRT_RAILWAY_SIGN_WALL_2.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> CRT_TICKET_DISPLAY_1 = ITEMS.register("crt_ticket_display_1", () -> new BlockItem(Blocks.CRT_TICKET_DISPLAY_1.get(), new Item.Settings()));
 
     public static void init() {
         ITEMS.register();

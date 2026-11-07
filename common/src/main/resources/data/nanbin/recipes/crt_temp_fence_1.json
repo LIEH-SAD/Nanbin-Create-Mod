@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_bars"
+    },
+    {
+      "tag": "c:orange_dyes"
+    },
+    {
+      "tag": "c:white_dyes"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_temp_fence_1",
+    "count": 4
+  }
+}

@@ -43,6 +43,12 @@ public class BlockEntityTypes {
     public static final RegistrySupplier<BlockEntityType<?>> CRT_RAILWAY_SIGN_11_EVEN = BLOCK_ENTITY.register("crt_railway_sign_11_even", () -> BlockEntityType.Builder.create((pos, state) -> new BlockCRTRailwaySign.BlockEntityCRTRailwaySign(11, false, pos, state), Blocks.CRT_RAILWAY_SIGN_11_EVEN.get()).build(null));
     public static final RegistrySupplier<BlockEntityType<?>> CRT_RAILWAY_SIGN_11_ODD = BLOCK_ENTITY.register("crt_railway_sign_11_odd", () -> BlockEntityType.Builder.create((pos, state) -> new BlockCRTRailwaySign.BlockEntityCRTRailwaySign(11, true, pos, state), Blocks.CRT_RAILWAY_SIGN_11_ODD.get()).build(null));
 
+    // ---- 来源 3.1 新增：墙挂导视牌 / PSD Gen-1 屏蔽门系族 ----
+    public static final RegistrySupplier<BlockEntityType<?>> CRT_RAILWAY_SIGN_WALL_1 = BLOCK_ENTITY.register("crt_railway_sign_wall_1", () -> BlockEntityType.Builder.create(BlockCRTRailwaySignWall1.BlockEntity::new, Blocks.CRT_RAILWAY_SIGN_WALL_1.get(), Blocks.CRT_RAILWAY_SIGN_WALL_2.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<?>> CRT_RAILWAY_SIGN_WALL_2 = BLOCK_ENTITY.register("crt_railway_sign_wall_2", () -> BlockEntityType.Builder.create(BlockCRTRailwaySignWall2.BlockEntity::new, Blocks.CRT_RAILWAY_SIGN_WALL_2.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<?>> CRT_PSD_DOOR_1 = BLOCK_ENTITY.register("crt_psd_door_1", () -> BlockEntityType.Builder.create(BlockCRTPSDDoor1.BlockEntity::new, Blocks.CRT_PSD_DOOR_1.get()).build(null));
+    public static final RegistrySupplier<BlockEntityType<?>> CRT_PSD_TOP_1 = BLOCK_ENTITY.register("crt_psd_top_1", () -> BlockEntityType.Builder.create(BlockCRTPSDTop1.BlockEntity::new, Blocks.CRT_PSD_TOP_1.get()).build(null));
+
     public static BlockEntityType<?> getRailwaySignType(int length, boolean isOdd) {
         return switch (length) {
             case 3 -> isOdd ? CRT_RAILWAY_SIGN_3_ODD.get() : CRT_RAILWAY_SIGN_3_EVEN.get();

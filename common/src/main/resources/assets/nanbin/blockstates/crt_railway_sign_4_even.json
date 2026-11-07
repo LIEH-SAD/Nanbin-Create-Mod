@@ -1,4 +1,4 @@
-﻿{
+{
 	"variants": {
 		"facing=north": { "model": "nanbin:block/crt_railway_sign_end_zero" },
 		"facing=east": { "model": "nanbin:block/crt_railway_sign_end_zero", "y": 90 },

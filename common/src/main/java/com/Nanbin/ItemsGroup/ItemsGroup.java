@@ -171,6 +171,14 @@ public class ItemsGroup {
                         entries.add(Items.CRT_RAILWAY_SIGN_10_ODD.get());
                         entries.add(Items.CRT_RAILWAY_SIGN_11_EVEN.get());
                         entries.add(Items.CRT_RAILWAY_SIGN_11_ODD.get());
+                        // 来源 3.1 新增
+                        entries.add(Items.CRT_RAILWAY_SIGN_WALL_1.get());
+                        entries.add(Items.CRT_RAILWAY_SIGN_WALL_2.get());
+                        entries.add(Items.CRT_PSD_DOOR_1.get());
+                        entries.add(Items.CRT_PSD_GLASS_1.get());
+                        entries.add(Items.CRT_PSD_GLASS_END_1.get());
+                        entries.add(Items.CRT_PSD_TOP_1.get());
+                        entries.add(Items.CRT_TICKET_DISPLAY_1.get());
                     })
                     .build());
 

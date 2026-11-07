@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "nanbin:crt_fence_1"
+    }
+  ],
+  "result": {
+    "item": "nanbin:crt_fence_8",
+    "count": 1
+  }
+}

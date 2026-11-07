@@ -1,0 +1,23 @@
+﻿# Classes that are intentionally NOT ported (with the reason).
+# tools/parity/classes.ps1 subtracts these from the MISSING list.
+#
+# MTR4 loader/version shims: replaced by Architectury / MTR3 equivalents, only re-created on demand.
+com/Nanbin/mapping/WorldHelper.java
+com/Nanbin/mapping/VoxelShapes.java
+com/Nanbin/mapping/GameRuleRegistry.java
+com/Nanbin/mapping/BooleanGameRule.java
+com/Nanbin/mapping/IntegerGameRule.java
+com/Nanbin/mapping/ModLoaderHelper.java
+com/Nanbin/mapping/DoorBlockExtension.java
+com/Nanbin/mapping/DefaultedItemStackList.java
+com/Nanbin/mapping/FilterBuilder.java
+com/Nanbin/mapping/BlockRenderLayerHelper.java
+com/Nanbin/mapping/TicketMachineHelper.java
+#
+# MTR3 has CustomResources.registerReloadListener(resourceManager -> ...), so the MTR4 mixin that
+# hooked CustomResourceLoader.reload() is unnecessary; the reload hook is wired in InitClient instead.
+com/Nanbin/mixin/CRTSignLoaderMixin.java
+#
+# Stub / dev-only in the source tree.
+com/Nanbin/Blocks/BlockTags.java
+com/Nanbin/util/TextureGenerator.java
