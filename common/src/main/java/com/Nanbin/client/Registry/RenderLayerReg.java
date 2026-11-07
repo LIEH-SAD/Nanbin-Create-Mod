@@ -47,16 +47,12 @@ public class RenderLayerReg {
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_STATION_INFO_1.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_STATION_INFO_1_DOUBLE.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.ORDINARY_STATION_NAME.get());
-
-        // CRT 矮屏蔽门（APG）系列
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_DOOR_1.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_GLASS_1.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_GLASS_END_1.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_DOOR_2.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_GLASS_2.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_GLASS_END_2.get());
-
-        // CRT 高屏蔽门（PSD）系列 + 售票机显示屏
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_PSD_DOOR_1.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_PSD_GLASS_1.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_PSD_GLASS_END_1.get());

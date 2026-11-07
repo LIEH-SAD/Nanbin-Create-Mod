@@ -45,7 +45,6 @@ public final class FiltersGroup {
                 .addItems(Items.ORDINARY_STATION_NAME.get())
                 .addItems(Items.CRT_STATION_INFO_1.get())
                 .addItems(Items.CRT_STATION_INFO_1_DOUBLE.get())
-                .addItems(Items.CRT_RAILWAY_SIGN_3_ODD.get())
                 .addItems(Items.CRT_RAILWAY_SIGN_3_EVEN.get())
                 .addItems(Items.CRT_RAILWAY_SIGN_3_ODD.get())
                 .addItems(Items.CRT_RAILWAY_SIGN_4_EVEN.get())
@@ -64,7 +63,10 @@ public final class FiltersGroup {
                 .addItems(Items.CRT_RAILWAY_SIGN_10_ODD.get())
                 .addItems(Items.CRT_RAILWAY_SIGN_11_EVEN.get())
                 .addItems(Items.CRT_RAILWAY_SIGN_11_ODD.get())
-                .addItems(Items.CRT_RAILWAY_SIGN_POLE.get());
+                .addItems(Items.CRT_RAILWAY_SIGN_POLE.get())
+                // 3.1 新增：墙挂导视牌
+                .addItems(Items.CRT_RAILWAY_SIGN_WALL_1.get())
+                .addItems(Items.CRT_RAILWAY_SIGN_WALL_2.get());
 
 
         CRT_TICKETS = FilterBuilder.registerFilter(ItemsGroup.CRT.getKey(), Text.translatable("FiltersGroup.nanbin.crt_tickets"), () -> new ItemStack(Items.CRT_TICKET_1_EXIT.get()))
@@ -74,7 +76,9 @@ public final class FiltersGroup {
                 .addItems(Items.CRT_TICKET_2_EXIT.get())
                 .addItems(Items.CRT_TICKET_3_ENTER.get())
                 .addItems(Items.CRT_TICKET_3_EXIT.get())
-                .addItems(Items.CRT_TICKET_MACHINE_1.get());
+                .addItems(Items.CRT_TICKET_MACHINE_1.get())
+                // 3.1 新增：闸机状态屏
+                .addItems(Items.CRT_TICKET_DISPLAY_1.get());
                 //.addItems(Items.CRT_TICKET_MACHINE_2.get());
 
         //CRT_OVERHEAD_LINES = FilterBuilder.registerFilter(ItemsGroup.CRT.getKey(), Text.translatable("FiltersGroup.nanbin.crt_overhead_lines"), () -> new ItemStack(new ItemConvertible(Items.CRT_LOGO.get())))
@@ -94,10 +98,13 @@ public final class FiltersGroup {
                 .addItems(Items.CRT_APG_GLASS_END_1.get())
                 .addItems(Items.CRT_APG_DOOR_2.get())
                 .addItems(Items.CRT_APG_GLASS_2.get())
-                .addItems(Items.CRT_APG_GLASS_END_2.get());
+                .addItems(Items.CRT_APG_GLASS_END_2.get())
+                // 3.1 新增：PSD Gen-1 屏蔽门系族
+                .addItems(Items.CRT_PSD_DOOR_1.get())
+                .addItems(Items.CRT_PSD_GLASS_1.get())
+                .addItems(Items.CRT_PSD_GLASS_END_1.get());
 
         COMMON_BUILDING_Items = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS.getKey(), Text.translatable("FiltersGroup.nanbin.common_building_blocks"), () -> new ItemStack(Items.NANBIN_BLUE_BLOCK.get()))
-                .addItems(Items.BUS_TICKET_PROCESSOR.get())
                 .addItems(Items.NANBIN_WHITE_BLOCK.get())
                 .addItems(Items.NANBIN_RED_BLOCK.get())
                 .addItems(Items.NANBIN_YELLOW_BLOCK.get())
@@ -154,6 +161,8 @@ public final class FiltersGroup {
                 .addItems(Items.METALFENCE.get());
 
         FUNCTION_Items = FilterBuilder.registerFilter(ItemsGroup.CITY_BUILDING_BLOCKS.getKey(), Text.translatable("FiltersGroup.nanbin.function_blocks"), () -> new ItemStack(Items.ROAD_NAME.get()))
-                .addItems(Items.ROAD_NAME.get());
+                .addItems(Items.ROAD_NAME.get())
+                // 与来源一致：公交卡处理机归入「功能方块」
+                .addItems(Items.BUS_TICKET_PROCESSOR.get());
     }
 }

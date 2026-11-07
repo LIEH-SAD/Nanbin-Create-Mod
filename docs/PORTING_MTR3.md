@@ -190,4 +190,22 @@ public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 | 8 完整构建 | `build` | BUILD SUCCESSFUL |
 | 9 产物 | `build/release/*.jar` + jar 内容抽检 | 双端 jar、`fabric.mod.json`/`nanbin.mixins.json`/`crt_signs.json`/`crt_js_signs_config.json` 在包内 |
 
+## 14. FiltersGroup（创造模式页签过滤条）对齐
+
+目标工程原本已有 `client/FiltersGroup/{FiltersGroup,FiltersMenu}.java`（MTR3 写法：`ziyue.filters.FilterBuilder` + `ItemsGroup.*.getKey()`），但物品清单停留在 3.1 之前。本轮按来源 `fabric/src/main/java/com/Nanbin/client/FiltersGroup/` 对齐（**只改物品清单，不改 API 形态**）：
+
+| 过滤器 | 变化 |
+|---|---|
+| `CRT_BUILDING_Items` | 补 `CRT_RAILWAY_SIGN_WALL_1/2`；修正 `CRT_RAILWAY_SIGN_3_ODD` 重复登记（来源顺序为 3_EVEN→3_ODD→…） |
+| `CRT_TICKETS` | 补 `CRT_TICKET_DISPLAY_1` |
+| `CRT_DOOR` | 补 PSD Gen-1 三件：`CRT_PSD_DOOR_1`、`CRT_PSD_GLASS_1`、`CRT_PSD_GLASS_END_1` |
+| `COMMON_BUILDING_Items` | 移出 `BUS_TICKET_PROCESSOR`（来源把它归到「功能方块」） |
+| `FUNCTION_Items` | 补 `BUS_TICKET_PROCESSOR`（与来源一致） |
+| `CRT_FENCE` / `ROAD_Items` / `FENCE_Items` | 与来源逐项一致，未改 |
+| `CRT_OVERHEAD_LINES` / `CRT_ESCALATOR` | 来源同样是注释状态，保持不注册 |
+
+- 过滤器名称/提示的 10 个语言键（`FiltersGroup.nanbin.*`）在 9 个 locale 中随 P7 资源已就位，无需新增。
+- `FiltersMenu` 的「关于」保留按钮（CRT / 城市建设两个页签）与来源一致。
+- 注册顺序：`InitClient.initMenuAndRenderLayers()` → `FiltersGroup::init` → `FiltersMenu::init` → `RenderLayerReg::init`（在 `ItemsGroup` 注册之后，符合过滤器按页签键查找的要求）。
+
 > 来源 HEAD 说明：任务开始时为 `ed04f13`，后被来源作者 amend 为 `e34adcb`；差异仅「删除 6 个误提交的 `.hprof.p*` + `NanbinConfigScreen` +2 行 + `fabric.mod.template.json` −1 行」，不影响已移植内容。

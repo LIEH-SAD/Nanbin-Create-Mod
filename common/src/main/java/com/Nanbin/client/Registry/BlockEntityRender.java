@@ -17,16 +17,10 @@ public class BlockEntityRender {
         BlockEntityRendererRegistry.register((BlockEntityType<BlockCRTStationInfo1Double.BlockEntity>) BlockEntityTypes.CRT_STATION_INFO_1_DOUBLE.get(), RenderCRTStationInfo1Double::new);
         BlockEntityRendererRegistry.register((BlockEntityType<BlockCRTAPGDoor1.BlockEntity>) BlockEntityTypes.CRT_APG_DOOR_1.get(), RenderCRTAPGDoor1::new);
         BlockEntityRendererRegistry.register((BlockEntityType<BlockCRTAPGDoor2.BlockEntity>) BlockEntityTypes.CRT_APG_DOOR_2.get(), RenderCRTAPGDoor2::new);
-
-        // CRT 高屏蔽门（PSD）系列
         BlockEntityRendererRegistry.register((BlockEntityType<BlockCRTPSDDoor1.BlockEntity>) BlockEntityTypes.CRT_PSD_DOOR_1.get(), RenderCRTPSDDoor1::new);
         BlockEntityRendererRegistry.register((BlockEntityType<BlockCRTPSDTop1.BlockEntity>) BlockEntityTypes.CRT_PSD_TOP_1.get(), RenderCRTPSDTop1::new);
-
-        // CRT 墙挂铁路指示牌（两代：模型与发光独立）
         BlockEntityRendererRegistry.register((BlockEntityType<BlockCRTRailwaySignWall1.BlockEntity>) BlockEntityTypes.CRT_RAILWAY_SIGN_WALL_1.get(), (context) -> new RenderCRTRailwaySignWall1<>(context));
         BlockEntityRendererRegistry.register((BlockEntityType<BlockCRTRailwaySignWall2.BlockEntity>) BlockEntityTypes.CRT_RAILWAY_SIGN_WALL_2.get(), RenderCRTRailwaySignWall2::new);
-
-        // CRT 铁路告示牌（长度 3-11，偶/奇）
         registerRailwaySignRenderers();
     }
 
