@@ -135,6 +135,11 @@ public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 | D13 | 语言文件按来源**整文件覆盖**（9 个 locale） | 已核验目标独有键为 0，覆盖最稳；键总数 1538 → 2282 |
 | D14 | 贴图/模型以来源覆盖，**保留目标独有**（14 贴图 / 2 js / 1 字体 / 3 根资源） | 目标基线有来源没有的特效贴图与示例脚本 |
 | D15 | 三方共用的 78 处上游贴图/模型断链**按来源原样保留**（目标 72，比来源少 6） | 属来源既有缺口，本轮引入 0 处；不在移植期擅自补图 |
+| D16 | **不移植来源 `RailwaySignScreenMixin` 里的 `@Redirect(getSortedSignIds)` CRT 标志注入** | 反编译核对：MTR3 `RailwaySignScreen` 的 `allSignIds` 直接来自 `new ArrayList<>(CustomResources.CUSTOM_SIGNS.keySet())` + 排序，凡进 `CUSTOM_SIGNS` 的标志自动出现在原版选择界面，无需改字节码 |
+| D17 | 副作用：CRT 标志也会出现在**原版 MTR 导视牌**编辑界面 | MTR3 只有一个 `CUSTOM_SIGNS`（既作渲染查询又作界面列表），无法像 MTR4 那样只写渲染缓存；CRT 界面侧隔离仍由 `CRTSignRegistry` 的 `whitelist`/`getSignIdsFor` 保证 |
+| D18 | 来源 `nanbin$editScrollBar`（原版导视牌界面的编辑按钮横向滚动条）**暂不移植** | 纯 GUI 便利性；在无法实机验证的前提下新增 Mixin 注入的崩溃风险高于收益。已列入遗留项，如有需求可在 P8 后单独做 |
+| D19 | 数据包采用**通道制**而非来源的「一消息一类」 | 目标既有架构（`PacketHandler` C2S + `PacketOpenScreen` S2C + `ClientPacketHelper` 发送端）已成型；16 个来源 packet 类登记为 known-skip，载荷逻辑逐条搬入 |
+| D20 | 新增 `tools/parity/accept.ps1` 一键验收（9 道门） | P8 用；也可随时增量运行 |
 
 ## 10. 进度台账
 

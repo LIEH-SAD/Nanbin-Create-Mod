@@ -130,7 +130,7 @@ public class NanbinConfigScreen extends NanbinUIScreen {
 
     /** 顶部区域：LOGO + 加大的模组名（1.5×）+ 版本号；整组在面板上方水平居中，文字块与 LOGO 垂直居中。 */
     private void drawLogoAndVersion(DrawContext context) {
-        final MutableText nameText = this.title.copy();
+        final MutableText nameText = Text.literal(Init.MOD_NAME);
         final MutableText versionText = Text.literal(Init.FINAL_VERSION);
         final int nameWidth = Math.round(this.textRenderer.getWidth(nameText) * NAME_SCALE);
         final int nameHeight = Math.round(8 * NAME_SCALE);

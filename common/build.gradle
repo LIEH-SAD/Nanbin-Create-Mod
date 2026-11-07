@@ -33,3 +33,8 @@ tasks.register('drawTest', JavaExec) {
     mainClass = 'com.Nanbin.dev.LineMapDrawTest'
     args = ['build/draw-test', '768']
 }
+
+// src/test 下只有离线绘制工具（无 JUnit 用例），避免 `gradlew build` 因「没有发现测试」失败
+tasks.named('test', Test) {
+    failOnNoDiscoveredTests = false
+}

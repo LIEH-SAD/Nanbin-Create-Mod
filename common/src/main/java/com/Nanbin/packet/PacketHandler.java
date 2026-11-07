@@ -229,4 +229,14 @@ public class PacketHandler {
 			buf.writeString(json);
 		});
 	}
+
+	/** 客户端 → 服务端：请求打开某个方块实体对应的屏幕（来源 PacketOpenBlockEntityScreen）。 */
+	public static void sendOpenBlockEntityScreen(BlockPos pos) {
+		Registry.sendPacketToServer(PACKET_OPEN_BLOCK_ENTITY_SCREEN, buf -> buf.writeBlockPos(pos));
+	}
+
+	/** 客户端 → 服务端：请求打开 CRT 站台/导视牌屏幕（来源 PacketOpenCRTPlatformScreen）。 */
+	public static void sendOpenCRTPlatformScreen(BlockPos pos) {
+		Registry.sendPacketToServer(PACKET_OPEN_CRT_PLATFORM_SCREEN, buf -> buf.writeBlockPos(pos));
+	}
 }

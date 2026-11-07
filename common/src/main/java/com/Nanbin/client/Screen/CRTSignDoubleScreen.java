@@ -1,10 +1,11 @@
 package com.Nanbin.client.Screen;
 
 import com.Nanbin.Init;
-import com.Nanbin.Registry.RegBlock.BlockCRTStationInfo1;
-import com.Nanbin.Registry.RegBlock.BlockCRTStationInfo1Double;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTSignRegistry;
 import com.Nanbin.client.ClientData.SignClipboard;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
+import com.Nanbin.packet.ClientPacketHelper;
+import com.Nanbin.uiHelper.NanbinHorizontalScrollBar;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import mtr.MTR;
 import mtr.block.BlockRailwaySign;
@@ -15,14 +16,12 @@ import mtr.data.DataConverter;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.data.Platform;
-import mtr.data.RailwayData;
 import mtr.data.Station;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
 import mtr.render.RenderRailwaySign;
 import mtr.screen.DashboardListSelectorScreen;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -32,7 +31,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -42,14 +40,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 多行指示牌编辑器（{@link #SIGN_LINES} 行 × {@code length} 格），供 CRT 站台信息屏使用。
- * 格子与图标列表均按 MTR 原版样式用 {@link RenderRailwaySign#drawSign} 绘制图标，
+ * 多行指示牌编辑器（{@code lines} 行 × {@code length} 格，小图标），供各 CRT 方块共用。
+ * 修改自天津地铁的 CRTSignDoubleScreen，去掉了对 ziyue 模块的依赖。
+ * 行数/列数/初始数据/保存动作均由调用方传入。
+ *
+ * <p>格子与图标列表均按 MTR 原版样式用 {@link RenderRailwaySign#drawSign} 绘制图标，
  * 按钮只负责接收点击；图标按「带自定义文本 / 不带」分两类排布并分页。
- * 另提供复制 / 粘贴 / 撤回 / 清空 / JS 样式等工具按钮。
+ * 另提供复制 / 粘贴 / 撤回 / 清空 / JS 样式等工具按钮；格子过多时编辑行可横向滚动。</p>
  *
  * @see mtr.screen.RailwaySignScreen
  */
-public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
+public class CRTSignDoubleScreen extends ScreenMapper implements IGui {
+
+	protected final int lines;
+	protected final int length;
 
 	protected int line;
 	protected int editingIndex;
@@ -60,7 +64,6 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 
 	protected final BlockPos signPos;
 	protected final boolean isRailwaySign;
-	protected final int length;
 	protected final String[][] signIds;
 	protected final List<LongAVLTreeSet> selectedIds;
 	protected final List<NameColorDataBase> exitsForList = new ArrayList<>();
@@ -78,16 +81,19 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 	/** 数据变更后的回写动作（把格子数据保存到服务端）。 */
 	private final Runnable onSave;
 
-	protected static final int SIGN_LINES = 2;
 	protected static final int SIGN_SIZE = 32;
 	protected static final int SIGN_BUTTON_SIZE = 16;
-	protected static final int BUTTON_Y_START = (SQUARE_SIZE + SIGN_SIZE) * SIGN_LINES + SIGN_BUTTON_SIZE / 2;
+
+	/** 编辑按钮行的 y 起点（行数可变，按 lines 计算）。 */
+	protected final int buttonYStart;
 
 	private ButtonWidget undoButton;
 	private ButtonWidget copyButton;
 	private ButtonWidget pasteButton;
 	private ButtonWidget clearAllButton;
 	private ButtonWidget jsStyleButton;
+	// 格子太多放不下时，编辑按钮行下方的横向滚动条
+	private NanbinHorizontalScrollBar nanbinEditScrollBar;
 
 	/** 图标列表遍历回调：index 为图标序号，x / y 为相对偏移，isBig 表示该图标带自定义文本（占 3 格宽）。 */
 	@FunctionalInterface
@@ -95,12 +101,20 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 		void loopSignsCallback(int index, int x, int y, boolean isBig);
 	}
 
-	public RailwaySignDoubleScreen(BlockPos signPos, boolean isFront, Runnable onSave) {
+	public CRTSignDoubleScreen(BlockPos signPos, int lines, int length, String[][] signIds, List<LongAVLTreeSet> selectedIds, boolean isRailwaySign, Runnable onSave) {
 		super(Text.literal(""));
-		editingIndex = -1;
 		this.signPos = signPos;
+		this.lines = Math.max(lines, 1);
+		this.length = Math.max(length, 1);
+		this.signIds = signIds != null ? signIds : new String[this.lines][this.length];
+		this.selectedIds = selectedIds != null ? selectedIds : new ArrayList<>();
+		while (this.selectedIds.size() < this.lines) {
+			this.selectedIds.add(new LongAVLTreeSet());
+		}
+		this.isRailwaySign = isRailwaySign;
 		this.onSave = onSave;
-		final World world = MinecraftClient.getInstance().world;
+		this.buttonYStart = (SQUARE_SIZE + SIGN_SIZE) * this.lines + SIGN_BUTTON_SIZE / 2;
+		editingIndex = -1;
 
 		for (final BlockRailwaySign.SignType signType : BlockRailwaySign.SignType.values()) {
 			allSignIds.add(signType.toString());
@@ -108,10 +122,13 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 		final List<String> sortedKeys = new ArrayList<>(CustomResources.CUSTOM_SIGNS.keySet());
 		Collections.sort(sortedKeys);
 		allSignIds.addAll(sortedKeys);
+		// 该界面只被 CRT 类导视使用：追加 crt_signs.json 里白名单允许 CRT 的标志
+		CRTSignRegistry.appendSignsFor(allSignIds, CRTSignRegistry.SURFACE_CRT);
 
-		try {
-			final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, signPos);
-			if (station != null) {
+		// 与数据选择屏一致：车站出入口外的指示牌也要能找到所属车站
+		final Station station = ClientPacketHelper.findStationForSelection(signPos);
+		if (station != null) {
+			try {
 				final Map<String, List<String>> exits = station.getGeneratedExits();
 				final List<String> exitParents = new ArrayList<>(exits.keySet());
 				exitParents.sort(String::compareTo);
@@ -126,41 +143,13 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 
 				ClientData.DATA_CACHE.getAllRoutesIncludingConnectingStations(station).forEach((color, route) -> routesForList.add(new DataConverter(route.color, route.name, route.color)));
 				ClientData.DATA_CACHE.getConnectingStationsIncludingThisOne(station).forEach(connectingStation -> stationsForList.add(new DataConverter(connectingStation.id, connectingStation.name, connectingStation.color)));
-			}
-		} catch (Exception e) {
-			Init.LOGGER.error("Failed to load station data for railway sign screen at {}", signPos.toShortString(), e);
-		}
-
-		String[][] loadedSignIds = null;
-		List<LongAVLTreeSet> loadedSelectedIds = null;
-		if (world != null) {
-			final BlockEntity entity = world.getBlockEntity(signPos);
-			if (entity instanceof BlockCRTStationInfo1.BlockEntity infoEntity) {
-				loadedSignIds = infoEntity.getSignIds();
-				loadedSelectedIds = infoEntity.getSelectedIds();
-			} else if (entity instanceof BlockCRTStationInfo1Double.BlockEntity infoEntity) {
-				loadedSignIds = infoEntity.getSignIds(isFront);
-				loadedSelectedIds = infoEntity.getSelectedIds(isFront);
+			} catch (Exception e) {
+				Init.LOGGER.error("Failed to load station data for railway sign screen at {}", signPos.toShortString(), e);
 			}
 		}
 
-		if (loadedSignIds != null) {
-			signIds = loadedSignIds;
-			selectedIds = loadedSelectedIds;
-			isRailwaySign = true;
-			length = signIds.length > 0 && signIds[0] != null ? signIds[0].length : BlockCRTStationInfo1.BlockEntity.SIGN_LENGTH;
-		} else {
-			length = BlockCRTStationInfo1.BlockEntity.SIGN_LENGTH;
-			signIds = new String[SIGN_LINES][length];
-			selectedIds = new ArrayList<>();
-			for (int i = 0; i < SIGN_LINES; i++) {
-				selectedIds.add(new LongAVLTreeSet());
-			}
-			isRailwaySign = false;
-		}
-
-		buttonsEdit = new ButtonWidget[SIGN_LINES][length];
-		for (int i = 0; i < SIGN_LINES; i++) {
+		buttonsEdit = new ButtonWidget[this.lines][this.length];
+		for (int i = 0; i < this.lines; i++) {
 			for (int j = 0; j < buttonsEdit[i].length; j++) {
 				final int index = j;
 				final int finalI = i;
@@ -183,21 +172,21 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 	protected void init() {
 		super.init();
 
-		for (int i = 0; i < SIGN_LINES; i++) {
+		for (int i = 0; i < lines; i++) {
 			for (int j = 0; j < buttonsEdit[i].length; j++) {
-				IDrawing.setPositionAndWidth(buttonsEdit[i][j], (width - SIGN_SIZE * length) / 2 + j * SIGN_SIZE, i * (SIGN_SIZE + SQUARE_SIZE) + SIGN_SIZE, SIGN_SIZE);
 				addDrawableChild(buttonsEdit[i][j]);
 			}
 		}
+		nanbinInitEditScrollBar();
 
 		columns = Math.max((width - SIGN_BUTTON_SIZE * 3) / (SIGN_BUTTON_SIZE * 8) * 2, 1);
-		rows = Math.max((height - SIGN_SIZE * SIGN_LINES - SQUARE_SIZE * 4 - SQUARE_SIZE / 2) / SIGN_BUTTON_SIZE, 1);
+		rows = Math.max((height - SIGN_SIZE * lines - SQUARE_SIZE * 4 - SQUARE_SIZE / 2) / SIGN_BUTTON_SIZE, 1);
 
 		final int xOffsetSmall = (width - SIGN_BUTTON_SIZE * (columns * 4 + 3)) / 2 + SIGN_BUTTON_SIZE;
 		final int xOffsetBig = xOffsetSmall + SIGN_BUTTON_SIZE * (columns + 1);
 
 		totalPages = loopSigns((index, x, y, isBig) -> {
-			IDrawing.setPositionAndWidth(buttonsSelection[index], (isBig ? xOffsetBig : xOffsetSmall) + x, BUTTON_Y_START + y, isBig ? SIGN_BUTTON_SIZE * 3 : SIGN_BUTTON_SIZE);
+			IDrawing.setPositionAndWidth(buttonsSelection[index], (isBig ? xOffsetBig : xOffsetSmall) + x, buttonYStart + y, isBig ? SIGN_BUTTON_SIZE * 3 : SIGN_BUTTON_SIZE);
 			buttonsSelection[index].visible = false;
 			addDrawableChild(buttonsSelection[index]);
 		}, true);
@@ -235,24 +224,24 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 		final int x = width - 35;
 
 		undoButton = ButtonWidget.builder(Text.translatable("gui.nanbin.undo"), button -> {
-			SignClipboard.undo(signPos, SIGN_LINES, length, signIds, selectedIds);
+			SignClipboard.undo(signPos, lines, length, signIds, selectedIds);
 			button.active = SignClipboard.canUndo(signPos);
 			save();
 		}).dimensions(x, y + 90, 30, 20).build();
 		undoButton.active = SignClipboard.canUndo(signPos);
 
-		copyButton = ButtonWidget.builder(Text.translatable("gui.nanbin.copy"), button -> SignClipboard.copy(SIGN_LINES, length, signIds, selectedIds)).dimensions(x, y, 30, 20).build();
+		copyButton = ButtonWidget.builder(Text.translatable("gui.nanbin.copy"), button -> SignClipboard.copy(lines, length, signIds, selectedIds)).dimensions(x, y, 30, 20).build();
 
 		pasteButton = ButtonWidget.builder(Text.translatable("gui.nanbin.paste"), button -> {
-			SignClipboard.paste(signPos, SIGN_LINES, length, signIds, selectedIds);
+			SignClipboard.paste(signPos, lines, length, signIds, selectedIds);
 			undoButton.active = SignClipboard.canUndo(signPos);
 			save();
 		}).dimensions(x, y + 30, 30, 20).build();
-		pasteButton.active = SignClipboard.canPaste(SIGN_LINES, length);
+		pasteButton.active = SignClipboard.canPaste(lines, length);
 
 		// 清空：先弹二次确认（与 RailwaySignScreenMixin 一致）
 		clearAllButton = ButtonWidget.builder(Text.translatable("gui.nanbin.clear"), button -> MinecraftClient.getInstance().setScreen(new RailwaySignClearConfirmScreen(this, Text.translatable("gui.nanbin.clear.question"), () -> {
-			SignClipboard.clear(signPos, SIGN_LINES, length, signIds, selectedIds);
+			SignClipboard.clear(signPos, lines, length, signIds, selectedIds);
 			undoButton.active = SignClipboard.canUndo(signPos);
 			save();
 		}))).dimensions(x, y + 60, 30, 20).build();
@@ -261,6 +250,41 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 		addDrawableChild(pasteButton);
 		addDrawableChild(clearAllButton);
 		addDrawableChild(undoButton);
+	}
+
+	// 格子太多放不下时，在最下方编辑按钮行下方显示横向滚动条
+	private void nanbinInitEditScrollBar() {
+		final double previousScroll = nanbinEditScrollBar == null ? 0 : nanbinEditScrollBar.getScroll();
+		nanbinEditScrollBar = new NanbinHorizontalScrollBar(8, lines * (SIGN_SIZE + SQUARE_SIZE) + 2, Math.max(0, width - 16), 6, this::nanbinLayoutEditRow);
+		nanbinEditScrollBar.setContentWidth(length * SIGN_SIZE);
+		nanbinEditScrollBar.setScroll(previousScroll);
+		nanbinEditScrollBar.visible = nanbinEditScrollBar.isScrollable();
+		addDrawableChild(nanbinEditScrollBar);
+		nanbinLayoutEditRow();
+	}
+
+	protected void nanbinLayoutEditRow() {
+		final int startX = nanbinEditStartX();
+		for (int i = 0; i < lines; i++) {
+			for (int j = 0; j < buttonsEdit[i].length; j++) {
+				IDrawing.setPositionAndWidth(buttonsEdit[i][j], startX + j * SIGN_SIZE, i * (SIGN_SIZE + SQUARE_SIZE) + SIGN_SIZE, SIGN_SIZE);
+			}
+		}
+	}
+
+	// 放得下就居中，放不下就从左端（x = 8）开始并随滚动条左移，滚动上限正好等于 contentWidth - 可视宽度
+	protected int nanbinEditStartX() {
+		final int contentWidth = length * SIGN_SIZE;
+		return contentWidth <= width - 16 ? (width - contentWidth) / 2 : 8 - nanbinEditScroll();
+	}
+
+	protected int nanbinEditScroll() {
+		return nanbinEditScrollBar == null ? 0 : (int) Math.round(nanbinEditScrollBar.getScroll());
+	}
+
+	/** 鼠标是否落在编辑按钮行/滚动条所在的顶部区域（滚轮改为横向滚动）。 */
+	private boolean nanbinIsInEditRow(double mouseY) {
+		return nanbinEditScrollBar != null && nanbinEditScrollBar.isScrollable() && mouseY >= 0 && mouseY < nanbinEditScrollBar.getY() + nanbinEditScrollBar.getHeight() + 6;
 	}
 
 	@Override
@@ -273,8 +297,9 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 			}
 
 			final MatrixStack matrices = context.getMatrices();
+			final int editStartX = nanbinEditStartX();
 
-			for (int i = 0; i < SIGN_LINES && i < signIds.length; i++) {
+			for (int i = 0; i < lines && i < signIds.length; i++) {
 				final String[] lineIds = signIds[i];
 				final String lineStyleScriptId = JSSignConfig.getStyleScriptId(lineIds);
 				final LongAVLTreeSet lineSelected = i < selectedIds.size() ? selectedIds.get(i) : new LongAVLTreeSet();
@@ -286,11 +311,11 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 					if (lineStyleScriptId != null) {
 						// 整行 JS 样式：用脚本名代替图标
 						if (j == 0) {
-							context.drawCenteredTextWithShadow(textRenderer, JSSignSelectorScreen.getScriptName(lineStyleScriptId), (width - SIGN_SIZE * length) / 2 + SIGN_SIZE * length / 2, i * (SQUARE_SIZE + SIGN_SIZE) + SIGN_SIZE / 2 - 4, ARGB_WHITE);
+							context.drawCenteredTextWithShadow(textRenderer, JSSignSelectorScreen.getScriptName(lineStyleScriptId), editStartX + length * SIGN_SIZE / 2, i * (SQUARE_SIZE + SIGN_SIZE) + SIGN_SIZE / 2 - 4, ARGB_WHITE);
 						}
 						continue;
 					}
-					RenderRailwaySign.drawSign(matrices, null, null, textRenderer, signPos, signId, (width - SIGN_SIZE * length) / 2F + j * SIGN_SIZE, i * (SQUARE_SIZE + SIGN_SIZE), SIGN_SIZE, RenderRailwaySign.getMaxWidth(lineIds, j, false), RenderRailwaySign.getMaxWidth(lineIds, j, true), lineSelected, Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
+					RenderRailwaySign.drawSign(matrices, null, null, textRenderer, signPos, signId, editStartX + j * SIGN_SIZE, i * (SQUARE_SIZE + SIGN_SIZE), SIGN_SIZE, RenderRailwaySign.getMaxWidth(lineIds, j, false), RenderRailwaySign.getMaxWidth(lineIds, j, true), lineSelected, Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
 						UtilitiesClient.beginDrawingTexture(textureId);
 						context.drawTexture(textureId, (int) x, (int) y, 0.0F, 0.0F, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
 					});
@@ -305,14 +330,14 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 					final String signId = allSignIds.get(index);
 					if (JSSignConfig.isJSStyle(signId)) {
 						// JS 样式图标：用脚本名代替贴图
-						context.drawCenteredTextWithShadow(textRenderer, JSSignSelectorScreen.getScriptName(signId.substring(JSSignConfig.JS_STYLE_PREFIX.length())), (isBig ? xOffsetBig : xOffsetSmall) + x + (isBig ? SIGN_BUTTON_SIZE * 3 : SIGN_BUTTON_SIZE) / 2, BUTTON_Y_START + y + 4, ARGB_WHITE);
+						context.drawCenteredTextWithShadow(textRenderer, JSSignSelectorScreen.getScriptName(signId.substring(JSSignConfig.JS_STYLE_PREFIX.length())), (isBig ? xOffsetBig : xOffsetSmall) + x + (isBig ? SIGN_BUTTON_SIZE * 3 : SIGN_BUTTON_SIZE) / 2, buttonYStart + y + 4, ARGB_WHITE);
 						return;
 					}
 					final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signId);
 					if (sign != null) {
 						final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
 						UtilitiesClient.beginDrawingTexture(sign.textureId);
-						RenderRailwaySign.drawSign(matrices, null, null, textRenderer, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 6, 6, selectedIds.get(line), Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> context.drawTexture(textureId, (int) x1, (int) y1, 0.0F, 0.0F, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+						RenderRailwaySign.drawSign(matrices, null, null, textRenderer, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), buttonYStart + y, SIGN_BUTTON_SIZE, 6, 6, selectedIds.get(line), Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> context.drawTexture(textureId, (int) x1, (int) y1, 0.0F, 0.0F, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
 					}
 				}, false);
 
@@ -320,12 +345,16 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 				context.drawText(textRenderer, pageText, (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2 + PANEL_WIDTH + SQUARE_SIZE * 2 - textRenderer.getWidth(pageText) / 2, height - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE, false);
 			}
 		} catch (Exception e) {
-			Init.LOGGER.error("Failed to render RailwaySignDoubleScreen", e);
+			Init.LOGGER.error("Failed to render CRTSignDoubleScreen", e);
 		}
 	}
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+		if (nanbinIsInEditRow(mouseY)) {
+			nanbinEditScrollBar.setScroll(nanbinEditScrollBar.getScroll() - amount * 16);
+			return true;
+		}
 		setPage(page + (int) Math.signum(-amount));
 		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
@@ -344,15 +373,17 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 	@Override
 	public void resize(MinecraftClient client, int width, int height) {
 		super.resize(client, width, height);
-		for (int i = 0; i < SIGN_LINES; i++) {
+		for (int i = 0; i < lines; i++) {
 			for (final ButtonWidget button : buttonsEdit[i]) {
 				button.active = true;
 			}
 		}
+		nanbinLayoutEditRow();
 		for (final ButtonWidget button : buttonsSelection) {
 			button.visible = false;
 		}
 		editingIndex = -1;
+		applyLockState();
 	}
 
 	/**
@@ -434,7 +465,7 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 	}
 
 	protected void setNewSignId(@Nullable String newSignId) {
-		if (editingIndex < 0 || editingIndex >= length || line < 0 || line >= SIGN_LINES) {
+		if (editingIndex < 0 || editingIndex >= length || line < 0 || line >= lines) {
 			return;
 		}
 		signIds[line][editingIndex] = newSignId;
@@ -477,7 +508,7 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 	private void refreshSignButtons() {
 		final int xOffsetSmall = (width - SIGN_BUTTON_SIZE * (columns * 4 + 3)) / 2 + SIGN_BUTTON_SIZE;
 		final int xOffsetBig = xOffsetSmall + SIGN_BUTTON_SIZE * (columns + 1);
-		loopSigns((index, x, y, isBig) -> IDrawing.setPositionAndWidth(buttonsSelection[index], (isBig ? xOffsetBig : xOffsetSmall) + x, BUTTON_Y_START + y, isBig ? SIGN_BUTTON_SIZE * 3 : SIGN_BUTTON_SIZE), false);
+		loopSigns((index, x, y, isBig) -> IDrawing.setPositionAndWidth(buttonsSelection[index], (isBig ? xOffsetBig : xOffsetSmall) + x, buttonYStart + y, isBig ? SIGN_BUTTON_SIZE * 3 : SIGN_BUTTON_SIZE), false);
 		if (editingIndex < 0 || isCurrentLineJSStyle()) {
 			for (final ButtonWidget button : buttonsSelection) {
 				button.visible = false;
@@ -548,7 +579,7 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 		}
 		final boolean hasSelection = editingIndex >= 0;
 		// JS 样式行下仍保持格子按钮可用，以便 edit() 拦截并打开 JS 数据选择屏幕
-		for (int i = 0; i < SIGN_LINES; i++) {
+		for (int i = 0; i < lines; i++) {
 			for (final ButtonWidget button : buttonsEdit[i]) {
 				button.active = true;
 			}
@@ -567,7 +598,7 @@ public class RailwaySignDoubleScreen extends ScreenMapper implements IGui {
 			copyButton.active = !locked;
 		}
 		if (pasteButton != null) {
-			pasteButton.active = !locked && SignClipboard.canPaste(SIGN_LINES, length);
+			pasteButton.active = !locked && SignClipboard.canPaste(lines, length);
 		}
 		if (clearAllButton != null) {
 			clearAllButton.active = !locked;

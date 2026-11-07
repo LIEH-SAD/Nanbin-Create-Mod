@@ -87,7 +87,7 @@ public class StationInfoScreen extends ScreenMapper {
 
 		addDrawableChild(ButtonWidget.builder(
 				Text.translatable("gui.nanbin.station_info.select_sign"),
-				button -> ClientPacketHelper.openRailwaySignDoubleScreen(blockPos, isFront)).dimensions(centerX - BUTTON_WIDTH / 2, currentY, BUTTON_WIDTH, BUTTON_HEIGHT).build());
+				button -> ClientPacketHelper.openCRTSignDoubleScreen(blockPos, isFront)).dimensions(centerX - BUTTON_WIDTH / 2, currentY, BUTTON_WIDTH, BUTTON_HEIGHT).build());
 		currentY += BUTTON_HEIGHT + SPACING * 2;
 
 		addDrawableChild(ButtonWidget.builder(
