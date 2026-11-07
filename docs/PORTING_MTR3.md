@@ -239,4 +239,19 @@ public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 - 影响面：仅「旧数据 → 布局」的一次性转换；不会改动世界渲染的 legacy 回退路径（未保存布局时仍按旧 `signIds` 渲染），也不会改动用户手动放置的 `SPACE` 元素（调色板里的「空白」卡照常可用）。
 - 副作用（预期）：导入后的布局里，元素之间不再保留原空格宽度，内容按实际元素从左顺延；如需「只去掉首尾空格、保留中间对齐」的折中方案，可再调整。
 
+## 17. JS 预设不显示：初始化时序回归修复
+
+**现象**：目标版本编辑器「标识牌设置 → JS 样式」下拉、以及原版导视牌界面的 JS 样式选择器里一个脚本都没有（只有「无（自由布局）」）。
+
+**根因**：P8 把 `InitClient` 里的 `NanbinSignLoader::register` 迁到 `CRTSignRegistry` 时，顺手把 JS 加载写成了**立即调用** `JSSignLoader::reload` / `CRTJsSignLoader::reload`。但 Fabric 的 `ClientModInitializer.onInitializeClient` 早于 `MinecraftClient` 实例创建，此时 `MinecraftClient.getInstance()` 为 null，`getResourceManager()` 抛 NPE 被 catch 吞掉 → `JSSignConfig` 一直是空的。基线代码是「注册监听器、资源重载时再加载」，所以之前正常。
+
+**修复**：
+1. `JSSignLoader` / `CRTJsSignLoader` 各新增 `register()`：`CustomResources.registerReloadListener(rm -> reload())`（首次资源加载 + 每次 `/reload` 都会触发）；
+2. `InitClient` 改为调用两者的 `register()`（不再是 `reload()`）；
+3. 两个 `reload()` 增加 `MinecraftClient.getInstance() == null` 的兜底日志与提前返回；
+4. `InitClient` 额外挂一个 **首 tick 兜底**：若第一个 tick 时 `JSSignConfig.getAllScripts()` 仍为空，主动补一次 `JSSignLoader.reload() + CRTJsSignLoader.reload()`（日志 `JS sign scripts are still empty after resource reload - reloading now`）。
+
+**验证方式（实机）**：启动后日志应出现 `Loaded JS sign script: ...`（4 条旧配置 + 2 条 CRT 配置，同名 id 后者覆盖）；编辑器右栏「JS 样式」应列出 `crt_station_entrance`、`example_clock`、`example_station_info`、`example_multi_screen` 四项。
+- 来源（mtr4 分支）无此问题：它的 `CRTJsSignLoader.reload()` 由 `CRTSignLoaderMixin` 钩 MTR 资源重载，时机正确，**不需要改**。
+
 > 来源 HEAD 说明：任务开始时为 `ed04f13`，后被来源作者 amend 为 `e34adcb`；差异仅「删除 6 个误提交的 `.hprof.p*` + `NanbinConfigScreen` +2 行 + `fabric.mod.template.json` −1 行」，不影响已移植内容。

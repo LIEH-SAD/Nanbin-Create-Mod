@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import mtr.client.CustomResources;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -33,10 +34,24 @@ public final class CRTJsSignLoader {
 	private CRTJsSignLoader() {
 	}
 
+	/**
+	 * 注册资源重载监听器（客户端初始化时调用一次）。
+	 *
+	 * <p>与 {@link JSSignLoader#register()} 同理：初始化阶段 {@code MinecraftClient} 还不存在，
+	 * 必须延迟到资源重载时再读取配置，否则 CRT JS 预设不会出现在编辑器/选择器里。</p>
+	 */
+	public static void register() {
+		CustomResources.registerReloadListener(resourceManager -> reload());
+	}
+
 	/** 加载 {@code crt_js_signs_config.json}（可重复调用；资源重载后应再次调用）。 */
 	public static void reload() {
 		// 资源可能换了，烘焙贴图与贴图像素缓存一起作废
 		JSSignTextureBaker.clearCaches();
+		if (MinecraftClient.getInstance() == null) {
+			Init.LOGGER.warn("CRTJsSignLoader: MinecraftClient not ready, CRT JS sign scripts will load on resource reload");
+			return;
+		}
 		try {
 			final ResourceManager resourceManager = MinecraftClient.getInstance().getResourceManager();
 			final List<Resource> resources = resourceManager.getAllResources(CRT_JS_SIGNS_CONFIG_ID);
