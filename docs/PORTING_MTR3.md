@@ -208,4 +208,6 @@ public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 - `FiltersMenu` 的「关于」保留按钮（CRT / 城市建设两个页签）与来源一致。
 - 注册顺序：`InitClient.initMenuAndRenderLayers()` → `FiltersGroup::init` → `FiltersMenu::init` → `RenderLayerReg::init`（在 `ItemsGroup` 注册之后，符合过滤器按页签键查找的要求）。
 
+> ⚠️ 版本号注意：本工程用**日期式** `mod_version`（如 `3.1.261107`），来源工程用 `version=3.1.0`。曾出现一次被误改成 `3.1.0`（会改变产物名）。改版本前先确认 `gradle.properties` 的 `mod_version` 与 `build/release/` 命名约定一致。
+
 > 来源 HEAD 说明：任务开始时为 `ed04f13`，后被来源作者 amend 为 `e34adcb`；差异仅「删除 6 个误提交的 `.hprof.p*` + `NanbinConfigScreen` +2 行 + `fabric.mod.template.json` −1 行」，不影响已移植内容。
