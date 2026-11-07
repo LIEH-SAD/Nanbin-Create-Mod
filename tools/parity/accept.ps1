@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   One-shot acceptance harness for the MTR 4.0 -> MTR 3.6.3 port.
 
@@ -35,9 +35,11 @@ function Add-Result([string]$name, [bool]$ok, [string]$detail) {
 }
 
 function Run-Gradle([string]$arguments) {
+    # gradle 任务名可能多个（用空格分隔）；PowerShell 不能把整串当一个参数传给 gradlew。
+    $argList = @($arguments -split '\s+' | Where-Object { $_ -ne '' })
     Push-Location $Target
     try {
-        $out = & .\gradlew.bat $arguments --console=plain 2>&1
+        $out = & .\gradlew.bat @argList --console=plain 2>&1
         return $out
     } finally {
         Pop-Location

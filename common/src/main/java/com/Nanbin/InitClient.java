@@ -5,6 +5,7 @@ import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTSignRegistry;
 import com.Nanbin.client.Drawing.RouteMapOverride;
 import com.Nanbin.client.FiltersGroup.FiltersGroup;
 import com.Nanbin.client.FiltersGroup.FiltersMenu;
+import com.Nanbin.client.JavaScriptSupport.CRTJsSignLoader;
 import com.Nanbin.client.JavaScriptSupport.JSSignLoader;
 import com.Nanbin.client.Registry.BlockColor;
 import com.Nanbin.client.Registry.BlockEntityRender;
@@ -36,6 +37,8 @@ public class InitClient {
         ClientinitSteps.put("CRTSignRegistry", CRTSignRegistry::register);
         // JS 指示牌配置（来源由 CRTSignRegistry 一并触发，这里单独挂一次）
         ClientinitSteps.put("JSSignLoader", JSSignLoader::reload);
+        // CRT 整牌 JS 样式配置（crt_js_signs_config.json，与上面的旧配置叠加）
+        ClientinitSteps.put("CRTJsSignLoader", CRTJsSignLoader::reload);
         ClientinitSteps.put("RouteMapOverride", InitClient::initRouteMapOverride);
 
         runClientInitSteps(ClientinitSteps);
