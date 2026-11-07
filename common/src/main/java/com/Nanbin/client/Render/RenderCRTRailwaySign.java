@@ -2,6 +2,9 @@ package com.Nanbin.client.Render;
 
 import com.Nanbin.Init;
 import com.Nanbin.Registry.RegBlock.BlockCRTRailwaySign;
+import com.Nanbin.client.CRTRailwaySignEditor.render.CRTJsLayoutBake;
+import com.Nanbin.client.CRTRailwaySignEditor.render.CRTSignDataResolver;
+import com.Nanbin.client.CRTRailwaySignEditor.render.CRTSignLayoutPainter;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
 import com.Nanbin.client.Drawing.FontRenderUtils;
 import com.Nanbin.client.Drawing.SignTextStyleConfig;
@@ -12,6 +15,8 @@ import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
 import com.Nanbin.client.JavaScriptSupport.JSSignEngine;
 import com.Nanbin.client.JavaScriptSupport.JSSignTextureBaker;
 import com.Nanbin.mapping.GraphicsHolder;
+import com.Nanbin.packet.ClientPacketHelper;
+import com.Nanbin.signage.crt.CRTSignLayout;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import mtr.block.BlockRailwaySign;
 import mtr.block.IBlock;
@@ -91,6 +96,10 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 			if (state.getBlock() instanceof BlockRailwaySign) {
 				BlockRailwaySign block = (BlockRailwaySign) state.getBlock();
 				String[] signIds = entity.getSignIds();
+				// 自由布局（网页编辑器模型）优先：新编辑器创建的牌可能没有任何旧 signIds，
+				// 此时不能因"全空"提前 return，也不能只走下面的 legacy 逐格绘制。
+				final String signLayoutJson = entity.getSignLayout();
+				final CRTSignLayout layout = CRTSignLayout.fromJson(signLayoutJson);
 				if (signIds != null && signIds.length == block.length) {
 					boolean allEmpty = true;
 					for (String id : signIds) {
@@ -99,7 +108,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 							break;
 						}
 					}
-					if (allEmpty) {
+					if (allEmpty && layout == null) {
 						return;
 					}
 
@@ -113,6 +122,43 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 							if (sign != null && sign.backgroundColor != 0) {
 								cellBackgroundColors[i] = sign.backgroundColor;
 							}
+						}
+					}
+
+					// 自由布局（网页编辑器模型）：有布局数据时整块牌由布局绘制类烘焙成一张贴图来画；
+					// 布局渲染失败才回退到下面的 legacy 逐格绘制（来源 RenderCRTRailwaySign 的「布局优先、legacy 兜底」）。
+					if (layout != null) {
+						matrices.push();
+						matrices.translate(0.5, 0.53125, 0.5);
+						matrices.multiply(new Quaternionf().rotationY(MathHelper.RADIANS_PER_DEGREE * -facing.asRotation()));
+						matrices.multiply(new Quaternionf().rotationZ(MathHelper.RADIANS_PER_DEGREE * 180.0F));
+						matrices.translate((float) block.getXStart() / 16.0F - 0.5F, 0.0F, SIGN_Z_OFFSET);
+						boolean layoutDrawn = false;
+						try {
+							// 车站上下文用于出口信息条（EXIT_INFO）的目的地查询；坐标查询有 2 秒缓存
+							final CRTSignDataResolver layoutData = new CRTSignDataResolver(entity::getRouteNumber, ClientPacketHelper.findStationForSelectionCached(pos));
+							final boolean jsStyle = CRTJsLayoutBake.isJsStyle(layout);
+							final int layoutHash = signLayoutJson == null ? 0 : signLayoutJson.hashCode();
+							final JSSignTextureBaker.Baked baked = jsStyle
+									? CRTJsLayoutBake.bake(layout, layoutData, "crt_layout:" + pos.toShortString(), layoutHash, facing, signIds.length)
+									: CRTSignLayoutPainter.bake(layout, layoutData, "crt_layout:" + pos.toShortString(), layoutHash);
+							final float plateWidth = 0.5F * (float) signIds.length;
+							final float plateHeight = 0.5F;
+							if (baked != null) {
+								drawLayoutPlate(matrices, vertexConsumers, layout, baked, plateWidth, plateHeight, facing);
+								layoutDrawn = true;
+							} else if (jsStyle) {
+								// JS 样式烘焙失败：只画牌面底色，不回退 legacy（否则会与编辑器预览不一致）
+								drawLayoutBackground(matrices, vertexConsumers, layout, plateWidth, plateHeight, facing);
+								layoutDrawn = true;
+							}
+						} catch (Throwable e) {
+							// 布局渲染失败时回退到 legacy 逐格渲染，不能让一块牌子把整个世界渲染搞崩
+							Init.LOGGER.warn("CRT sign layout render failed at {}, falling back to cell rendering", pos.toShortString(), e);
+						}
+						matrices.pop();
+						if (layoutDrawn) {
+							return;
 						}
 					}
 
@@ -201,6 +247,37 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 				}
 			}
 		}
+	}
+
+	/**
+	 * 布局牌底板：{@code layout.backgroundColor}，放在半透明层（不写深度）并沿 z 后移 0.003125，
+	 * 使底板永远在内容之下，避免深度精度不足时底板挡掉色条/文字（与来源 LIGHT_TRANSLUCENT 底板一致）。
+	 */
+	private static void drawLayoutBackground(MatrixStack matrices, VertexConsumerProvider vertexConsumers, CRTSignLayout layout, float plateWidth, float plateHeight, Direction facing) {
+		final int backgroundColor = layout.backgroundColor | 0xFF000000;
+		matrices.push();
+		matrices.translate(0.0F, 0.0F, 0.003125F);
+		drawTexturedRect(matrices, vertexConsumers, WHITE_TEXTURE, 0.0F, 0.0F, plateWidth, plateHeight, facing, backgroundColor);
+		matrices.pop();
+	}
+
+	/**
+	 * 布局牌内容：把布局绘制类（{@link CRTSignLayoutPainter#bake} / {@link CRTJsLayoutBake#bake}）
+	 * 烘焙出的整牌贴图按牌面宽高等比居中绘制。
+	 *
+	 * <p>不能用 {@code Math.max(1.0F, ...)} 夹取：JS 样式的烘焙尺寸是世界单位（高只有 0.5），
+	 * 被抬到 1.0 会让 fitScale 变成 0.5，表现为「内容缩小居中、四周留白」（与来源一致）。</p>
+	 */
+	private static void drawLayoutPlate(MatrixStack matrices, VertexConsumerProvider vertexConsumers, CRTSignLayout layout, JSSignTextureBaker.Baked baked, float plateWidth, float plateHeight, Direction facing) {
+		drawLayoutBackground(matrices, vertexConsumers, layout, plateWidth, plateHeight, facing);
+		final float designWidth = Math.max(1.0E-4F, baked.width);
+		final float designHeight = Math.max(1.0E-4F, baked.height);
+		final float fitScale = Math.min(plateWidth / designWidth, plateHeight / designHeight);
+		final float drawWidth = designWidth * fitScale;
+		final float drawHeight = designHeight * fitScale;
+		final float drawX = (plateWidth - drawWidth) / 2.0F;
+		final float drawY = (plateHeight - drawHeight) / 2.0F;
+		drawTexturedRect(matrices, vertexConsumers, baked.identifier, drawX, drawY, drawWidth, drawHeight, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1);
 	}
 
 	/** 用传入的 matrices（render 传入，已相对变换）和 vertexConsumers 绘制矩形。调用方负责 push/pop。 */

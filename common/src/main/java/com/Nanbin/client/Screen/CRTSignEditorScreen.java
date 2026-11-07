@@ -5206,6 +5206,11 @@ case EXIT_INFO:
 	// ================================================================ 输入：画布
 
 	private void handleCanvasClick(double mouseX, double mouseY, boolean control, boolean shift) {
+		// JS 整牌样式：画布内容由脚本渲染，元素编辑锁定（提示切回「无」，见 EDITOR_TEST_CHECKLIST §7.2）
+		if (layout.hasJsStyle()) {
+			toast(tr("gui.nanbin.crt_editor.js.locked_edit"), true);
+			return;
+		}
 		// 行控件按钮
 		for (final RowChromeButton button : rowChromeButtons) {
 			if (button.rect.contains(mouseX, mouseY)) {
