@@ -27,6 +27,13 @@ common/dev/
 common/net/
 *.class
 
+# Local patched MTR jars (~126 MB, regenerate with tools/MtrJarPatcher)
+libs/
+
+# JVM dumps
+*.hprof
+*.hprof.p*
+
 # OS
 .DS_Store
 Thumbs.db

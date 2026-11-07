@@ -1,0 +1,33 @@
+﻿# Known rename/relocation map: <source relative path>=<target relative path>
+# Used by tools/parity/classes.ps1 so that intentional renames are not reported as "missing".
+# Keep this in sync with docs/PORTING_MTR3.md.
+
+# P4 block package restructure (source keeps CabDoor/Escalator/SoundproofNet/TallFence subpackages)
+# (source path is the flat one, target keeps the subpackage it already had)
+com/Nanbin/Registry/RegBlock/BlockBlueFence.java=com/Nanbin/Registry/RegBlock/TallFence/BlockBlueFence.java
+com/Nanbin/Registry/RegBlock/BlockBlueFenceTop.java=com/Nanbin/Registry/RegBlock/TallFence/BlockBlueFenceTop.java
+com/Nanbin/Registry/RegBlock/BlockGreenFence.java=com/Nanbin/Registry/RegBlock/TallFence/BlockGreenFence.java
+com/Nanbin/Registry/RegBlock/BlockGreenFenceTop.java=com/Nanbin/Registry/RegBlock/TallFence/BlockGreenFenceTop.java
+com/Nanbin/Registry/RegBlock/BlockMetalFence.java=com/Nanbin/Registry/RegBlock/TallFence/BlockMetalFence.java
+com/Nanbin/Registry/RegBlock/BlockMetalFenceTop.java=com/Nanbin/Registry/RegBlock/TallFence/BlockMetalFenceTop.java
+com/Nanbin/Registry/RegBlock/BlockCRTCabFence.java=com/Nanbin/Registry/RegBlock/CabDoor/BlockCRTCabFence.java
+com/Nanbin/Registry/RegBlock/BlockCRTCabFenceConnect.java=com/Nanbin/Registry/RegBlock/CabDoor/BlockCRTCabFenceConnect.java
+com/Nanbin/Registry/RegBlock/BlockOrdinaryAPGCabDoor.java=com/Nanbin/Registry/RegBlock/CabDoor/BlockOrdinaryAPGCabDoor.java
+com/Nanbin/Registry/RegBlock/BlockOrdinaryPSDCabDoor.java=com/Nanbin/Registry/RegBlock/CabDoor/BlockOrdinaryPSDCabDoor.java
+com/Nanbin/Registry/RegBlock/BlockCRTEscalatorSide.java=com/Nanbin/Registry/RegBlock/Escalator/BlockCRTEscalatorSide.java
+com/Nanbin/Registry/RegBlock/BlockCRTEscalatorStep.java=com/Nanbin/Registry/RegBlock/Escalator/BlockCRTEscalatorStep.java
+com/Nanbin/Registry/RegBlock/BlockSoundproofNetBase.java=com/Nanbin/Registry/RegBlock/SoundproofNet/BlockSoundproofNetBase.java
+com/Nanbin/Registry/RegBlock/BlockSoundproofNetMiddle.java=com/Nanbin/Registry/RegBlock/SoundproofNet/BlockSoundproofNetMiddle.java
+com/Nanbin/Registry/RegBlock/BlockSoundproofNetTop.java=com/Nanbin/Registry/RegBlock/SoundproofNet/BlockSoundproofNetTop.java
+com/Nanbin/Registry/RegBlock/base/BlockStationNameBase.java=com/Nanbin/Registry/RegBlock/BlockStationNameBase.java
+com/Nanbin/Registry/RegBlock/flag/APGDoorNumbering.java=com/Nanbin/Registry/RegBlock/APGDoorNumbering.java
+com/Nanbin/Registry/RegBlock/flag/TicketFault.java=com/Nanbin/Registry/RegBlock/TicketFault.java
+
+# Sign / drawing renames
+com/Nanbin/client/Drawing/CRTSignRenderer.java=com/Nanbin/client/Drawing/SignRenderer.java
+com/Nanbin/client/Drawing/CRTStationInfoBandRenderer.java=com/Nanbin/client/Drawing/StationInfoBandRenderer.java
+com/Nanbin/client/Drawing/RouteMapGenerator.java=com/Nanbin/client/RouteMap/RouteMapGenerator.java
+com/Nanbin/client/Drawing/RoundMapDrawing.java=com/Nanbin/client/RouteMap/RoundMapDrawing.java
+com/Nanbin/client/Drawing/RoundMapDrawingInverse.java=com/Nanbin/client/RouteMap/RoundMapDrawingInverse.java
+com/Nanbin/client/Screen/CRTSignDoubleScreen.java=com/Nanbin/client/Screen/RailwaySignDoubleScreen.java
+com/Nanbin/client/CRTRailwaySignEditor/legacy/SignTextStyleConfig.java=com/Nanbin/client/Drawing/SignTextStyleConfig.java
