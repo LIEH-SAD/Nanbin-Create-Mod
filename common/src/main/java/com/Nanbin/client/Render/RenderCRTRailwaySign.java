@@ -740,6 +740,325 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 		}
 	}
 
+	// ---------------------------------------------------------------- 兼容 API（供 CRTRailwaySignEditor/legacy 与界面预览使用）
+	// 来源：MTR 4.0 RenderCRTRailwaySign L254/L258/L521/L573。
+	// 目标侧世界渲染仍走上面的 MatrixStack 实现；这里额外提供 GraphicsHolder / StoredMatrixTransformations
+	// 形态的入口，画布模式（JSDrawSink 活跃）时直接把几何画进预览贴图。
+
+	/** 最近一次进入这些兼容 API 时使用的世界渲染上下文（仅世界渲染线程使用）。 */
+	private static MatrixStack compatMatrices;
+	private static VertexConsumerProvider compatVertexConsumers;
+
+	public static void drawSignCRT(GraphicsHolder graphicsHolder, @Nullable StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String signId, float x, float y, float size, float maxWidthLeft, float maxWidthRight, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, RenderRailwaySign.DrawTexture drawTexture, boolean transparentBlack, String[] signIds, int globalBgColor) {
+		drawSignCRT(graphicsHolder, storedMatrixTransformations, pos, signId, x, y, size, size, maxWidthLeft, maxWidthRight, selectedIds, routeNumbers, facing, backgroundColor, drawTexture, transparentBlack, signIds, globalBgColor);
+	}
+
+	public static void drawSignCRT(GraphicsHolder graphicsHolder, @Nullable StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String signId, float x, float y, float size, float cellWidth, float maxWidthLeft, float maxWidthRight, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, RenderRailwaySign.DrawTexture drawTexture, boolean transparentBlack, String[] signIds, int globalBgColor) {
+		final JSDrawSink sink = JSDrawSink.current();
+		if (graphicsHolder == null) {
+			// 画布模式（界面预览）：MTR 的 drawSign 会走渲染队列收不进画布，这里用 JSDrawSink 直绘。
+			if (sink != null) {
+				drawSignIntoCanvas(sink, signId, x, y, size, cellWidth, maxWidthLeft, maxWidthRight, selectedIds, routeNumbers, facing, backgroundColor, transparentBlack, signIds, globalBgColor);
+			}
+			return;
+		}
+		// 世界模式：忽略 storedMatrixTransformations（MTR 3.6.3 没有 MTR 4 的 SMT.transform(GraphicsHolder, offset)），
+		// 直接用 GraphicsHolder 里的 matrices/vertexConsumers 同步绘制。
+		compatMatrices = graphicsHolder.getMatrices();
+		compatVertexConsumers = graphicsHolder.getVertexConsumers();
+		final float centeredX = x + (cellWidth - size) / 2.0F;
+		drawSignCRT(compatMatrices, compatVertexConsumers, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, routeNumbers, facing, backgroundColor, drawTexture, transparentBlack, signIds, globalBgColor);
+	}
+
+	/** 画布模式的单格绘制：底色 + 图标贴图 / 自定义文字。 */
+	private static void drawSignIntoCanvas(JSDrawSink sink, String signId, float x, float y, float size, float cellWidth, float maxWidthLeft, float maxWidthRight, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, boolean transparentBlack, String[] signIds, int globalBgColor) {
+		final CustomResources.CustomSign sign = RenderRailwaySign.getSign(signId);
+		if (sign == null) {
+			return;
+		}
+		final float centeredX = x + (cellWidth - size) / 2.0F;
+		final boolean isStation = signId.equals("station") || signId.equals("station_flipped");
+		final boolean isStationNameCRT = signId.startsWith("crt_station_name");
+		final boolean isRouteNumber = signId.equals("crt_route_number") || signId.equals("crt_route_number_flipped");
+		if (!sign.hasCustomText()) {
+			sink.drawTexture(WHITE_TEXTURE, x, y, cellWidth, size, transparentBlack ? 0 : backgroundColor | 0xFF000000);
+			final float signSize = (sign.small ? 0.75F : 1.0F) * size;
+			final float margin = (size - signSize) / 2.0F;
+			if (sign.flipTexture) {
+				sink.drawTextureFlipped(sign.textureId, centeredX + margin, y + margin, signSize, signSize, -1);
+			} else {
+				sink.drawTexture(sign.textureId, centeredX + margin, y + margin, signSize, signSize, -1);
+			}
+		} else {
+			final String signText = resolveSignText(signId, sign, selectedIds, routeNumbers, isStation || isStationNameCRT, isRouteNumber);
+			SignTextStyleConfig.SignTextStyle style = SignTextStyleConfig.get(signId);
+			if (style == null && signId.endsWith("_flipped")) {
+				style = SignTextStyleConfig.get(signId.substring(0, signId.length() - "_flipped".length()));
+			}
+			drawCanvasText(sink, signText, size, x, false, cellWidth, globalBgColor, isRouteNumber ? getNumberFontType(signText) : FONT_TYPE, isRouteNumber, isRouteNumber || isStationNameCRT, style, 1.0F, y, cellWidth);
+		}
+	}
+
+	/**
+	 * 数据驱动版的线路牌区域渲染（来源 L573）。
+	 *
+	 * <p>{@code storedMatrixTransformations} 仅用于兼容签名：世界模式用最近一次
+	 * {@link #drawSignCRT(GraphicsHolder, StoredMatrixTransformations, BlockPos, String, float, float, float, float, float, float, LongAVLTreeSet, String[], Direction, int, RenderRailwaySign.DrawTexture, boolean, String[], int)}
+	 * 建立的 GraphicsHolder 上下文；画布模式走 {@link JSDrawSink}。</p>
+	 */
+	public static void renderRouteNumberV2Regions(@Nullable StoredMatrixTransformations storedMatrixTransformations, String[] signIds, LongAVLTreeSet selectedIds, LongFunction<String> routeNumberGetter, IntFunction<long[]> cellColorGetter, Direction facing, float size, float cellStep, Map<Long, String> routeNameByColor, int[] cellBackgroundColors) {
+		if (signIds == null) {
+			return;
+		}
+		for (int i = 0; i < signIds.length; ++i) {
+			if (signIds[i] != null && isRouteNumberV2(signIds[i])) {
+				int start;
+				for (start = i; start > 0 && signIds[start - 1] != null && signIds[start - 1].equals(signIds[i]); --start) {
+				}
+				int v2End;
+				for (v2End = i; v2End < signIds.length - 1 && signIds[v2End + 1] != null && signIds[v2End + 1].equals(signIds[i]); ++v2End) {
+				}
+
+				final boolean regionFlipped = ROUTE_NUMBER_V2_FLIPPED.equals(signIds[start]);
+				long[] colors = null;
+				for (int c = start; c <= v2End && colors == null; ++c) {
+					final long[] cellColors = cellColorGetter == null ? null : cellColorGetter.apply(c);
+					if (cellColors != null && cellColors.length > 0) {
+						colors = cellColors;
+					}
+				}
+				if (colors == null) {
+					final java.util.List<Long> selected = new ArrayList<>();
+					if (selectedIds != null) {
+						for (final it.unimi.dsi.fastutil.longs.LongIterator iterator = selectedIds.iterator(); iterator.hasNext(); ) {
+							final long color = iterator.nextLong();
+							if (color > 0L && routeNameByColor != null && routeNameByColor.containsKey(color)) {
+								selected.add(color);
+							}
+						}
+					}
+					colors = new long[selected.size()];
+					for (int c = 0; c < colors.length; c++) {
+						colors[c] = selected.get(c);
+					}
+				}
+
+				if (colors.length == 0) {
+					i = v2End;
+				} else {
+					final int extraBlanks = Math.max(0, colors.length - (v2End - start + 1));
+					int regionStart = start;
+					int end = v2End;
+					for (int c = v2End + 1; c < signIds.length && c <= v2End + extraBlanks; end = c++) {
+						final String nextSignId = signIds[c];
+						if (nextSignId != null && !nextSignId.isEmpty()) {
+							break;
+						}
+					}
+					if (regionFlipped) {
+						final int rightAbsorbed = end - v2End;
+						for (int c = start - 1; c >= 0 && c >= start - (extraBlanks - rightAbsorbed); regionStart = c--) {
+							final String nextSignId = signIds[c];
+							if (nextSignId != null && !nextSignId.isEmpty()) {
+								break;
+							}
+						}
+					}
+					for (int cell = regionStart; cell <= end; ++cell) {
+						final int cellBg = cellBackgroundColors != null && cellBackgroundColors[cell] != 0 ? cellBackgroundColors[cell] : 16777215;
+						renderRouteNumberV2CellGeneric(signIds, cell, regionStart, end, colors, routeNameByColor, routeNumberGetter, facing, size, cellStep, cellBg, regionFlipped);
+					}
+					i = end;
+				}
+			}
+		}
+	}
+
+	private static void renderRouteNumberV2CellGeneric(String[] signIds, int cellIndex, int regionStart, int regionEnd, long[] colors, Map<Long, String> routeNameByColor, LongFunction<String> routeNumberGetter, Direction facing, float size, float cellStep, int backgroundColor, boolean regionFlipped) {
+		final String cellSignId = signIds[cellIndex];
+		final boolean flipped = ROUTE_NUMBER_V2_FLIPPED.equals(cellSignId) || (cellSignId == null || cellSignId.isEmpty()) && regionFlipped;
+		final int shownRoutes = Math.min(regionEnd - regionStart + 1, colors.length);
+		final int routeIndex = flipped ? regionEnd - cellIndex : cellIndex - regionStart;
+		if (routeIndex < shownRoutes) {
+			final long routeColorLong = colors[routeIndex];
+			final int routeColor = (int) routeColorLong | -16777216;
+			final String routeName = routeNameByColor == null ? null : routeNameByColor.get(routeColorLong);
+			String number = routeNumberGetter == null ? "" : routeNumberGetter.apply(routeColorLong);
+			if (number == null) {
+				number = "";
+			}
+			if (number.isEmpty()) {
+				number = deriveNumberFromName(routeName);
+			}
+			final String text = stripNumberFromName(routeName, number);
+			final boolean isTextCell = flipped ? cellIndex == regionEnd - shownRoutes + 1 : cellIndex == regionStart + shownRoutes - 1;
+			final float cellX = (float) cellIndex * cellStep;
+			if (flipped) {
+				drawSolidRectGeneric(facing, cellX + 0.7F * cellStep, 0.2F * size, 0.3F * cellStep, 0.8F * size, routeColor);
+				if (!number.isEmpty()) {
+					drawNumberBlockGeneric(facing, cellX, 0.0F, 0.7F * cellStep, size, number);
+				}
+				if (isTextCell && !text.isEmpty()) {
+					final float textStart = cellX + (number.isEmpty() ? 0.7F : 0.0F) * cellStep;
+					SignTextStyleConfig.SignTextStyle style = SignTextStyleConfig.get(signIds[cellIndex]);
+					if (style == null) {
+						style = SignTextStyleConfig.get(ROUTE_NUMBER_V2);
+					}
+					drawTextGeneric(text, facing, size, textStart, true, 100.0F, backgroundColor, FontType.ALIBABA, false, false, style, 0.8F, 0.0F, 0.0F);
+				}
+			} else {
+				drawSolidRectGeneric(facing, cellX, 0.2F * size, 0.3F * cellStep, 0.8F * size, routeColor);
+				if (!number.isEmpty()) {
+					drawNumberBlockGeneric(facing, cellX + 0.3F * cellStep, 0.0F, 0.7F * cellStep, size, number);
+				}
+				if (isTextCell && !text.isEmpty()) {
+					final float textStart = cellX + (number.isEmpty() ? 0.4F : 1.0F) * cellStep;
+					final SignTextStyleConfig.SignTextStyle style = SignTextStyleConfig.get(signIds[cellIndex]);
+					drawTextGeneric(text, facing, size, textStart, false, 100.0F, backgroundColor, FontType.ALIBABA, false, false, style, 0.8F, 0.0F, 0.0F);
+				}
+			}
+		}
+	}
+
+	private static void drawSolidRectGeneric(Direction facing, float x, float y, float width, float height, int color) {
+		final JSDrawSink sink = JSDrawSink.current();
+		if (sink != null) {
+			sink.drawTexture(WHITE_TEXTURE, x, y, width, height, color);
+			return;
+		}
+		if (compatMatrices != null && compatVertexConsumers != null) {
+			drawTexturedRect(compatMatrices, compatVertexConsumers, WHITE_TEXTURE, x, y, width, height, facing, color);
+		}
+	}
+
+	private static void drawNumberBlockGeneric(Direction facing, float x, float y, float w, float h, String number) {
+		drawSolidRectGeneric(facing, x, y, w, h, -1);
+		drawNumberInBoxGeneric(facing, x, y, w, h, number);
+	}
+
+	private static void drawNumberInBoxGeneric(Direction facing, float boxX, float boxY, float boxW, float boxH, String number) {
+		if (number.isEmpty()) {
+			return;
+		}
+		final CustomFontTextureCache.FittedTextTexture fitted = CustomFontTextureCache.instance.getFittedTextTexture(number, getNumberFontType(number), 88, new Color(0, 0, 0));
+		if (fitted.width <= 0 || fitted.height <= 0) {
+			return;
+		}
+		final int padding = Math.max(1, Math.round(1.76F));
+		final float glyphW = Math.max(1, fitted.width - padding * 2);
+		final float glyphH = Math.max(1, fitted.height - padding * 2);
+		final float boost = FontRenderUtils.isNumeric(number) ? 1.35F : 1.0F;
+		final float scale = Math.min(boxH / glyphH, boxW / glyphW) * boost;
+		final float textW = (float) fitted.width * scale;
+		final float textH = (float) fitted.height * scale;
+		final float textX = boxX + (boxW - textW) / 2.0F;
+		final float textY = boxY + (boxH - textH) / 2.0F;
+		final JSDrawSink sink = JSDrawSink.current();
+		if (sink != null) {
+			if (fitted.image != null) {
+				sink.drawImage(fitted.image, textX, textY, textW, textH, -1);
+			} else {
+				sink.drawTexture(fitted.identifier, textX, textY, textW, textH, -1);
+			}
+			return;
+		}
+		if (compatMatrices != null && compatVertexConsumers != null) {
+			drawTexturedRect(compatMatrices, compatVertexConsumers, fitted.identifier, textX, textY, textW, textH, facing, -1);
+		}
+	}
+
+	private static void drawTextGeneric(String text, Direction facing, float size, float start, boolean flip, float maxWidth, int backgroundColor, FontType fontType, boolean forceFullSizeLines, boolean centerInCell, @Nullable SignTextStyleConfig.SignTextStyle style, float cjkScale, float yOffset, float centerWidth) {
+		final JSDrawSink sink = JSDrawSink.current();
+		if (sink != null) {
+			// 画布模式：文字同样烘焙成贴图后贴进画布。
+			drawCanvasText(sink, text, size, start, flip, maxWidth, backgroundColor, fontType, forceFullSizeLines, centerInCell, style, cjkScale, yOffset, centerWidth);
+			return;
+		}
+		if (compatMatrices != null && compatVertexConsumers != null) {
+			renderCustomTextCRT(text, compatMatrices, compatVertexConsumers, facing, size, start, flip, maxWidth, backgroundColor, fontType, forceFullSizeLines, centerInCell, false, style, false, cjkScale, (Color) null, yOffset, centerWidth);
+		}
+	}
+
+	/** 画布模式的文字绘制：与 renderCustomTextCRT 同一套拟合/缩放算法，只是把贴图画进 JSDrawSink。 */
+	private static void drawCanvasText(JSDrawSink sink, String signText, float size, float start, boolean flip, float maxWidth, int backgroundColor, FontType fontType, boolean forceFullSizeLines, boolean centerInCell, @Nullable SignTextStyleConfig.SignTextStyle style, float cjkScale, float yOffset, float centerWidth) {
+		if (maxWidth <= 0.0F || signText == null) {
+			return;
+		}
+		final int textBackgroundColor = backgroundColor | 0xFF000000;
+		final Color textColor = style != null && style.hasColor() ? new Color(style.textColor) : (isLightBackground(textBackgroundColor) ? TEXT_COLOR : new Color(255, 255, 255));
+		final float sizeMult = style != null ? style.textSize : 1.0F;
+		final boolean bold = style != null && style.textBold;
+		final FontType renderFontType = bold ? FontType.SOURCE_HAN : fontType;
+		final List<CustomFontTextureCache.FittedTextTexture> fittedLines = new ArrayList<>();
+		final List<Integer> linePaddings = new ArrayList<>();
+		final List<Integer> lineRaises = new ArrayList<>();
+		int totalGlyphHeight = 0;
+		int maxPxWidth = 0;
+		int maxPadding = 0;
+		for (final String line : signText.split("\\|")) {
+			if (!line.isEmpty()) {
+				final boolean cjk = containsCJK(line);
+				final int lineFontSize = !cjk && !forceFullSizeLines ? Math.round(44.0F) : Math.round(88.0F * cjkScale);
+				final CustomFontTextureCache.FittedTextTexture fitted = CustomFontTextureCache.instance.getFittedTextTexture(line, renderFontType, lineFontSize, textColor, bold);
+				if (fitted.width <= 0 || fitted.height <= 0) {
+					return;
+				}
+				final int padding = Math.max(2, Math.round(lineFontSize * 0.08F));
+				fittedLines.add(fitted);
+				linePaddings.add(padding);
+				lineRaises.add(!cjk && !forceFullSizeLines ? Math.round(lineFontSize * 0.7F) : 0);
+				totalGlyphHeight += Math.max(1, fitted.height - padding * 2);
+				maxPxWidth = Math.max(maxPxWidth, fitted.width);
+				maxPadding = Math.max(maxPadding, padding);
+			}
+		}
+		if (fittedLines.isEmpty()) {
+			return;
+		}
+		final int lineGapPx = 0;
+		totalGlyphHeight += lineGapPx * (fittedLines.size() - 1);
+		final float pixelToWorld = size / totalGlyphHeight;
+		final float blockWidth = maxPxWidth * pixelToWorld;
+		final float blockHeight = totalGlyphHeight * pixelToWorld;
+		final float fitScale = Math.min(1.0F, maxWidth / blockWidth);
+		final float scaleY = centerInCell ? sizeMult : fitScale * sizeMult;
+		final float scaleX = centerInCell ? Math.min(sizeMult, maxWidth / blockWidth) : fitScale * sizeMult;
+		final float width = blockWidth * scaleX;
+		final float height = blockHeight * scaleY;
+		final float x1;
+		if (centerInCell) {
+			final float glyphWidth = Math.max(1, maxPxWidth - maxPadding * 2) * pixelToWorld * scaleX;
+			x1 = start + (centerWidth > 0.0F ? (centerWidth - glyphWidth) / 2.0F : (size - glyphWidth) / 2.0F);
+		} else {
+			x1 = flip ? start - width : start;
+		}
+		final float firstRaise = lineRaises.isEmpty() ? 0.0F : lineRaises.get(0) * pixelToWorld * scaleY;
+		float lineY = yOffset + (size - height) / 2.0F + firstRaise / 2.0F;
+		for (int i = 0; i < fittedLines.size(); ++i) {
+			final CustomFontTextureCache.FittedTextTexture lineTexture = fittedLines.get(i);
+			final int padding = linePaddings.get(i);
+			final int raise = lineRaises.get(i);
+			final float lineW = (float) lineTexture.width * pixelToWorld * scaleX;
+			final float lineH = (float) lineTexture.height * pixelToWorld * scaleY;
+			final float lineX;
+			if (centerInCell) {
+				final float lineGlyphWidth = Math.max(1, lineTexture.width - padding * 2) * pixelToWorld * scaleX;
+				final float lineCenterX = start + (centerWidth > 0.0F ? (centerWidth - lineGlyphWidth) / 2.0F : (size - lineGlyphWidth) / 2.0F);
+				lineX = lineCenterX - padding * pixelToWorld * scaleX;
+			} else {
+				lineX = flip ? start - lineW + padding * pixelToWorld * scaleX : x1 - padding * pixelToWorld * scaleX;
+			}
+			final float finalLineY = lineY - (padding + raise) * pixelToWorld * scaleY;
+			final float glyphLineHeight = Math.max(1, lineTexture.height - padding * 2) * pixelToWorld * scaleY;
+			if (lineTexture.image != null) {
+				sink.drawImage(lineTexture.image, lineX, finalLineY, lineW, lineH, -1);
+			} else {
+				sink.drawTexture(lineTexture.identifier, lineX, finalLineY, lineW, lineH, -1);
+			}
+			lineY += glyphLineHeight + lineGapPx * pixelToWorld * scaleY;
+		}
+	}
+
 	static {
 		FONT_TYPE = FontType.ALIBABA;
 		TEXT_COLOR = new Color(0, 0, 0);
