@@ -749,6 +749,12 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 	private static MatrixStack compatMatrices;
 	private static VertexConsumerProvider compatVertexConsumers;
 
+	/** 供墙挂指示牌等外部调用方在绘制前建立兼容上下文（随后调用公开的数据驱动绘制 API）。 */
+	public static void setCompatContext(@Nullable MatrixStack matrices, @Nullable VertexConsumerProvider vertexConsumers) {
+		compatMatrices = matrices;
+		compatVertexConsumers = vertexConsumers;
+	}
+
 	public static void drawSignCRT(GraphicsHolder graphicsHolder, @Nullable StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String signId, float x, float y, float size, float maxWidthLeft, float maxWidthRight, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, RenderRailwaySign.DrawTexture drawTexture, boolean transparentBlack, String[] signIds, int globalBgColor) {
 		drawSignCRT(graphicsHolder, storedMatrixTransformations, pos, signId, x, y, size, size, maxWidthLeft, maxWidthRight, selectedIds, routeNumbers, facing, backgroundColor, drawTexture, transparentBlack, signIds, globalBgColor);
 	}

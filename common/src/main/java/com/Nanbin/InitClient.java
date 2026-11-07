@@ -1,10 +1,11 @@
 package com.Nanbin;
 
 import com.Nanbin.client.ClientData.NanbinClientConfig;
-import com.Nanbin.client.Drawing.NanbinSignLoader;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTSignRegistry;
 import com.Nanbin.client.Drawing.RouteMapOverride;
 import com.Nanbin.client.FiltersGroup.FiltersGroup;
 import com.Nanbin.client.FiltersGroup.FiltersMenu;
+import com.Nanbin.client.JavaScriptSupport.JSSignLoader;
 import com.Nanbin.client.Registry.BlockColor;
 import com.Nanbin.client.Registry.BlockEntityRender;
 import com.Nanbin.client.Registry.RenderLayerReg;
@@ -31,7 +32,10 @@ public class InitClient {
         ClientinitSteps.put("PacketOpenScreen", PacketOpenScreen::registerClientReceivers);
         ClientinitSteps.put("BlockEntityRender", BlockEntityRender::init);
         ClientinitSteps.put("BlockColor", BlockColor::init);
-        ClientinitSteps.put("NanbinSignLoader", NanbinSignLoader::register);
+        // 自定义导视标志：来源用 CRTSignLoaderMixin 钩 MTR4 的资源重载，MTR3 直接用 CustomResources.registerReloadListener
+        ClientinitSteps.put("CRTSignRegistry", CRTSignRegistry::register);
+        // JS 指示牌配置（来源由 CRTSignRegistry 一并触发，这里单独挂一次）
+        ClientinitSteps.put("JSSignLoader", JSSignLoader::reload);
         ClientinitSteps.put("RouteMapOverride", InitClient::initRouteMapOverride);
 
         runClientInitSteps(ClientinitSteps);

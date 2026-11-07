@@ -123,12 +123,14 @@ public class JSSignDataScreen extends Screen {
 		// 根据脚本实际调用的数据接口动态调整按钮；未记录到任何接口时显示全部
 		final Set<String> usedTypes = JSSignEngine.getUsedDataTypes(scriptId);
 		final boolean showAll = usedTypes.isEmpty();
-		if (showAll || usedTypes.contains("platform")) {
+		// getStationNames() / getSelectedStationIds() 同样接受站台 ID，因此调用车站接口时也提供"选择站台"
+		final boolean stationLike = usedTypes.contains("station");
+		if (showAll || usedTypes.contains("platform") || stationLike) {
 			if (!platformsForList.isEmpty()) {
 				dataButtons.add(new DataButton(Text.translatable("gui.nanbin.js_data.select_platform"), () -> openSelector(platformsForList)));
 			}
 		}
-		if (showAll || usedTypes.contains("station")) {
+		if (showAll || stationLike) {
 			if (!stationsForList.isEmpty()) {
 				dataButtons.add(new DataButton(Text.translatable("gui.nanbin.js_data.select_station"), () -> openSelector(stationsForList)));
 			}
@@ -230,6 +232,11 @@ public class JSSignDataScreen extends Screen {
 		super.render(context, mouseX, mouseY, delta);
 
 		context.drawCenteredTextWithShadow(textRenderer, Text.translatable("gui.nanbin.js_data.title"), width / 2, 15, ARGB_WHITE);
+
+		// 没有任何数据按钮时给出原因，避免只剩"保存/取消"让人以为界面坏了
+		if (dataButtons.isEmpty()) {
+			context.drawCenteredTextWithShadow(textRenderer, Text.translatable("gui.nanbin.js_data.no_data"), width / 2, height / 2 - 10, ARGB_GRAY);
+		}
 
 		// Draw scroll indicators
 		if (scrollIndex > 0) {

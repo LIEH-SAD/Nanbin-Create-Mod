@@ -6,7 +6,7 @@ import com.Nanbin.mapping.TextHelper;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import javax.annotation.Nullable;
@@ -40,7 +40,7 @@ public class NanbinUISelectButtonItem extends NanbinUIComponent {
 	private static final Identifier OFF_TEXTURE = new Identifier("nanbin:textures/gui/select_button_off.png");
 	private static final Identifier ON_TEXTURE = new Identifier("nanbin:textures/gui/select_button_on.png");
 
-	private MutableText label;
+	private Text label;
 	private final BooleanSupplier selected;
 	@Nullable
 	private final Runnable onClick;
@@ -49,7 +49,7 @@ public class NanbinUISelectButtonItem extends NanbinUIComponent {
 	private Identifier icon;
 	private boolean enabled = true;
 
-	public NanbinUISelectButtonItem(MutableText label, BooleanSupplier selected, @Nullable Runnable onClick) {
+	public NanbinUISelectButtonItem(Text label, BooleanSupplier selected, @Nullable Runnable onClick) {
 		this.label = label;
 		this.selected = selected;
 		this.onClick = onClick;
@@ -60,11 +60,11 @@ public class NanbinUISelectButtonItem extends NanbinUIComponent {
 		this(TextHelper.literal(label), selected, onClick);
 	}
 
-	public MutableText getLabel() {
+	public Text getLabel() {
 		return label;
 	}
 
-	public NanbinUISelectButtonItem setLabel(MutableText label) {
+	public NanbinUISelectButtonItem setLabel(Text label) {
 		this.label = label;
 		return this;
 	}

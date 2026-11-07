@@ -99,6 +99,13 @@ public class StationInfoScreen extends ScreenMapper {
 	}
 
 	@Override
+	public void tick() {
+		if (urlField != null) {
+			urlField.tick();
+		}
+	}
+
+	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		renderBackground(context);
 		final int centerX = width / 2;

@@ -1,4 +1,4 @@
-﻿# Classes that are intentionally NOT ported (with the reason).
+# Classes that are intentionally NOT ported (with the reason).
 # tools/parity/classes.ps1 subtracts these from the MISSING list.
 #
 # MTR4 loader/version shims: replaced by Architectury / MTR3 equivalents, only re-created on demand.
@@ -21,3 +21,25 @@ com/Nanbin/mixin/CRTSignLoaderMixin.java
 # Stub / dev-only in the source tree.
 com/Nanbin/Blocks/BlockTags.java
 com/Nanbin/util/TextureGenerator.java
+#
+# Packet classes: the MTR 4.0 tree has one class per message (org.mtr.mapping.registry.PacketHandler
+# subclass). This tree uses a channel-oriented model instead: channel ids + receivers live in
+# packet/PacketHandler.java (C2S) and packet/PacketOpenScreen.java (S2C), with
+# packet/ClientPacketHelper.java as the client-side sender. The payload logic of every class below
+# is ported into those files, so the per-message classes are intentionally not created.
+com/Nanbin/packet/PacketAddCustomBalance.java
+com/Nanbin/packet/PacketOpenBlockEntityScreen.java
+com/Nanbin/packet/PacketOpenBusTicketProcessorScreen.java
+com/Nanbin/packet/PacketOpenCRTPlatformScreen.java
+com/Nanbin/packet/PacketOpenRoadNameScreen.java
+com/Nanbin/packet/PacketOpenStationInfoScreen.java
+com/Nanbin/packet/PacketOpenTicketMachineScreen.java
+com/Nanbin/packet/PacketSyncCustomBalance.java
+com/Nanbin/packet/PacketUpdateBusTicketProcessor.java
+com/Nanbin/packet/PacketUpdateCRTSignLayout.java
+com/Nanbin/packet/PacketUpdateCustomColor.java
+com/Nanbin/packet/PacketUpdateRoadNameData.java
+com/Nanbin/packet/PacketUpdateRouteNameCell.java
+com/Nanbin/packet/PacketUpdateStationInfoData.java
+com/Nanbin/packet/PacketUpdateStationInfoSignData.java
+com/Nanbin/packet/PacketUpdateTrainArrival.java

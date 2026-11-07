@@ -22,3 +22,14 @@ dependencies {
 
     compileOnly("org.openjdk.nashorn:nashorn-core:15.4")
 }
+
+// 离线绘制测试：不开游戏把吊板线路图渲染成 PNG（build/draw-test），
+// 用于调比例/排版与回归比对（移植自 MTR 4.0 分支的 fabric drawTest）。
+tasks.register('drawTest', JavaExec) {
+    group = 'verification'
+    description = '把吊板线路图离线渲染成 PNG（common/build/draw-test）'
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.Nanbin.dev.LineMapDrawTest'
+    args = ['build/draw-test', '768']
+}

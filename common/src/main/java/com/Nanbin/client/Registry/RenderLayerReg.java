@@ -55,5 +55,11 @@ public class RenderLayerReg {
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_DOOR_2.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_GLASS_2.get());
         RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_APG_GLASS_END_2.get());
+
+        // CRT 高屏蔽门（PSD）系列 + 售票机显示屏
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_PSD_DOOR_1.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_PSD_GLASS_1.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_PSD_GLASS_END_1.get());
+        RegistryClient.registerBlockRenderType(RenderLayer.getCutout(), (Block) Blocks.CRT_TICKET_DISPLAY_1.get());
     }
 }

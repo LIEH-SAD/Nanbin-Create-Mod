@@ -123,3 +123,31 @@ public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 1. `assets/nanbin/crt_signs.json` 在源 HEAD 已被删除（提交 `9274aba`），但 `CRTPresetCatalog` 仍按 id 引用其中的 49 个文字牌预设 → **从历史提交 `4834a43` 取回**并放入目标资源。
 2. 源 `fabric.mod.json` 的 mod id 是 `lieh-nanbin`，目标沿用 `nanbin`（通道/资源命名空间不受影响，**不要改**）。
 3. 源 `Items.java`/`ItemsGroup.java` 比目标短很多（MTR4 注册器自动带销），**不要反向覆盖**目标实现。
+
+## 9. 追加决策（P0–P5a 期间确定）
+
+| # | 决策 | 理由 |
+|---|---|---|
+| D9 | **不移植 `mixin/CRTSignLoaderMixin`** | YMTR 3.6.3 有正规入口 `mtr.client.CustomResources.registerReloadListener(resourceManager -> ...)`，在 `InitClient` 挂载即可，无需改字节码 |
+| D10 | 目标 `RenderCRTRailwaySign` 保留 MTR4 版 `drawSignCRT`/`renderRouteNumberV2Regions` 的**形参签名**（含 `@Nullable StoredMatrixTransformations`），但内部**忽略 smt**、改用 `GraphicsHolder` 直绘 | 3.6.3 的 `StoredMatrixTransformations` 是 `MatrixStack` 语义，与 MTR4 的 `smt.transform(GraphicsHolder, offset)` 不同；保留签名可让 legacy 绘制层零改动 |
+| D11 | JS 配置**双轨**保留：新增 `assets/nanbin/crt_js_signs_config.json`（来源 2 个脚本）＋保留 `js_signs_config.json`（目标旧 4 个脚本） | 避免丢失目标既有的 `example_*.js` 示例；`CRTJsSignLoader` 叠加加载、不 clear 现有 loader |
+| D12 | 服务端安全审计把 `net.minecraft.client.item.TooltipContext` 加白名单；`mapping/`、`mixin/` 视为客户端允许包 | `TooltipContext` 是原版 tooltip 签名的一部分，两端 loader 通用，不构成专服加载风险 |
+| D13 | 语言文件按来源**整文件覆盖**（9 个 locale） | 已核验目标独有键为 0，覆盖最稳；键总数 1538 → 2282 |
+| D14 | 贴图/模型以来源覆盖，**保留目标独有**（14 贴图 / 2 js / 1 字体 / 3 根资源） | 目标基线有来源没有的特效贴图与示例脚本 |
+| D15 | 三方共用的 78 处上游贴图/模型断链**按来源原样保留**（目标 72，比来源少 6） | 属来源既有缺口，本轮引入 0 处；不在移植期擅自补图 |
+
+## 10. 进度台账
+
+| 阶段 | 状态 | 关键产出 |
+|---|---|---|
+| P0 基线 | ✅ | 分支、`.gitignore`、4 个 parity 脚本、本台账 |
+| P1 兼容层 | ✅ | `GraphicsHolder`/`GuiDrawing`/`TextHelper`/`MtrData`，`@ExpectPlatform` 审计通过 |
+| P2 数据模型 + legacy | 🔄 | `signage/crt/**`、`editor/{Theme,Font,Presets,PresetCatalog,Widgets,Host}`、`legacy/**`（`CRTSignRegistry` 进行中） |
+| P3 渲染引擎 | ✅ | `render/**` 8 类、`JavaScriptSupport/**` 3 类、`Drawing/**` 6 新增 + 增量、`MtrData` |
+| P4 方块/物品/渲染器 | 🔄 | 5 个 mapping helper、7 新方块、`ItemCRTPSD1`、注册表接线已完成；4 个新渲染器与既有渲染器增量进行中 |
+| P5 界面 | 🔄 | 控件库/JSON 屏/Host 接口/2 个 uiHelper 完成；编辑器主屏与既有屏进行中 |
+| P6 网络 | 🔄 | 6 个新通道 + 4 个 C2S 接收器已接入 `PacketHandler`；剩余 open-screen 包随屏幕落地 |
+| P7 资源 | ✅ | 全部资源/语言/配方/文档/许可对齐，`crt_signs.json` 从 `4834a43` 恢复（49 预设） |
+| P8 集成 | ⏳ | 双端 build、清单零差异、旧档兼容、服务端安全 |
+
+> 来源 HEAD 说明：任务开始时为 `ed04f13`，后被来源作者 amend 为 `e34adcb`；差异仅「删除 6 个误提交的 `.hprof.p*` + `NanbinConfigScreen` +2 行 + `fabric.mod.template.json` −1 行」，不影响已移植内容。

@@ -4,6 +4,7 @@ import com.Nanbin.Init;
 import com.Nanbin.client.ClientData.NanbinClientConfig;
 import com.Nanbin.client.Drawing.RouteMapOverride;
 import com.Nanbin.uiHelper.NanbinUIScreen;
+import com.Nanbin.uiHelper.NanbinUISelectButtonItem;
 import com.Nanbin.uiHelper.NanbinUITextFieldItem;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
@@ -30,6 +31,8 @@ public class NanbinConfigScreen extends NanbinUIScreen {
     private static final Identifier BACKGROUND_TEXTURE = new Identifier("nanbin:textures/gui/background.png");
     private static final int LOGO_SIZE = 40;
     private static final int LOGO_GAP = 6;
+    private static final float NAME_SCALE = 1.5F;
+    private static final int NAME_GAP = 2;
     private static final int BLOCK_GAP = 6;
     private static final int ROUTE_MAP_URL_MAX_LENGTH = 512;
     private static final String ROUTE_MAP_URL_SUGGESTION = "https://";
@@ -52,6 +55,10 @@ public class NanbinConfigScreen extends NanbinUIScreen {
                         NanbinClientConfig.getRouteMapUrl(), ROUTE_MAP_URL_MAX_LENGTH)
                 .setSuggestion(ROUTE_MAP_URL_SUGGESTION);
 
+        // 外观：深色模式开关（使用 uiHelper 的贴图按钮）
+        addComponent(new NanbinUISelectButtonItem(Text.translatable("gui.nanbin.config.dark_mode"),
+                NanbinClientConfig::isDarkMode, this::toggleDarkMode));
+
         // 贡献者
         addTitle(Text.translatable("gui.nanbin.config.contributors"));
         addConfig(Text.literal("LIEH-SAD"), () -> openUrl("https://www.mcmod.cn/author/38799.html"))
@@ -60,6 +67,16 @@ public class NanbinConfigScreen extends NanbinUIScreen {
                 .setIcon(new Identifier("nanbin:contributors/jh.png"));
         addConfig(Text.literal("Jacob"), () -> openUrl("https://afdian.com/a/0101P"))
                 .setIcon(new Identifier("nanbin:contributors/jb.png"));
+        addConfig(Text.literal("2伍溜柒"), () -> openUrl("https://space.bilibili.com/3546582999894124"))
+                .setIcon(new Identifier("nanbin:contributors/2wu.png"));
+        addConfig(Text.literal("厦航在拍车的无名机长"), () -> openUrl("https://space.bilibili.com/3546725140663173"))
+                .setIcon(new Identifier("nanbin:contributors/hz.png"));
+    }
+
+    private void toggleDarkMode() {
+        NanbinClientConfig.setDarkMode(!NanbinClientConfig.isDarkMode());
+        // 立即应用，下次打开编辑器就是切换后的主题
+        com.Nanbin.client.CRTRailwaySignEditor.editor.CRTEditorTheme.applyDarkMode(NanbinClientConfig.isDarkMode());
     }
 
     @Override
@@ -111,9 +128,15 @@ public class NanbinConfigScreen extends NanbinUIScreen {
         }
     }
 
+    /** 顶部区域：LOGO + 加大的模组名（1.5×）+ 版本号；整组在面板上方水平居中，文字块与 LOGO 垂直居中。 */
     private void drawLogoAndVersion(DrawContext context) {
+        final MutableText nameText = this.title.copy();
         final MutableText versionText = Text.literal(Init.FINAL_VERSION);
-        final float groupWidth = LOGO_SIZE + LOGO_GAP + this.textRenderer.getWidth(versionText);
+        final int nameWidth = Math.round(this.textRenderer.getWidth(nameText) * NAME_SCALE);
+        final int nameHeight = Math.round(8 * NAME_SCALE);
+        final int versionWidth = this.textRenderer.getWidth(versionText);
+        final int textWidth = Math.max(nameWidth, versionWidth);
+        final float groupWidth = LOGO_SIZE + LOGO_GAP + textWidth;
         final int topY = Math.max(2, (getPanelY() - LOGO_SIZE) / 2);
 
         final MatrixStack matrices = context.getMatrices();
@@ -123,7 +146,17 @@ public class NanbinConfigScreen extends NanbinUIScreen {
         drawTexture(matrices, HEADER_LOGO, 0, 0, LOGO_SIZE, LOGO_SIZE);
 
         matrices.translate(LOGO_SIZE + LOGO_GAP, 0.0F, 0.0F);
-        context.drawTextWithShadow(this.textRenderer, versionText, 0, (LOGO_SIZE - 8) / 2, -1);
+
+        final int textHeight = nameHeight + NAME_GAP + 8;
+        final int textTop = (LOGO_SIZE - textHeight) / 2;
+
+        matrices.push();
+        matrices.translate(0.0F, (float) textTop, 0.0F);
+        matrices.scale(NAME_SCALE, NAME_SCALE, 1.0F);
+        context.drawTextWithShadow(this.textRenderer, nameText, 0, 0, -1);
+        matrices.pop();
+
+        context.drawTextWithShadow(this.textRenderer, versionText, 0, textTop + nameHeight + NAME_GAP, -1);
 
         matrices.pop();
     }

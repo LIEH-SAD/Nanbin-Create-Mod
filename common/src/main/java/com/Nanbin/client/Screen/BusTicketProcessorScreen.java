@@ -81,6 +81,21 @@ public class BusTicketProcessorScreen extends ScreenMapper {
 	}
 
 	@Override
+	public void tick() {
+		amountField.tick();
+		if (mode == BlockBusTicketProcessor.MODE_FIXED_AMOUNT) {
+			final String text = amountField.getText();
+			if (!text.isEmpty()) {
+				try {
+					final int val = Integer.parseInt(text);
+					amount = Math.max(MIN_AMOUNT, Math.min(MAX_AMOUNT, val));
+				} catch (NumberFormatException ignored) {
+				}
+			}
+		}
+	}
+
+	@Override
 	public void close() {
 		int parsedAmount = BlockBusTicketProcessor.DEFAULT_AMOUNT;
 		try {
