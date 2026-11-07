@@ -48,16 +48,19 @@ public class BlockOrdinaryAPGCabDoor extends DoorBlock {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        // 来源在客户端直接 SUCCESS，真正的开关门与提示都在服务端执行，避免双端重复发提示。
+        if (world.isClient) {
+            return ActionResult.SUCCESS;
+        }
+        // 来源区分 4 种钥匙（创造/高级/警卫/基础）；MTR 3.6.3 只有 DRIVER_KEY 一种，故这里是等效的单钥匙行为。
         boolean hasKey = player.getMainHandStack().isOf(Items.DRIVER_KEY.get()) || player.getOffHandStack().isOf(Items.DRIVER_KEY.get());
         if (!hasKey) {
             player.sendMessage(Text.translatable("tips.cabdoor.has.nokey"), true);
             return ActionResult.FAIL;
         }
-        if (!world.isClient) {
-            state = state.cycle(OPEN);
-            world.setBlockState(pos, state, 10);
-        }
-        player.sendMessage(Text.translatable("tips.cabdoor.open"), true);
+        final BlockState newState = state.cycle(OPEN);
+        world.setBlockState(pos, newState, 10);
+        player.sendMessage(Text.translatable(newState.get(OPEN) ? "tips.cabdoor.open" : "tips.cabdoor.close"), true);
         return ActionResult.SUCCESS;
     }
 

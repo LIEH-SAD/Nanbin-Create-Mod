@@ -204,7 +204,8 @@ public class RenderCRTRailwaySignWall1<T extends BlockCRTRailwaySignWall1.BlockE
 					}
 				});
 				final int jsBackgroundColor = cellBackgroundColors[0] != 0 ? cellBackgroundColors[0] : 0;
-				RenderCRTRailwaySign.renderJSStyleLine(styleScriptId, matrices, vertexConsumers, pos, signIds, selectedIds, routeNumbers, facing, jsBackgroundColor, contentHeight, 0.0F, 0.0F, false, routeNumberMap);
+				// 墙挂牌每格 1.0 宽、内容高 0.5：整牌总宽由渲染器直接给出（widthOverride），并把世界光照传给烘焙贴图绘制。
+				RenderCRTRailwaySign.renderJSStyleLine(styleScriptId, matrices, vertexConsumers, pos, signIds, selectedIds, routeNumbers, facing, jsBackgroundColor, contentHeight, 0.0F, 0.0F, false, routeNumberMap, (float) cellCount * cellWidth, contentLight);
 			} else {
 				// 与铁路指示牌共用同一套绘制类；墙挂牌每格 1.0 宽、内容高 0.5。
 				// 目标侧 RenderCRTRailwaySign 的 GraphicsHolder 兼容入口忽略 smt，直接用真实 matrices 绘制，

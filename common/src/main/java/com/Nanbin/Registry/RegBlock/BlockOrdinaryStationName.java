@@ -43,7 +43,8 @@ public class BlockOrdinaryStationName extends BlockStationNameBase {
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (player.isHolding(Items.BRUSH.get())) {
 			if (!world.isClient) {
-				Registry.sendPacketToClient((ServerPlayerEntity) player, PacketHandler.PACKET_OPEN_CRT_STATION_NAME, buf -> buf.writeBlockPos(pos));
+				// 来源：刷子点击打开 CRT 站台/导视牌编辑界面（PacketOpenCRTPlatformScreen，S2C）
+				Registry.sendPacketToClient((ServerPlayerEntity) player, PacketHandler.PACKET_OPEN_CRT_PLATFORM_SCREEN, buf -> buf.writeBlockPos(pos));
 			}
 			return ActionResult.SUCCESS;
 		}

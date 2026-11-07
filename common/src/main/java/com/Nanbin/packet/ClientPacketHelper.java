@@ -198,6 +198,12 @@ public class ClientPacketHelper {
 		}, platformsForList, selectedIds, false, false));
 	}
 
+	/**
+	 * 优先精确匹配方块所在站区域；其次找最近的站台所属站；最后取全图最近的站。
+	 * <p>
+	 * 指示牌常被挂在车站外的出入口处，只做区域精确匹配会得到 null，
+	 * 选择屏就会一个数据按钮都不显示，所以统一走这里的兜底链。
+	 */
 	public static Station findStationForSelection(BlockPos blockPos) {
 		final Station direct = ClientData.DATA_CACHE.blockPosToStation.get(blockPos);
 		if (direct != null) {
@@ -208,7 +214,35 @@ public class ClientPacketHelper {
 				return station;
 			}
 		}
-		return null;
+		// 其次：最近站台所属的车站（MTR 3 的 getClosePlatformId 即来源 InitClient.findClosePlatform）。
+		try {
+			final long closePlatformId = mtr.data.RailwayData.getClosePlatformId(ClientData.PLATFORMS, ClientData.DATA_CACHE, blockPos);
+			if (closePlatformId != 0L) {
+				final Station closeStation = ClientData.DATA_CACHE.platformIdToStation.get(closePlatformId);
+				if (closeStation != null) {
+					return closeStation;
+				}
+			}
+		} catch (Exception ignored) {
+			// 客户端数据尚未同步完成时继续走最后一层
+		}
+		// 最后：全图曼哈顿距离最近的站。
+		Station nearest = null;
+		long nearestDistance = Long.MAX_VALUE;
+		for (final Station station : ClientData.STATIONS) {
+			final BlockPos center = station.getCenter();
+			if (center == null) {
+				continue;
+			}
+			final long distance = Math.abs((long) center.getX() - blockPos.getX())
+					+ Math.abs((long) center.getY() - blockPos.getY())
+					+ Math.abs((long) center.getZ() - blockPos.getZ());
+			if (distance < nearestDistance) {
+				nearestDistance = distance;
+				nearest = station;
+			}
+		}
+		return nearest;
 	}
 
 	// ─── 车站查询缓存（渲染端用） ───────────────────────────────────────────

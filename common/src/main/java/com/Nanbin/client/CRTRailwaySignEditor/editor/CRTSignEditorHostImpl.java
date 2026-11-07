@@ -2,6 +2,7 @@ package com.Nanbin.client.CRTRailwaySignEditor.editor;
 
 import com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall1;
 import com.Nanbin.mapping.MtrData;
+import com.Nanbin.packet.ClientPacketHelper;
 import com.Nanbin.packet.PacketHandler;
 import com.Nanbin.signage.crt.CRTSignLayout;
 import mtr.block.BlockRailwaySign;
@@ -11,7 +12,6 @@ import mtr.data.DataConverter;
 import mtr.data.IGui;
 import mtr.data.NameColorDataBase;
 import mtr.data.Platform;
-import mtr.data.RailwayData;
 import mtr.data.Station;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -93,7 +93,8 @@ public final class CRTSignEditorHostImpl implements CRTSignEditorHost {
 	public CRTSignEditorHostImpl(BlockPos signPos, String baselineJson) {
 		this.signPos = signPos;
 		this.lastSavedJson = baselineJson == null ? "" : baselineJson;
-		final Station station = RailwayData.getStation(ClientData.STATIONS, ClientData.DATA_CACHE, signPos);
+		// 与数据选择屏一致：车站出入口外的指示牌也要能找到所属车站
+		final Station station = ClientPacketHelper.findStationForSelection(signPos);
 		if (station == null) {
 			exitsForList = Collections.emptyList();
 			platformsForList = Collections.emptyList();

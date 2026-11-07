@@ -651,6 +651,8 @@ public final class JSSignEngine {
 		private final String[] routeNumbers;
 		private final int backgroundColor;
 		private final float cellSize;
+		// 整块渲染宽度（世界单位）：墙挂牌格宽与格高不同，不能再用 格数 × cellSize 推算。
+		private final float width;
 		private final String screenKey;
 		private final BlockPos pos;
 		private final Map<Long, String> routeNumberMap;
@@ -664,12 +666,18 @@ public final class JSSignEngine {
 		}
 
 		public JSSignContext(String[] signIds, int cellIndex, LongAVLTreeSet selectedIds, String[] routeNumbers, int backgroundColor, float cellSize, String screenKey, BlockPos pos, Map<Long, String> routeNumberMap) {
+			this(signIds, cellIndex, selectedIds, routeNumbers, backgroundColor, cellSize, screenKey, pos, routeNumberMap,
+					signIds == null ? 0.0F : signIds.length * cellSize);
+		}
+
+		public JSSignContext(String[] signIds, int cellIndex, LongAVLTreeSet selectedIds, String[] routeNumbers, int backgroundColor, float cellSize, String screenKey, BlockPos pos, Map<Long, String> routeNumberMap, float width) {
 			this.signIds = signIds;
 			this.cellIndex = cellIndex;
 			this.selectedIds = selectedIds;
 			this.routeNumbers = routeNumbers;
 			this.backgroundColor = backgroundColor;
 			this.cellSize = cellSize;
+			this.width = width;
 			this.screenKey = screenKey;
 			this.pos = pos;
 			this.routeNumberMap = routeNumberMap;
@@ -706,6 +714,11 @@ public final class JSSignEngine {
 		/** 单格世界尺寸（RailwaySign 为 0.5F，StationInfo 双格为 0.3F）。 */
 		public float getCellSize() {
 			return cellSize;
+		}
+
+		/** 整块渲染宽度（世界单位）：优先取渲染器给出的总宽，否则 = 格数 × 单格尺寸。 */
+		public float getWidth() {
+			return width > 0.0F ? width : (signIds == null ? 0.0F : signIds.length * cellSize);
 		}
 
 		/** 当前屏幕唯一标识（坐标 + 行位置 + 朝向），用于多屏区分。 */
@@ -772,9 +785,9 @@ public final class JSSignEngine {
 			return context.getCellSize();
 		}
 
-		/** 指示牌渲染宽度（世界单位）= 格数 × 单格尺寸，如 3 格 RailwaySign = 1.5。 */
+		/** 指示牌渲染宽度（世界单位），与 ctx.getWidth() 一致（墙挂牌每格 1.0 宽）。 */
 		public float getWidth() {
-			return context.getSignIds().length * context.getCellSize();
+			return context.getWidth();
 		}
 
 		/** 指示牌渲染高度（世界单位）= 单格尺寸，与 render 中原版渲染高度一致（RailwaySign = 0.5）。 */

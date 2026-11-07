@@ -10,6 +10,7 @@ import com.Nanbin.client.JavaScriptSupport.JSDrawContext;
 import com.Nanbin.client.JavaScriptSupport.JSDrawSink;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
 import com.Nanbin.client.JavaScriptSupport.JSSignEngine;
+import com.Nanbin.client.JavaScriptSupport.JSSignTextureBaker;
 import com.Nanbin.mapping.GraphicsHolder;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import mtr.block.BlockRailwaySign;
@@ -216,9 +217,13 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 	}
 
 	private static void drawTexturedRect(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier textureId, float x, float y, float w, float h, float u1, float v1, float u2, float v2, Direction facing, int color) {
+		drawTexturedRect(matrices, vertexConsumers, textureId, x, y, w, h, u1, v1, u2, v2, facing, color, 15728880);
+	}
+
+	private static void drawTexturedRect(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Identifier textureId, float x, float y, float w, float h, float u1, float v1, float u2, float v2, Direction facing, int color, int light) {
 		final RenderLayer renderLayer = MoreRenderLayers.getLight(textureId, true);
 		final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(renderLayer);
-		IDrawing.drawTexture(matrices, vertexConsumer, x, y, w, h, u1, v1, u2, v2, facing, color, 15728880);
+		IDrawing.drawTexture(matrices, vertexConsumer, x, y, w, h, u1, v1, u2, v2, facing, color, light);
 	}
 
 	public static void drawSignCRT(MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockPos pos, String signId, float x, float y, float size, float maxWidthLeft, float maxWidthRight, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, RenderRailwaySign.DrawTexture drawTexture, boolean transparentBlack, String[] signIds, int globalBgColor) {
@@ -656,11 +661,92 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 	}
 
 	public static void renderJSStyleLine(String scriptId, MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockPos pos, String[] lineIds, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, float cellSize, float startX, float startY, boolean transparentBlack, Map<Long, String> routeNumberMap) {
+		renderJSStyleLine(scriptId, matrices, vertexConsumers, pos, lineIds, selectedIds, routeNumbers, facing, backgroundColor, cellSize, startX, startY, transparentBlack, routeNumberMap, 0.0F);
+	}
+
+	/** widthOverride &gt; 0 时覆盖 ctx.getWidth()/api.getWidth()：墙挂牌每格 1.0 宽而内容高只有 0.5，不能再用格数×格高推算。 */
+	public static void renderJSStyleLine(String scriptId, MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockPos pos, String[] lineIds, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, float cellSize, float startX, float startY, boolean transparentBlack, Map<Long, String> routeNumberMap, float widthOverride) {
+		renderJSStyleLine(scriptId, matrices, vertexConsumers, pos, lineIds, selectedIds, routeNumbers, facing, backgroundColor, cellSize, startX, startY, transparentBlack, routeNumberMap, widthOverride, GraphicsHolder.getDefaultLight());
+	}
+
+	/**
+	 * 整牌 JS 样式的预烘焙渲染（来源 RenderCRTRailwaySign#renderJSStyleLine 15 参重载）。
+	 *
+	 * <p>脚本只负责产出元素，{@link JSSignTextureBaker} 把一帧元素按绘制顺序合成成
+	 * <b>一张整牌贴图</b>，牌面只画这一张贴图：</p>
+	 * <ul>
+	 *   <li>内容不变时直接复用贴图（{@link #buildJSContentKey} 指纹命中），不必每帧重复跑脚本；</li>
+	 *   <li>元素之间不会因为逐元素批次/深度问题丢失；</li>
+	 *   <li>画布模式（{@link JSDrawSink#current()} 非空，编辑器预览/嵌套烘焙）下不能贴动态纹理
+	 *       （画布只认资源包里的 PNG），因此直接让脚本画进当前画布；</li>
+	 *   <li>烘焙失败（元素里有取不到像素的贴图时烘焙器返回 null）→ 回退到逐元素实时绘制。</li>
+	 * </ul>
+	 *
+	 * @param light 牌面内容使用的光照；墙挂牌 2 传世界光照即可不再自发光
+	 */
+	public static void renderJSStyleLine(String scriptId, MatrixStack matrices, VertexConsumerProvider vertexConsumers, BlockPos pos, String[] lineIds, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, float cellSize, float startX, float startY, boolean transparentBlack, Map<Long, String> routeNumberMap, float widthOverride, int light) {
 		refreshJSCache();
-		String signKey = scriptId + "_" + pos.getX() + "_" + pos.getY() + "_" + pos.getZ() + "_" + startX + "_" + startY + "_" + facing;
-		JSSignEngine.JSSignContext context = new JSSignEngine.JSSignContext(lineIds, 0, selectedIds, routeNumbers, backgroundColor, cellSize, signKey, pos, routeNumberMap);
-		JSDrawContext drawContext = new JSDrawContext(matrices, vertexConsumers, facing, startX, startY, cellSize, lineIds.length, transparentBlack, backgroundColor);
+		final String signKey = scriptId + "_" + pos.getX() + "_" + pos.getY() + "_" + pos.getZ() + "_" + startX + "_" + startY + "_" + facing;
+		final float width = widthOverride > 0.0F ? widthOverride : lineIds.length * cellSize;
+
+		// 画布模式：脚本直接画进当前 JSDrawSink（动态烘焙贴图无法被画布回读，不能再套一层 bake）
+		final JSDrawSink sink = JSDrawSink.current();
+		if (sink != null) {
+			JSSignEngine.render(scriptId, signKey,
+					new JSDrawContext(null, null, facing, startX, startY, cellSize, lineIds.length, transparentBlack, backgroundColor, width),
+					new JSSignEngine.JSSignAPI(new JSSignEngine.JSSignContext(lineIds, 0, selectedIds, routeNumbers, backgroundColor, cellSize, signKey, pos, routeNumberMap, width), scriptId));
+			return;
+		}
+
+		final long contentKey = buildJSContentKey(lineIds, selectedIds, routeNumbers, backgroundColor, cellSize, transparentBlack, width);
+		// 先让脚本产出元素，再把元素按顺序烘焙成一张整牌贴图，牌面只画这一张
+		JSSignTextureBaker.Baked baked = null;
+		try {
+			baked = JSSignTextureBaker.bake(signKey, contentKey, startX, startY, width, cellSize, () -> JSSignEngine.render(scriptId, signKey,
+					new JSDrawContext(matrices, vertexConsumers, facing, startX, startY, cellSize, lineIds.length, transparentBlack, backgroundColor, width),
+					new JSSignEngine.JSSignAPI(new JSSignEngine.JSSignContext(lineIds, 0, selectedIds, routeNumbers, backgroundColor, cellSize, signKey, pos, routeNumberMap, width), scriptId)));
+		} catch (Throwable e) {
+			Init.LOGGER.warn("JS style sign bake failed at {}, falling back to per-element rendering", pos.toShortString(), e);
+		}
+		if (baked != null && matrices != null && vertexConsumers != null) {
+			drawTexturedRect(matrices, vertexConsumers, baked.identifier, startX, startY, width, cellSize, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, light);
+			return;
+		}
+		// 烘焙失败 / 没有世界绘制上下文：回退到逐元素实时绘制（不删回退，否则 JS 牌会全黑）
+		JSSignEngine.JSSignContext context = new JSSignEngine.JSSignContext(lineIds, 0, selectedIds, routeNumbers, backgroundColor, cellSize, signKey, pos, routeNumberMap, width);
+		JSDrawContext drawContext = new JSDrawContext(matrices, vertexConsumers, facing, startX, startY, cellSize, lineIds.length, transparentBlack, backgroundColor, width);
 		JSSignEngine.render(scriptId, signKey, drawContext, new JSSignEngine.JSSignAPI(context, scriptId));
+	}
+
+	/**
+	 * JS 整牌贴图的内容指纹（来源 RenderCRTRailwaySign#buildJSContentKey）：
+	 * 牌面总宽 + 格高 + 底色 + 透明黑 + 每格 signId + 选中线路/车站/出口 id + 线路编号。
+	 * 任一变化 → JSSignTextureBaker 立即重烘；不变则复用上一张（脚本动画由烘焙器 1s 节流刷新）。
+	 * 样式脚本 id 与牌面位置已包含在 {@code signKey} 里，不再重复计入。
+	 */
+	private static long buildJSContentKey(String[] lineIds, LongAVLTreeSet selectedIds, String[] routeNumbers, int backgroundColor, float cellSize, boolean transparentBlack, float width) {
+		long hash = 1125899906842597L;
+		hash = hash * 31L + Float.floatToIntBits(width);
+		hash = hash * 31L + Float.floatToIntBits(cellSize);
+		hash = hash * 31L + backgroundColor;
+		hash = hash * 31L + (transparentBlack ? 1 : 0);
+		if (lineIds != null) {
+			for (final String signId : lineIds) {
+				hash = hash * 31L + (signId == null ? 0 : signId.hashCode());
+			}
+		}
+		if (selectedIds != null) {
+			for (final it.unimi.dsi.fastutil.longs.LongIterator iterator = selectedIds.iterator(); iterator.hasNext(); ) {
+				final long id = iterator.nextLong();
+				hash = hash * 31L + (int) (id ^ (id >>> 32));
+			}
+		}
+		if (routeNumbers != null) {
+			for (final String routeNumber : routeNumbers) {
+				hash = hash * 31L + (routeNumber == null ? 0 : routeNumber.hashCode());
+			}
+		}
+		return hash;
 	}
 
 	private static void refreshJSCache() {
@@ -706,18 +792,34 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 	public static void renderJSTextInBox(String text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Direction facing, float boxX, float boxY, float boxW, float boxH, int color, float scale, boolean bold, boolean centered) {
 		if (text != null && !text.isEmpty() && !(boxW <= 0.0F) && !(boxH <= 0.0F)) {
 			SignTextStyleConfig.SignTextStyle style = new SignTextStyleConfig.SignTextStyle(color, scale, bold);
+			final JSDrawSink sink = JSDrawSink.current();
+			if (sink != null) {
+				// 画布模式（整牌 JS 预烘焙）：文字同样画进 JSDrawSink，否则烘焙贴图里会缺文字。
+				drawCanvasText(sink, text, boxH, boxX, false, boxW, 0, FONT_TYPE, false, centered, style, 1.0F, boxY, boxW);
+				return;
+			}
 			renderCustomTextCRT(text, matrices, vertexConsumers, facing, boxH, boxX, false, boxW, 0, FONT_TYPE, false, centered, false, style, false, 1.0F, new Color(color, true), boxY, boxW);
 		}
 	}
 
 	public static void renderJSTexture(Identifier textureId, MatrixStack matrices, VertexConsumerProvider vertexConsumers, Direction facing, float x, float y, float w, float h, int color) {
 		if (!(w <= 0.0F) && !(h <= 0.0F)) {
+			final JSDrawSink sink = JSDrawSink.current();
+			if (sink != null) {
+				sink.drawTexture(textureId, x, y, w, h, color);
+				return;
+			}
 			drawTexturedRect(matrices, vertexConsumers, textureId, x, y, w, h, 0.0F, 0.0F, 1.0F, 1.0F, facing, color);
 		}
 	}
 
 	public static void renderJSRect(MatrixStack matrices, VertexConsumerProvider vertexConsumers, Direction facing, float x, float y, float w, float h, int color) {
 		if (!(w <= 0.0F) && !(h <= 0.0F)) {
+			final JSDrawSink sink = JSDrawSink.current();
+			if (sink != null) {
+				sink.drawTexture(WHITE_TEXTURE, x, y, w, h, color);
+				return;
+			}
 			drawTexturedRect(matrices, vertexConsumers, WHITE_TEXTURE, x, y, w, h, facing, color);
 		}
 	}
@@ -730,6 +832,11 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 			float angle = (float) Math.atan2((double) dy, (double) dx);
 			float midX = (x1 + x2) / 2.0F;
 			float midY = (y1 + y2) / 2.0F;
+			final JSDrawSink sink = JSDrawSink.current();
+			if (sink != null) {
+				sink.drawRotatedQuad(midX, midY, length, thickness, angle, color);
+				return;
+			}
 			matrices.push();
 			final RenderLayer renderLayer = MoreRenderLayers.getLight(WHITE_TEXTURE, true);
 			final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(renderLayer);

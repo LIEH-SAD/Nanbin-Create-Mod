@@ -2,6 +2,8 @@ package com.Nanbin.Registry.RegBlock.base;
 
 import com.Nanbin.Init;
 import com.Nanbin.mapping.IBlockExtension;
+import com.Nanbin.mapping.Registry;
+import com.Nanbin.packet.PacketHandler;
 import mtr.MTRClient;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.BlockMapper;
@@ -12,6 +14,7 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
@@ -31,8 +34,10 @@ import java.util.List;
  * {@link BlockMapper} + {@link EntityBlockMapper} + {@link BlockEntityMapper}；
  * {@code InitClient.getStationColor} 换成 MTR 3 的 {@link MTRClient#getStationColor(BlockPos)}。</p>
  *
- * <p>刷子点击打开编辑界面的数据包通道由 Lead 的 packet 层统一接入（MTR 4 的
- * {@code PacketOpenBlockEntityScreen} 在目标侧尚无等价物），因此本基类暂不接管右键。</p>
+ * <p>刷子右键：来源用 {@code PacketOpenBlockEntityScreen} 请求打开颜色编辑界面（S2C）；
+ * 目标侧复用 {@link PacketHandler#PACKET_OPEN_BLOCK_ENTITY_SCREEN} 通道。
+ * 颜色写回由客户端屏幕通过 {@link PacketHandler#PACKET_UPDATE_CUSTOM_COLOR}（C2S）发送，
+ * 服务端接收器已在 {@link PacketHandler} 中实现。</p>
  */
 public abstract class BlockCustomColorBase extends BlockMapper implements EntityBlockMapper {
 
@@ -43,6 +48,16 @@ public abstract class BlockCustomColorBase extends BlockMapper implements Entity
 	/** 子类必须提供方块实体；显示声明以消除接口默认方法与抽象方法的重叠。 */
 	@Override
 	public abstract BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state);
+
+	/** 手持刷子右键 → 请求打开该方块实体对应的颜色编辑屏幕（与来源一致）。 */
+	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		return IBlockExtension.checkHoldingBrush(world, player, () -> {
+			if (player instanceof ServerPlayerEntity serverPlayer) {
+				Registry.sendPacketToClient(serverPlayer, PacketHandler.PACKET_OPEN_BLOCK_ENTITY_SCREEN, buf -> buf.writeBlockPos(pos));
+			}
+		});
+	}
 
 	@Override
 	public String getTranslationKey() {

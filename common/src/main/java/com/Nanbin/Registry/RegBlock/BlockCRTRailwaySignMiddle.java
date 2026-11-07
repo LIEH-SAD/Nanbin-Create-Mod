@@ -1,9 +1,10 @@
 package com.Nanbin.Registry.RegBlock;
 
+import com.Nanbin.mapping.Registry;
+import com.Nanbin.packet.PacketHandler;
 import mtr.block.BlockRailwaySign;
 import mtr.block.IBlock;
 import mtr.mappings.BlockEntityMapper;
-import mtr.packet.PacketTrainDataGuiServer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.entity.player.PlayerEntity;
@@ -68,7 +69,8 @@ public class BlockCRTRailwaySignMiddle extends BlockRailwaySign {
 			if (hitSide == facing || hitSide == facing.getOpposite()) {
 				final BlockPos checkPos = BlockCRTRailwaySign.findEndWithDirectionCRT(world, pos, hitSide.getOpposite(), false);
 				if (checkPos != null && player instanceof ServerPlayerEntity serverPlayer) {
-					PacketTrainDataGuiServer.openRailwaySignScreenS2C(serverPlayer, checkPos);
+					// 来源：中间段右键同样打开 CRT 编辑器（PacketOpenBlockEntityScreen，S2C）。
+					Registry.sendPacketToClient(serverPlayer, PacketHandler.PACKET_OPEN_BLOCK_ENTITY_SCREEN, buf -> buf.writeBlockPos(checkPos));
 				}
 			}
 		});

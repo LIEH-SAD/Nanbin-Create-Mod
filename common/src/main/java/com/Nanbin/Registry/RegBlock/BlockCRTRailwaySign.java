@@ -3,7 +3,9 @@ package com.Nanbin.Registry.RegBlock;
 import com.Nanbin.Blocks.Blocks;
 import com.Nanbin.Init;
 import com.Nanbin.entity.BlockEntityTypes;
+import com.Nanbin.mapping.Registry;
 import com.Nanbin.mapping.TranslationProvider;
+import com.Nanbin.packet.PacketHandler;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import mtr.block.BlockRailwaySign;
@@ -23,9 +25,13 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -43,8 +49,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * CRT 版铁路告示牌方块：继承 MTR 原版 {@link BlockRailwaySign}，渲染与编辑沿用 MTR 的
- * RailwaySignScreen / 数据包机制，并支持长度 3-11（含原版不支持的 8-11）。
+ * CRT 版铁路告示牌方块：继承 MTR 原版 {@link BlockRailwaySign}，渲染沿用 MTR 的指示牌机制；
+ * 手持刷子右键打开本 mod 的 CRT 专属编辑器（与墙挂牌共用），并支持长度 3-11（含原版不支持的 8-11）。
  */
 public class BlockCRTRailwaySign extends BlockRailwaySign {
 
@@ -57,6 +63,33 @@ public class BlockCRTRailwaySign extends BlockRailwaySign {
 	@Override
 	public BlockEntityMapper createBlockEntity(BlockPos pos, BlockState state) {
 		return new BlockEntityCRTRailwaySign(length, isOdd, pos, state);
+	}
+
+	/**
+	 * 手持刷子点击时请求打开本 mod 的 CRT 专用编辑界面（来源不再走 MTR 原版 RailwaySignScreen）。
+	 * 方块实体数据格式与原版一致，因此存档兼容；只是编辑界面换成 CRT 编辑器。
+	 * 单击面的朝向必须与牌面同向/反向；先按点击面反方向找端点，找不到再试另一方向，仍找不到就退回被点击方块。
+	 */
+	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		return IBlock.checkHoldingBrush(world, player, () -> {
+			final Direction facing = IBlock.getStatePropertySafe(state, FACING);
+			final Direction hitSide = hit.getSide();
+			if (hitSide == facing || hitSide == facing.getOpposite()) {
+				BlockPos endPos = findEndWithDirectionCRT(world, pos, hitSide.getOpposite(), false);
+				if (endPos == null) {
+					endPos = findEndWithDirectionCRT(world, pos, hitSide, false);
+				}
+				if (endPos == null) {
+					endPos = pos;
+				}
+				if (player instanceof ServerPlayerEntity serverPlayer) {
+					final BlockPos screenPos = endPos;
+					// 服务端 → 客户端：请求打开该方块实体对应的屏幕（来源 PacketOpenBlockEntityScreen，S2C）。
+					Registry.sendPacketToClient(serverPlayer, PacketHandler.PACKET_OPEN_BLOCK_ENTITY_SCREEN, buf -> buf.writeBlockPos(screenPos));
+				}
+			}
+		});
 	}
 
 	/**

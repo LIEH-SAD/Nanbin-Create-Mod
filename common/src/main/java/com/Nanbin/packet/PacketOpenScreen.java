@@ -44,5 +44,17 @@ public class PacketOpenScreen {
             final boolean isFront = buf.readBoolean();
             context.queue(() -> ClientPacketHelper.openStationInfoScreen(pos, url, isFront));
         });
+
+        // 来源 PacketOpenBlockEntityScreen：请求打开该方块实体对应的屏幕（墙挂牌/自定义色方块/闸机状态屏等）
+        Registry.registerReceiverS2C(PacketHandler.PACKET_OPEN_BLOCK_ENTITY_SCREEN, (buf, context) -> {
+            final BlockPos pos = buf.readBlockPos();
+            context.queue(() -> ClientPacketHelper.openBlockEntityScreen(pos));
+        });
+
+        // 来源 PacketOpenCRTPlatformScreen：请求打开 CRT 站台/导视牌屏幕
+        Registry.registerReceiverS2C(PacketHandler.PACKET_OPEN_CRT_PLATFORM_SCREEN, (buf, context) -> {
+            final BlockPos pos = buf.readBlockPos();
+            context.queue(() -> ClientPacketHelper.openCRTPlatformScreen(pos));
+        });
     }
 }

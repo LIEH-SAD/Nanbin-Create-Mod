@@ -2,7 +2,9 @@ package com.Nanbin.Registry.RegBlock;
 
 import com.Nanbin.Init;
 import com.Nanbin.entity.BlockEntityTypes;
+import com.Nanbin.mapping.Registry;
 import com.Nanbin.mapping.TranslationProvider;
+import com.Nanbin.packet.PacketHandler;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import mtr.block.IBlock;
@@ -20,13 +22,18 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -167,8 +174,18 @@ public class BlockCRTRailwaySignWall1 extends BlockDirectionalMapper implements 
 		}
 	}
 
-	// 注：来源用 MTR 4 的 PacketOpenBlockEntityScreen 打开自由布局编辑器；目标侧该数据包由 Lead 的 packet 层统一接入，
-	// 在通道就绪前这里不接管右键（保持原版 PASS），渲染/数据部分不受影响。
+	// 手持刷子右键：按来源行为打开 CRT 墙挂牌编辑器（整条牌从左端方块定位，数据存在左端 BE 上）。
+	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		return IBlock.checkHoldingBrush(world, player, () -> {
+			final BlockPos start = findStart(world, pos, state);
+			if (player instanceof ServerPlayerEntity serverPlayer) {
+				// 服务端 → 客户端：请求打开该方块实体对应的屏幕（来源 PacketOpenBlockEntityScreen，S2C）。
+				Registry.sendPacketToClient(serverPlayer, PacketHandler.PACKET_OPEN_BLOCK_ENTITY_SCREEN, buf -> buf.writeBlockPos(start));
+			}
+		});
+	}
+
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
 		final Direction facing = IBlock.getStatePropertySafe(state, FACING);
