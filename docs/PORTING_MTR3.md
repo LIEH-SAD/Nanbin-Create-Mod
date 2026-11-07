@@ -155,20 +155,39 @@ public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 | P7 资源 | ✅ | 全部资源/语言/配方/文档/许可对齐，`crt_signs.json` 从 `4834a43` 恢复（49 预设） |
 | P8 集成 | ⏳ | 双端 build、清单零差异、旧档兼容、服务端安全 |
 
-## 11. 已知遗留项（P8 收尾清单）
+## 11. 已知遗留项（P8 收尾）
 
-1. **世界渲染「自由布局」分支**：来源 `RenderCRTRailwaySign.render()`/`RenderCRTRailwaySignWall1` 在 `signIds` 之外优先绘制 `entity.getSignLayout()` 烘焙贴图；目标渲染器当前仍只有 legacy 逐格路径（编辑器预览走 GUI bake，因此看不出来）。→ 由 render-eng 按来源 `CRTSignLayoutPainter.bake` / `CRTJsLayoutBake.bake` + 直绘方式补齐（进行中）。
-2. **JS 整牌预烘焙**：来源 `renderJSStyleLine` + `JSSignTextureBaker` 缓存键；目标当前实时绘制（功能可用，性能差异）。与第 1 项合并处理。
-3. **方块右键 `onUse`**：墙挂牌/自定义色方块/闸机状态屏的右键入口（`PacketHandler.sendOpenBlockEntityScreen` 已就绪）。→ blocks 补齐中。
-4. **原版导视牌界面编辑按钮横向滚动条**（D18）：纯 GUI 便利性，暂不移植。
-5. **上游继承缺口（与来源一致，不修）**：`crt_psd_cab_door` 缺 blockstate、`crt_rigid_catenary_1`/`crt_ticket_machine_2` 缺 item 模型；78 处贴图/模型断链。
-6. **`client/Drawing/NanbinSignLoader.java`**：已被 `CRTSignRegistry` 取代（`InitClient` 已切换），文件暂留未删，P8 决定是否移除。
+| # | 项 | 状态 |
+|---|---|---|
+| 1 | 世界渲染「自由布局」分支（`entity.getSignLayout()` → `CRTSignLayoutPainter.bake`/`CRTJsLayoutBake.bake` → 底板+整牌贴图，失败回退 legacy 逐格） | ✅ 已补（`RenderCRTRailwaySign` 1258 行 + `RenderCRTRailwaySignWall1`，JS bake 失败只画底板、非 JS 失败回退 legacy） |
+| 2 | JS 整牌预烘焙（`renderJSStyleLine` 14/15 参 + `buildJSContentKey` 指纹 + `JSDrawSink` 短路；命中 1 个 quad，未命中重烘，失败回退实时绘制） | ✅ 已补 |
+| 3 | 方块右键 `onUse`：墙挂牌/铁路牌/中间段 → S2C `PACKET_OPEN_BLOCK_ENTITY_SCREEN`；站名三块 → `PACKET_OPEN_CRT_PLATFORM_SCREEN`；自定义色基类同墙挂牌（来源同款兜底） | ✅ 已补 |
+| 4 | 原版导视牌界面编辑按钮横向滚动条（D18） | ⏸ 不移植（纯 GUI，Mixin 风险 > 收益） |
+| 5 | 上游继承缺口（与来源一致）：`crt_psd_cab_door` 缺 blockstate、`crt_rigid_catenary_1`/`crt_ticket_machine_2` 缺 item 模型、78 处贴图/模型断链 | ⏸ 保留（已登记 `known-resource-gaps.txt`） |
+| 6 | `client/Drawing/NanbinSignLoader.java`（已被 `CRTSignRegistry` 取代） | ✅ 已删除 |
+| 7 | 编辑器静态走查（`docs/EDITOR_TEST_CHECKLIST.md` §1–§10）：唯一可修项「JS 模式点画布无提示」已修（复用原本未被引用的 `gui.nanbin.crt_editor.js.locked_edit` 键） | ✅ |
+| 8 | 撤销不恢复完整选择集、绑定列表打开时快照、`CRTSignDoubleScreen` 保留按行 JS 样式锁定 | 记录（来源既有/基线保留） |
 
 ## 12. 版本与产物
 
 - `mod_version = 3.1.261107`，`Init.VERSION_DATA = "0"`、`IS_TEST_VERSION = false`（与来源 3.1 语义对齐）。
-- 双端产物：`build/release/Nanbin-3.1.261107+1.20.1+fabric+mtr3.jar`、`...forge+mtr3.jar`。
+- 双端产物：`build/release/Nanbin-3.1.261107+1.20.1+fabric+mtr3.jar`（23.4 MB）、`...forge+mtr3.jar`（21.5 MB）。
 - Fabric 端 Nashorn 以 JarInJar 打包（`META-INF/jars/nashorn-core-15.4.jar`）；Forge 端不打包（环境自带）。
 - 混入：`nanbin.mixins.json` 维持 2 个（`RailwaySignScreenMixin`/`RenderRailwaySignMixin`），`init` 采用 `init`/`method_25426`/`m_7856_` 三变体 + `require = 0`，无需 refmap（MTR 自有方法名不受映射影响）。
+- 客户端初始化顺序（`InitClient`）：`PacketOpenScreen` → `BlockEntityRender` → `BlockColor` → `CRTSignRegistry`（资源重载监听）→ `JSSignLoader`（旧 `js_signs_config.json`，4 个脚本）→ `CRTJsSignLoader`（`crt_js_signs_config.json`，叠加）→ `RouteMapOverride` → `FiltersGroup/FiltersMenu/RenderLayerReg`。
+
+## 13. 验收门（`tools/parity/accept.ps1`，9 道）
+
+| 门 | 命令 | 期望 |
+|---|---|---|
+| 1 类清单 | `classes.ps1` | MISSING = 0（25 个登记为 known-move/known-skip） |
+| 2 资源+语言 | `resources.ps1` | 各分组 missing = 0 |
+| 3 注册表×资源×配方 | `registry.ps1` | RESULT: OK（上游缺口登记在 `known-resource-gaps.txt`） |
+| 4 静态审计 | `audit.ps1` | `org.mtr.` 残留 0、客户端类泄漏 0、`@ExpectPlatform` 齐 |
+| 5 编译 | `:common:compileJava` | BUILD SUCCESSFUL |
+| 6 平台编译 | `:fabric:compileJava :forge:compileJava` | BUILD SUCCESSFUL |
+| 7 离线渲染 | `:common:drawTest` | 10 张 PNG |
+| 8 完整构建 | `build` | BUILD SUCCESSFUL |
+| 9 产物 | `build/release/*.jar` + jar 内容抽检 | 双端 jar、`fabric.mod.json`/`nanbin.mixins.json`/`crt_signs.json`/`crt_js_signs_config.json` 在包内 |
 
 > 来源 HEAD 说明：任务开始时为 `ed04f13`，后被来源作者 amend 为 `e34adcb`；差异仅「删除 6 个误提交的 `.hprof.p*` + `NanbinConfigScreen` +2 行 + `fabric.mod.template.json` −1 行」，不影响已移植内容。
