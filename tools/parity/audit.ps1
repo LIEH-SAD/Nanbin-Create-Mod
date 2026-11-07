@@ -72,6 +72,8 @@ foreach ($file in $allJava) {
         if ($relative -like "*$prefix*" -or $relative -like "com\Nanbin\$prefix*") { $isClient = $true; break }
     }
     if ($relative -like '*ClientPacketHelper.java') { $isClient = $true }
+    # 客户端专用文件（客户端初始化器/网络辅助）按文件名放行：它们只被客户端入口点调用
+    if (@('InitClient.java', 'ClientPacketHelper.java', 'ModmenuConfig.java') -contains $file.Name) { $isClient = $true }
     if ($isClient) { continue }
     $hits = Select-String -Path $file.FullName -Pattern '^\s*import\s+net\.minecraft\.client\.' -ErrorAction SilentlyContinue
     if ($hits) {
