@@ -26,12 +26,12 @@ public class Items {
     });
     public static final RegistrySupplier<Item> CRT_LOGO = ITEMS.register("crt_logo", () -> new BlockItem(Blocks.CRT_LOGO.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CRT_PLATFORM = ITEMS.register("crt_platform", () -> new BlockItem(Blocks.CRT_PLATFORM.get(), new Item.Settings()));
-    public static final RegistrySupplier<Item> CRT_TICKET_1_ENTER = ITEMS.register("crt_barrier_entrance_1", () -> new BlockItem(Blocks.CRT_TICKET_1_ENTER.get(), new Item.Settings()));
-    public static final RegistrySupplier<Item> CRT_TICKET_1_EXIT = ITEMS.register("crt_barrier_exit_1", () -> new BlockItem(Blocks.CRT_TICKET_1_EXIT.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> CRT_TICKET_1_ENTER = ITEMS.register("crt_barrier_entrance_1", () -> new ItemBlockEnchanted(Blocks.CRT_TICKET_1_ENTER.get(), new Item.Settings()));//TODO USE
+    public static final RegistrySupplier<Item> CRT_TICKET_1_EXIT = ITEMS.register("crt_barrier_exit_1", () -> new ItemBlockEnchanted(Blocks.CRT_TICKET_1_EXIT.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CRT_TICKET_2_ENTER = ITEMS.register("crt_barrier_entrance_2", () -> new BlockItem(Blocks.CRT_TICKET_2_ENTER.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CRT_TICKET_2_EXIT = ITEMS.register("crt_barrier_exit_2", () -> new BlockItem(Blocks.CRT_TICKET_2_EXIT.get(), new Item.Settings()));
-    public static final RegistrySupplier<Item> CRT_TICKET_3_ENTER = ITEMS.register("crt_barrier_entrance_3", () -> new BlockItem(Blocks.CRT_TICKET_3_ENTER.get(), new Item.Settings()));
-    public static final RegistrySupplier<Item> CRT_TICKET_3_EXIT = ITEMS.register("crt_barrier_exit_3", () -> new BlockItem(Blocks.CRT_TICKET_3_EXIT.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> CRT_TICKET_3_ENTER = ITEMS.register("crt_barrier_entrance_3", () -> new ItemBlockEnchanted(Blocks.CRT_TICKET_3_ENTER.get(), new Item.Settings()));
+    public static final RegistrySupplier<Item> CRT_TICKET_3_EXIT = ITEMS.register("crt_barrier_exit_3", () -> new ItemBlockEnchanted(Blocks.CRT_TICKET_3_EXIT.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CRT_TICKET_MACHINE_1 = ITEMS.register("crt_ticket_machine_1", () -> new BlockItem(Blocks.CRT_TICKET_MACHINE_1.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CRT_TICKET_MACHINE_2 = ITEMS.register("crt_ticket_machine_2", () -> new BlockItem(Blocks.CRT_TICKET_MACHINE_2.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CRT_ESCALATOR = ITEMS.register("crt_escalator", () -> new ItemCRTEscalator(new Item.Settings()));
@@ -158,9 +158,6 @@ public class Items {
     public static final RegistrySupplier<Item> CRT_RAILWAY_SIGN_10_ODD = ITEMS.register("crt_railway_sign_10_odd", () -> new BlockItem(Blocks.CRT_RAILWAY_SIGN_10_ODD.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CRT_RAILWAY_SIGN_11_EVEN = ITEMS.register("crt_railway_sign_11_even", () -> new BlockItem(Blocks.CRT_RAILWAY_SIGN_11_EVEN.get(), new Item.Settings()));
     public static final RegistrySupplier<Item> CRT_RAILWAY_SIGN_11_ODD = ITEMS.register("crt_railway_sign_11_odd", () -> new BlockItem(Blocks.CRT_RAILWAY_SIGN_11_ODD.get(), new Item.Settings()));
-
-    // ---- 来源 3.1 新增：墙挂导视牌 / PSD Gen-1 屏蔽门系族 / 闸机状态屏 ----
-    // 屏蔽门 Gen-1 系列用自定义物品（放置朝向与竖高有别），不是普通 BlockItem
     public static final RegistrySupplier<Item> CRT_PSD_DOOR_1 = ITEMS.register("crt_psd_door_1", () -> new ItemCRTPSD1(Blocks.CRT_PSD_DOOR_1.get(), new Item.Settings(), true));
     public static final RegistrySupplier<Item> CRT_PSD_GLASS_1 = ITEMS.register("crt_psd_glass_1", () -> new ItemCRTPSD1(Blocks.CRT_PSD_GLASS_1.get(), new Item.Settings(), false));
     public static final RegistrySupplier<Item> CRT_PSD_GLASS_END_1 = ITEMS.register("crt_psd_glass_end_1", () -> new ItemCRTPSD1(Blocks.CRT_PSD_GLASS_END_1.get(), new Item.Settings(), false));

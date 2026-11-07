@@ -225,4 +225,18 @@ public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 - 保留目标原有的 `Rarity` 设置（EPIC/UNCOMMON），只替换物品实现类；创造页签归属不变。
 - 不需要额外贴图/模型：光效由 `Item.hasGlint` 在运行时叠加。
 
+## 16. 旧存档导入不再生成「空白占位」（含 mtr4 分支）
+
+**问题**：旧存档（只有格子 `signIds`）在打开导视牌编辑器前会先转换成自由布局，`CRTSignLegacyImporter.convertCell` 对**空白格**会生成一个 `SPACE` 元素（注释为「保留一个格宽，避免其它元素挤在一起」）。结果编辑器预览区里默认就铺满空白占位（墙挂牌尤其明显：`cells = 方块数 × 2`，空格全变占位）。
+
+**改法**（两个仓库同步改）：
+
+| 文件 | 改动 |
+|---|---|
+| 目标 `common/src/main/java/com/Nanbin/client/CRTRailwaySignEditor/legacy/CRTSignLegacyImporter.java` | 空白格 `return null`（跳过），删除 `CRTSignElementType.SPACE` 占位创建；类 javadoc 同步 |
+| 来源 `fabric/src/main/java/com/Nanbin/client/CRTRailwaySignEditor/legacy/CRTSignLegacyImporter.java`（mtr4 分支） | 同上（逐行一致） |
+
+- 影响面：仅「旧数据 → 布局」的一次性转换；不会改动世界渲染的 legacy 回退路径（未保存布局时仍按旧 `signIds` 渲染），也不会改动用户手动放置的 `SPACE` 元素（调色板里的「空白」卡照常可用）。
+- 副作用（预期）：导入后的布局里，元素之间不再保留原空格宽度，内容按实际元素从左顺延；如需「只去掉首尾空格、保留中间对齐」的折中方案，可再调整。
+
 > 来源 HEAD 说明：任务开始时为 `ed04f13`，后被来源作者 amend 为 `e34adcb`；差异仅「删除 6 个误提交的 `.hprof.p*` + `NanbinConfigScreen` +2 行 + `fabric.mod.template.json` −1 行」，不影响已移植内容。
