@@ -1,26 +1,26 @@
 package com.Nanbin.client.Render;
 
 import com.Nanbin.Registry.RegBlock.BlockCRTRailwaySign;
-import com.Nanbin.client.Drawing.CRTSignDrawing;
-import com.Nanbin.client.Drawing.CRTSignLayoutPainter;
-import com.Nanbin.client.Drawing.CRTSignView;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTLegacySignDrawing;
+import com.Nanbin.client.CRTRailwaySignEditor.render.CRTJsLayoutBake;
+import com.Nanbin.client.CRTRailwaySignEditor.render.CRTSignLayoutPainter;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTLegacySignView;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
-import com.Nanbin.client.signage.CRTSignDataResolver;
+import com.Nanbin.client.CRTRailwaySignEditor.render.CRTSignDataResolver;
 import com.Nanbin.signage.crt.CRTSignLayout;
 import com.Nanbin.client.Drawing.CustomFontTextureCache.FontType;
 import com.Nanbin.client.Drawing.FontRenderUtils;
-import com.Nanbin.client.Drawing.SignTextStyleConfig;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.SignTextStyleConfig;
 import com.Nanbin.client.JavaScriptSupport.JSDrawContext;
 import com.Nanbin.client.JavaScriptSupport.JSDrawSink;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
 import com.Nanbin.client.JavaScriptSupport.JSSignEngine;
 import com.Nanbin.client.JavaScriptSupport.JSSignTextureBaker;
-import org.mtr.core.data.SimplifiedRoute;
+import com.Nanbin.packet.ClientPacketHelper;
 import org.mtr.core.data.Station;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongBidirectionalIterator;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBidirectionalIterator;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.GraphicsHolder;
@@ -145,7 +145,12 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 					// 自由布局（网页编辑器模型）：有布局数据时整块牌由布局绘制类烘焙成一张贴图来画
 					if (layout != null) {
 						try {
-							final JSSignTextureBaker.Baked baked = CRTSignLayoutPainter.bake(layout, new CRTSignDataResolver(entity::getRouteNumber), "crt_layout:" + pos.toShortString(), signLayoutJson.hashCode());
+							// 车站上下文用于出口信息条（EXIT_INFO）的目的地查询；坐标查询有 2 秒缓存
+							final CRTSignDataResolver layoutData = new CRTSignDataResolver(entity::getRouteNumber,
+									ClientPacketHelper.findStationForSelectionCached(pos));
+							final JSSignTextureBaker.Baked baked = CRTJsLayoutBake.isJsStyle(layout)
+									? CRTJsLayoutBake.bake(layout, layoutData, "crt_layout:" + pos.toShortString(), signLayoutJson.hashCode(), facing)
+									: CRTSignLayoutPainter.bake(layout, layoutData, "crt_layout:" + pos.toShortString(), signLayoutJson.hashCode());
 							if (baked != null) {
 								final float plateWidth = 0.5F * (float) signIds.length;
 								final float plateHeight = 0.5F;
@@ -216,10 +221,10 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 						graphicsHolder.pop();
 					} else {
 						// 非 JS 样式：底板已在上方画过，这里交给与界面预览共用的绘制类
-						final CRTSignView signView = new CRTSignView(signIds, entity.getSelectedIds(), entity.getRouteNumbers(), entity::getRouteNumber, null)
+						final CRTLegacySignView signView = new CRTLegacySignView(signIds, entity.getSelectedIds(), entity.getRouteNumbers(), entity::getRouteNumber, null)
 								.geometry(0.5F, 0.5F, facing)
 								.cellOverrides(null, cellBackgroundColors);
-						CRTSignDrawing.draw(signView, graphicsHolder, storedMatrixTransformations, false);
+						CRTLegacySignDrawing.draw(signView, graphicsHolder, storedMatrixTransformations, false);
 						graphicsHolder.pop();
 					}
 				} else {
@@ -248,7 +253,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 				if (!sign.hasCustomText) {
 					if (signSink != null) {
 						// 画布模式（界面预览）：MTR 的 drawSign 会走 MainRenderer 调度，收不进画布
-						CRTSignDrawing.drawIconIntoCanvas(signSink, sign, x, cellWidth, y, size, backgroundColor);
+						CRTLegacySignDrawing.drawIconIntoCanvas(signSink, sign, x, cellWidth, y, size, backgroundColor);
 					} else {
 						RenderRailwaySign.drawSign(graphicsHolder, storedMatrixTransformations, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
 					}
@@ -296,7 +301,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 				}
 			} else if (signSink != null) {
 				// 画布模式：原版 MTR 特殊标志（出口字母 / 线路 / 站台）只画贴图，文字仍由 MTR 渲染
-				CRTSignDrawing.drawIconIntoCanvas(signSink, sign, x, cellWidth, y, size, backgroundColor);
+				CRTLegacySignDrawing.drawIconIntoCanvas(signSink, sign, x, cellWidth, y, size, backgroundColor);
 			} else {
 				RenderRailwaySign.drawSign(graphicsHolder, storedMatrixTransformations, pos, signId, centeredX, y, size, maxWidthLeft, maxWidthRight, selectedIds, facing, transparentBlack ? -16777216 : backgroundColor | -16777216, drawTexture);
 			}

@@ -1,5 +1,8 @@
 # CRT 导视牌编辑器 —— MTR 数据联动开发文档
 
+> 说明：本文写于代码结构整理之前，文中旧类名 CRTSignScreen 已在整理中改名为 CRTSignEditorScreen（路径 client/crt/editor/），
+> 行号可能因代码移动而变化，引用时以当前代码为准。
+
 > 目标读者：实现「CRT 导视牌编辑器」的工程师（Java，通过 `org.mtr.mapping.*` 映射层调用 MTR）。
 > 目标仓库：`D:\NCM+mtr4.0\Nanbin`（Nanbin，MTR 4.0.5 附属，Fabric 源树，MC 1.20.1；Stonecutter 多版本）。
 >
@@ -305,7 +308,7 @@ ObjectArraySet<DashboardListItem> items = MinecraftClientData.convertDataSet(sta
 // 过滤（可选）：MinecraftClientData.getFilteredDataSet(TransportMode, ObjectArraySet<T>)
 ```
 
-（`convertDataSet` / `getFilteredDataSet` 见 `MinecraftClientData` 公开静态方法；仓库 `RailwaySignScreenMixin.java:97-107`、`CRTSignScreen.java:265-267` 均如此用。）
+（`convertDataSet` / `getFilteredDataSet` 见 `MinecraftClientData` 公开静态方法；仓库 `RailwaySignScreenMixin.java:97-107`、`CRTSignEditorScreen.java:265-267` 均如此用。）
 
 ### 2.6 车站颜色
 
@@ -357,7 +360,7 @@ public static ObjectImmutableList<DashboardListItem> getPlatformsForList(ObjectA
    - 终点站名 = `SimplifiedRoutePlatform#getStationName()`（取 `route.getPlatforms()` 最后一个元素，`Utilities.getElement(list, -1)` 支持负下标）；
    - 过滤条件：`simplifiedRoute.getPlatformIndex(platform.getId()) >= 0`。
 
-用法（仓库 `ClientPacketHelper.java:149-155` / `CRTSignScreen.java:263`）：
+用法（仓库 `ClientPacketHelper.java:149-155` / `CRTSignEditorScreen.java:263`）：
 
 ```java
 final ObjectImmutableList<DashboardListItem> platforms =
@@ -512,13 +515,13 @@ if (this.onClose != null) this.onClose.run();   // ★ 在父屏幕恢复之后�
 **方式 A（仓库现状，推荐）**：把自己持有的同一个 `LongAVLTreeSet` 传进去，关闭后引用内容已变；在**自己的** `onClose2/tick` 里重新读取。
 
 ```java
-// CRTSignScreen.java:579-585
+// CRTSignEditorScreen.java:579-585
 private void openDataSelector(ObjectImmutableList<DashboardListItem> list) {
     if (list == null || list.isEmpty()) return;
     MinecraftClient.getInstance().openScreen(
             new Screen(new DashboardListSelectorScreen(list, selectedIds, false, false, this)));
 }
-// 自己的 onClose2（CRTSignScreen.java:314-321）：saveNow() 把 selectedIds 发回服务端
+// 自己的 onClose2（CRTSignEditorScreen.java:314-321）：saveNow() 把 selectedIds 发回服务端
 ```
 
 **方式 B**：用带 `onClose` 的构造器，在回调里发包/刷新（回调发生在父屏幕恢复之后，可安全发包）：
@@ -540,7 +543,7 @@ MinecraftClient.getInstance().openScreen(new Screen(new DashboardListSelectorScr
 
 ### 5.5 判断“文件是否变化”的现有手段
 
-- 仓库 `CRTSignScreen` 用内容签名 `signature()`/`lastSavedSignature` 与 `markChanged()`（`CRTSignScreen.java:289, 400-428`），`refreshIfStale()` 在 `init2/tick2` 里调用；不是依赖选择器回调。
+- 仓库 `CRTSignEditorScreen` 用内容签名 `signature()`/`lastSavedSignature` 与 `markChanged()`（`CRTSignEditorScreen.java:289, 400-428`），`refreshIfStale()` 在 `init2/tick2` 里调用；不是依赖选择器回调。
 - `RailwaySignScreenMixin` 直接用共享的 `selectedIds/signIds`，保存时统一 `PacketUpdateRailwaySignConfig`。
 - 结论：选择器**没有值变化事件**；要么共享集合，要么用 `onClose` Runnable，要么自己维护签名比较。
 
@@ -798,7 +801,7 @@ route.getColor() / getName() / getId()      // 颜色/名/id
 
 - MTR：`DynamicTextureCache.instance` 是**客户端单例**，资源异步生成（内部 `generatingResources` 队列 + `getResource`），**首次取同一文本可能先返回默认/透明纹理**，下一 tick 才可用；`tick()` 处理过期，`refresh()` 在 `PacketUpdateData.update()` 末尾被调；`reload()` 仅资源重载时用。不要自己建 `Identifier` 重复烘焙同一文本。
 - 仓库：`CustomFontTextureCache` 自管 `Map<String, Identifier>`，key 含 `fontType + 文本 + maxWidth + fontSize + textColor + Config.getClient().getDynamicTextureResolution()`（`CustomFontTextureCache.java:49-50`）；**漏掉分辨率/语言显示会导致配置改变后不刷新**。
-- 纹理数量会随“站名×颜色×宽度”组合爆炸：编辑器预览应限制缓存 key 维度（例如预览只用一种分辨率），并在屏幕关闭时不必清理（跨屏复用），但**布局数据变化时要让预览纹理 key 变化**（仓库 `CRTSignScreen#refreshIfStale` + `signature()` 即此思路）。
+- 纹理数量会随“站名×颜色×宽度”组合爆炸：编辑器预览应限制缓存 key 维度（例如预览只用一种分辨率），并在屏幕关闭时不必清理（跨屏复用），但**布局数据变化时要让预览纹理 key 变化**（仓库 `CRTSignEditorScreen#refreshIfStale` + `signature()` 即此思路）。
 - `RenderCRTStationName1.java:81-85` 每秒 `clearFittedTextureCache()` 是因为 MTR `Render` 早于 `BlockEntity` 加载；**不要模仿成每 tick 清缓存**（会持续重新烘焙，卡顿 + 显存泄漏）。
 
 ### 10.4 颜色 alpha
@@ -824,7 +827,7 @@ route.getColor() / getName() / getId()      // 颜色/名/id
 ### 10.7 其他
 
 - `InitClient.findStation` 只做区域精确匹配；指示牌常挂在站外，必须走 `ClientPacketHelper.findStationForSelection` 兜底链。
-- 数据是**异步同步**：刚进世界/刚打开界面时 `simplifiedRoutes`、`stations` 可能为空；界面应在 `tick2` 里用“签名变化”刷新（仓库 `CRTSignScreen#refreshIfStale`），不要只在构造器里取一次。
+- 数据是**异步同步**：刚进世界/刚打开界面时 `simplifiedRoutes`、`stations` 可能为空；界面应在 `tick2` 里用“签名变化”刷新（仓库 `CRTSignEditorScreen#refreshIfStale`），不要只在构造器里取一次。
 - 反射依赖 MTR 自己的字段名 `main` / `simulators`（非 Minecraft 映射名，不受混淆影响，但 MTR 4.0.x 内可能改名）。建议集中封装（§9.2 第 4 点）并在失败时降级为空编号。
 - `TranslationProvider` 文本随语言变化；不要把 `getString()` 结果长期缓存到方块/磁盘（只缓存 id/颜色，渲染时再取文本）。
 
@@ -836,15 +839,15 @@ route.getColor() / getName() / getId()      // 颜色/名/id
 |---|---|
 | 车站兜底查找 | `fabric/src/main/java/com/Nanbin/packet/ClientPacketHelper.java:163-184` |
 | 站台选择器（单点） | `ClientPacketHelper.java:149-155` |
-| 线路选择列表构造（MTR 同款） | `fabric/src/main/java/com/Nanbin/client/Screen/CRTSignScreen.java:269-280`、`client/Screen/JSSignDataScreen.java:88-97` |
+| 线路选择列表构造（MTR 同款） | `fabric/src/main/java/com/Nanbin/client/crt/editor/CRTSignEditorScreen.java:269-280`、`client/Screen/JSSignDataScreen.java:88-97` |
 | 站名文本合成（MTR 同款） | `fabric/src/main/java/com/Nanbin/client/Render/RenderCRTRailwaySign.java:265-282` |
-| 出口列表 | `CRTSignScreen.java:262`、`CRTSignDoubleScreen.java:107` |
+| 出口列表 | `CRTSignEditorScreen.java:262`、`CRTSignDoubleScreen.java:107` |
 | 下一/上一站 | `fabric/src/main/java/com/Nanbin/client/Render/RenderCRTStationInfo1.java:272-348` |
 | 线路颜色/编号解析（客户端兜底） | `fabric/src/main/java/com/Nanbin/client/Drawing/RouteMapGenerator.java:72-158` |
 | 车站序列/支线解析 | `fabric/src/main/java/com/Nanbin/client/Drawing/LineMapDataResolver.java:33-218` |
 | 服务端 routeNumber 反射（颜色键） | `fabric/src/main/java/com/Nanbin/Registry/RegBlock/BlockCRTRailwaySign.java:351-410` |
 | 服务端 routeNumber 反射（站台键） | `Registry/RegBlock/BlockCRTStationName1.java:104-143`、`BlockCRTStationInfo1.java:366-421` |
-| 选择器打开方式 | `client/Screen/CRTSignScreen.java:579-585`、`client/Screen/JSSignDataScreen.java:186-189`、`mixin/RailwaySignScreenMixin.java:125-159` |
+| 选择器打开方式 | `client/crt/editor/CRTSignEditorScreen.java:579-585`、`client/Screen/JSSignDataScreen.java:186-189`、`mixin/RailwaySignScreenMixin.java:125-159` |
 | JS 数据 API（选中 id → 名称/颜色/编号/出口） | `fabric/src/main/java/com/Nanbin/client/JavaScriptSupport/JSSignEngine.java:804-1174` |
 | 自定义文本纹理缓存 | `fabric/src/main/java/com/Nanbin/client/Drawing/CustomFontTextureCache.java:42-72, 94-102, 352-361` |
 
@@ -882,3 +885,28 @@ $jp  = "C:\Program Files\Java\jdk-21.0.10\bin\javap.exe"
 #   Get-ChildItem -Recurse -Filter *.class | Select-String -Pattern 'colorFromInt'
 #   → 无结果；"*Colors.class" 亦无结果
 ```
+
+---
+
+## 附加：MTR 出口（StationExit）数据结构与「出口信息」渲染约定（2026-11 新增）
+
+参考运营图：黄底信息条 #FFF200 + 近黑字 #221F1F，布局为
+[箭头] [出口编号，多出口用 / 连接] [出口 / Exit] [中文目的地行] 下接 [英文目的地行]。
+
+MTR 4.0.5 提供的接口（已用 javap 确认）：
+
+| 用途 | API |
+| --- | --- |
+| 出口对象 | `org.mtr.core.data.StationExit`：`String getName()`（出口名/编号，如 1、A） |
+| 目的地列表 | `StationExit.getDestinations()`：`ObjectArrayList<String>`（MTR 编辑屏里每条 "Add Exit Destination" 一项） |
+| 站内出口列表 | `EditStationScreen.getStationExits(Station, boolean)` |
+| 出口 id ↔ 名称 | `EditStationScreen.deserializeExit(long)`（现有 `CRTSignDataResolver.getExitCode` 使用） |
+| 出口多选列表 | `EditStationScreen.getExitsForDashboardList(...)`（编辑器 `CRTSignEditorHostImpl.getExitsForList` 已用） |
+| 找所属站 | `ClientPacketHelper.findStationForSelection(BlockPos)` |
+
+渲染约定（EXIT_INFO 元素）：
+1. 出口编号：所选多个出口的 `getName()` 用 `/` 连接；无绑定/无数据时回退 `1`。
+2. 目的地：MTR 只存自由文本列表，**中英分栏由内容判断**：含 CJK 的条目按空格连接成中文行，其余条目按 `", "` 连接成英文行。
+3. 行高固定为布局 `rowHeight`，元素宽度按「箭头 + 编号 + 出口/Exit + 目的地最长行」计算（动态元素宽度，不参与网页三通道固定宽）。
+4. 颜色取元素 `color`（默认近黑），底色由行/整牌背景决定（出口信息牌建议行背景 `#FFF200`）。
+5. 数据缺失、出口匹配失败时必须回退到现有 EXIT 样式（编号 + 出口/Exit），不能影响世界渲染。

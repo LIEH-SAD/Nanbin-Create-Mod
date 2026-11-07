@@ -7,7 +7,8 @@ import java.util.Locale;
  * {@code ELEMENT_TYPES}（js/state.js）一一对应。
  *
  * <p>网页端类型名使用小写连字符（如 {@code "bilingual-text"}），
- * 本枚举的 {@link #id} 与之一致，方便以后直接导入/导出网页项目 JSON。</p>
+ * 本枚举的 {@link #id} 与之一致，方便以后直接导入/导出网页项目 JSON。
+ * 唯一例外是 {@link #EXIT_INFO}（本 mod 扩展的出口信息条），网页端没有对应类型。</p>
  */
 public enum CRTSignElementType {
 
@@ -19,6 +20,12 @@ public enum CRTSignElementType {
 	TEXT_LINE("text-line"),
 	ENTRANCE("entrance"),
 	EXIT("exit"),
+	/**
+	 * 出口信息条（本 mod 扩展，网页编辑器没有此类型）：箭头 + 出口编号 + 「出口 / Exit」标签 +
+	 * 中英双语目的地列表，内容来自 MTR 4.0 的 {@code StationExit}。
+	 */
+	EXIT_INFO("exit-info"),
+	ROUTE_INFO("route-info"),
 	SPACE("space"),
 	ICON("icon");
 

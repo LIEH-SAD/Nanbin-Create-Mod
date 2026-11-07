@@ -1,18 +1,20 @@
 package com.Nanbin.client.Render;
 
 import com.Nanbin.Registry.RegBlock.BlockCRTRailwaySignWall1;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTLegacySignDrawing;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTLegacySignView;
+import com.Nanbin.client.CRTRailwaySignEditor.render.CRTJsLayoutBake;
+import com.Nanbin.client.CRTRailwaySignEditor.render.CRTSignDataResolver;
+import com.Nanbin.client.CRTRailwaySignEditor.render.CRTSignLayoutPainter;
 import com.Nanbin.client.Drawing.CustomFontTextureCache;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
-import org.mtr.core.data.SimplifiedRoute;
 import org.mtr.libraries.it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
-import org.mtr.libraries.it.unimi.dsi.fastutil.objects.ObjectBidirectionalIterator;
 import org.mtr.mapping.holder.*;
 import org.mtr.mapping.mapper.BlockEntityRenderer;
 import org.mtr.mapping.mapper.DirectionHelper;
 import org.mtr.mapping.mapper.GraphicsHolder;
 import org.mtr.mod.block.IBlock;
 import org.mtr.mod.client.IDrawing;
-import org.mtr.mod.client.MinecraftClientData;
 import org.mtr.mod.render.MainRenderer;
 import org.mtr.mod.render.QueuedRenderLayer;
 import org.mtr.mod.render.RenderRailwaySign;
@@ -130,8 +132,13 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 			// 自由布局（网页编辑器模型）：有布局数据时整条牌由布局绘制类烘焙成一张贴图来画
 			if (layout != null) {
 				try {
-					final com.Nanbin.client.JavaScriptSupport.JSSignTextureBaker.Baked baked = com.Nanbin.client.Drawing.CRTSignLayoutPainter.bake(layout,
-							new com.Nanbin.client.signage.CRTSignDataResolver(entity::getRouteNumber), "crt_layout_wall:" + pos.toShortString(), signLayoutJson.hashCode());
+					// 车站上下文用于出口信息条（EXIT_INFO）的目的地查询；坐标查询有 2 秒缓存
+					final CRTSignDataResolver wallLayoutData =
+							new CRTSignDataResolver(entity::getRouteNumber,
+									com.Nanbin.packet.ClientPacketHelper.findStationForSelectionCached(pos));
+					final com.Nanbin.client.JavaScriptSupport.JSSignTextureBaker.Baked baked = CRTJsLayoutBake.isJsStyle(layout)
+							? CRTJsLayoutBake.bake(layout, wallLayoutData, "crt_layout_wall:" + pos.toShortString(), signLayoutJson.hashCode(), facing)
+							: CRTSignLayoutPainter.bake(layout, wallLayoutData, "crt_layout_wall:" + pos.toShortString(), signLayoutJson.hashCode());
 					if (baked != null) {
 						final float plateWidth = (float) cellCount * CELL_WIDTH;
 						final float plateHeight = CONTENT_HEIGHT;
@@ -181,10 +188,10 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 				RenderCRTRailwaySign.renderJSStyleLine(styleScriptId, storedMatrixTransformations, pos, signIds, selectedIds, routeNumbers, facing, jsBackgroundColor, CONTENT_HEIGHT, 0.0F, 0.0F, false, routeNumberMap, (float) cellCount * CELL_WIDTH);
 			} else {
 				// 与铁路指示牌共用同一套绘制类；墙挂牌每格 1.0 宽、内容高 0.5
-				final com.Nanbin.client.Drawing.CRTSignView wallView = new com.Nanbin.client.Drawing.CRTSignView(signIds, selectedIds, routeNumbers, entity::getRouteNumber, null)
+				final CRTLegacySignView wallView = new CRTLegacySignView(signIds, selectedIds, routeNumbers, entity::getRouteNumber, null)
 						.geometry(CONTENT_HEIGHT, CELL_WIDTH, facing)
 						.cellOverrides(null, cellBackgroundColors);
-				com.Nanbin.client.Drawing.CRTSignDrawing.draw(wallView, graphicsHolder, storedMatrixTransformations, false);
+				CRTLegacySignDrawing.draw(wallView, graphicsHolder, storedMatrixTransformations, false);
 			}
 		} finally {
 			graphicsHolder.pop();

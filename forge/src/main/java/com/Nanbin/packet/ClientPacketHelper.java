@@ -25,6 +25,12 @@ import org.mtr.mod.screen.RailwaySignScreen;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import com.Nanbin.client.CRTRailwaySignEditor.editor.CRTSignEditorHost;
+import com.Nanbin.client.CRTRailwaySignEditor.editor.CRTSignEditorHostImpl;
+import com.Nanbin.client.Screen.CRTSignEditorScreen;
+import com.Nanbin.client.CRTRailwaySignEditor.render.CRTSignDataResolver;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTSignLegacyImporter;
+import com.Nanbin.client.Screen.CRTSignDoubleScreen;
 
 public final class ClientPacketHelper {
 
@@ -33,11 +39,11 @@ public final class ClientPacketHelper {
         if (world != null) {
             final org.mtr.mapping.holder.BlockState state = world.getBlockState(blockPos);
             if (state.getBlock().data instanceof BlockCRTRailwaySignWall1) {
-                openRailwaySignWallScreen(world, blockPos, state);
+                openCRTSignWallEditor(world, blockPos, state);
                 return;
             }
             if (state.getBlock().data instanceof com.Nanbin.Registry.RegBlock.BlockCRTRailwaySign) {
-                openCRTSignScreen(world, blockPos);
+                openCRTSignEditor(world, blockPos);
                 return;
             }
         }
@@ -51,7 +57,7 @@ public final class ClientPacketHelper {
      * 保存走 {@link PacketUpdateCRTSignLayout}。旧存档没有布局时先用 signIds 自动转一份
      * （关闭时若不修改则不回写，世界渲染继续走旧格子渲染，外观不变）。</p>
      */
-    public static void openCRTSignScreen(org.mtr.mapping.holder.ClientWorld world, BlockPos blockPos) {
+    public static void openCRTSignEditor(org.mtr.mapping.holder.ClientWorld world, BlockPos blockPos) {
         final org.mtr.mapping.holder.BlockEntity blockEntity = world.getBlockEntity(blockPos);
         if (blockEntity != null && blockEntity.data instanceof org.mtr.mod.block.BlockRailwaySign.BlockEntity) {
             final org.mtr.mod.block.BlockRailwaySign.BlockEntity entity = (org.mtr.mod.block.BlockRailwaySign.BlockEntity) blockEntity.data;
@@ -68,9 +74,9 @@ public final class ClientPacketHelper {
             final boolean hasSavedLayout = savedLayoutJson != null && !savedLayoutJson.isEmpty();
             com.Nanbin.signage.crt.CRTSignLayout layout = hasSavedLayout ? com.Nanbin.signage.crt.CRTSignLayout.fromJson(savedLayoutJson) : null;
             if (layout == null) {
-                layout = com.Nanbin.client.signage.CRTSignLegacyImporter.convert(entity.getSignIds(), entity.getSelectedIds(), routeNumberGetter);
+                layout = CRTSignLegacyImporter.convert(entity.getSignIds(), entity.getSelectedIds(), routeNumberGetter);
             }
-            final com.Nanbin.client.signage.CRTSignDataResolver data = new com.Nanbin.client.signage.CRTSignDataResolver(routeNumberGetter);
+            final CRTSignDataResolver data = new CRTSignDataResolver(routeNumberGetter, findStationForSelection(blockPos));
             final String baselineJson = hasSavedLayout ? savedLayoutJson : layout.toJson();
             final CRTSignEditorHost host = new CRTSignEditorHostImpl(blockPos, baselineJson);
             final CRTSignEditorScreen screen = new CRTSignEditorScreen(null, blockPos, layout, data, host);
@@ -82,7 +88,7 @@ public final class ClientPacketHelper {
     }
 
     /** 墙挂指示牌：任意一格用刷子打开整条牌的编辑器；布局存在整条牌的起始方块实体上。 */
-    public static void openRailwaySignWallScreen(org.mtr.mapping.holder.ClientWorld world, BlockPos blockPos, org.mtr.mapping.holder.BlockState state) {
+    public static void openCRTSignWallEditor(org.mtr.mapping.holder.ClientWorld world, BlockPos blockPos, org.mtr.mapping.holder.BlockState state) {
         final org.mtr.mapping.holder.BlockView view = org.mtr.mapping.holder.BlockView.cast(world);
         final BlockPos start = BlockCRTRailwaySignWall1.findStart(view, blockPos, state);
         final List<BlockPos> run = BlockCRTRailwaySignWall1.collectRun(view, start);
@@ -111,9 +117,9 @@ public final class ClientPacketHelper {
         final boolean hasSavedLayout = savedLayoutJson != null && !savedLayoutJson.isEmpty();
         com.Nanbin.signage.crt.CRTSignLayout layout = hasSavedLayout ? com.Nanbin.signage.crt.CRTSignLayout.fromJson(savedLayoutJson) : null;
         if (layout == null) {
-            layout = com.Nanbin.client.signage.CRTSignLegacyImporter.convert(cells, selectedIds, routeNumberGetter);
+            layout = CRTSignLegacyImporter.convert(cells, selectedIds, routeNumberGetter);
         }
-        final com.Nanbin.client.signage.CRTSignDataResolver data = new com.Nanbin.client.signage.CRTSignDataResolver(routeNumberGetter);
+        final CRTSignDataResolver data = new CRTSignDataResolver(routeNumberGetter, findStationForSelection(start));
         final String baselineJson = hasSavedLayout ? savedLayoutJson : layout.toJson();
         final CRTSignEditorHost host = new CRTSignEditorHostImpl(start, baselineJson);
         final CRTSignEditorScreen screen = new CRTSignEditorScreen(null, start, layout, data, host);
@@ -192,6 +198,57 @@ public final class ClientPacketHelper {
             }
         }
         return nearest;
+    }
+
+    // ─── 车站查询缓存（渲染端用） ───────────────────────────────────────────
+
+    /** 车站查询缓存有效期（毫秒）：出口信息条每次布局都会问同一坐标，避免反复遍历 MTR 数据。 */
+    private static final long STATION_CACHE_TTL_MS = 2000L;
+    /** 车站查询缓存条目上限（一个世界里同时可见的指示牌数量级）。 */
+    private static final int STATION_CACHE_LIMIT = 64;
+    private static final java.util.Map<Long, StationCacheEntry> STATION_CACHE =
+            new java.util.LinkedHashMap<Long, StationCacheEntry>(16, 0.75F, true) {
+                @Override
+                protected boolean removeEldestEntry(java.util.Map.Entry<Long, StationCacheEntry> eldest) {
+                    return size() > STATION_CACHE_LIMIT;
+                }
+            };
+
+    /** 一次车站查询的结果（{@code station} 允许为 null：查询过但当前没有车站）。 */
+    private static final class StationCacheEntry {
+        private final Station station;
+        private final long time;
+
+        private StationCacheEntry(Station station, long time) {
+            this.station = station;
+            this.time = time;
+        }
+    }
+
+    /**
+     * {@link #findStationForSelection(BlockPos)} 的缓存版：世界渲染每个牌子每帧都会调用，
+     * 而精确匹配/最近站台/全图最近站三层兜底并不便宜，因此按坐标缓存 2 秒。
+     *
+     * <p>MTR 数据同步完成前可能返回 null，缓存也会把 null 记下来（2 秒后重试）。</p>
+     */
+    public static Station findStationForSelectionCached(BlockPos blockPos) {
+        if (blockPos == null) {
+            return null;
+        }
+        // 用 asLong() 当键：渲染每个牌子每帧都会调用，避免反复生成坐标字符串
+        final long key = blockPos.asLong();
+        final long now = System.currentTimeMillis();
+        synchronized (STATION_CACHE) {
+            final StationCacheEntry cached = STATION_CACHE.get(key);
+            if (cached != null && now - cached.time < STATION_CACHE_TTL_MS) {
+                return cached.station;
+            }
+        }
+        final Station station = findStationForSelection(blockPos);
+        synchronized (STATION_CACHE) {
+            STATION_CACHE.put(key, new StationCacheEntry(station, now));
+        }
+        return station;
     }
 
     /** 打开 StationInfo 专用的双行指示牌编辑器（2 行 × 8 格）。 */

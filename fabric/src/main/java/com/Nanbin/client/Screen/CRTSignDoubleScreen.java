@@ -1,6 +1,6 @@
 package com.Nanbin.client.Screen;
 
-import com.Nanbin.client.ClientData.CRTSignRegistry;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTSignRegistry;
 import com.Nanbin.client.ClientData.SignClipboard;
 import com.Nanbin.client.JavaScriptSupport.JSSignConfig;
 import com.Nanbin.packet.ClientPacketHelper;

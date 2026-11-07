@@ -1,99 +1,21 @@
 {
-  "_comment": "CRT（重庆轨道交通）导视标志定义（crt_signs.json）。接口名：id/whitelist/textureResource/backgroundColor/customText/flipTexture/flipCustomText/small/textColor(hex)/textSize/textBold；whitelist 为导视类型白名单（crt），只有显式列入 crt 的标志才会出现在 CRT 类导视上，省略或空数组表示不启用；这些标志不再出现在原版 MTR 导视牌上",
+  "_comment": "CRT 导视标志：此处只保留「图标+文字」文字牌预设（49 个，编辑器左栏「CRT 预设」分类使用）。与编辑器网页图标一一对应的 27 个基础图标已合并进代码内置表 CRTBuiltInSignIcons（同一份标志只维护一处），旧存档 signIds 渲染与网页图标映射仍然可用。whitelist 语义：必须显式声明 \"crt\" 才会出现在 CRT 类导视上，未声明/空数组表示不启用（不会混进原版 MTR 导视牌）。",
   "signs": [
     {
-      "id": "nanbin_arrow",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/arrow",
-      "flipTexture": false,
-      "small": true
-    },
-    {
-      "id": "nanbin_arrow_flip",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/arrow",
-      "flipTexture": true,
-      "small": true
-    },
-    {
-      "id": "nanbin_arrow_down",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/arrow_down",
-      "flipTexture": false,
-      "small": true
-    },
-    {
-      "id": "nanbin_arrow_down_left",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/arrow_down_left",
-      "flipTexture": false,
-      "small": true
-    },
-    {
-      "id": "nanbin_arrow_down_right",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/arrow_down_left",
-      "flipTexture": true,
-      "small": true
-    },
-    {
-      "id": "nanbin_arrow_turn_back",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/arrow_turn_back",
-      "flipTexture": false,
-      "small": true
-    },
-    {
-      "id": "nanbin_arrow_turn_back_flip",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/arrow_turn_back",
-      "flipTexture": true,
-      "small": true
-    },
-    {
-      "id": "nanbin_arrow_up",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/arrow_up",
-      "flipTexture": false,
-      "small": true
-    },
-    {
-      "id": "nanbin_arrow_up_left",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/arrow_up_left",
-      "flipTexture": false,
-      "small": true
-    },
-    {
-      "id": "nanbin_arrow_up_right",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/arrow_up_left",
-      "flipTexture": true,
-      "small": true
-    },
-    {
-      "id": "nanbin_cross",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/cross",
-      "small": true
-    },
-    {
       "id": "nanbin_cross_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/cross",
       "small": true,
       "customText": "请勿进入|Don't Enter",
       "textSize": 0.8
     },
     {
-      "id": "crt_check",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_check",
-      "small": true
-    },
-    {
       "id": "crt_check_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_check",
       "flipCustomText": false,
       "small": true,
@@ -102,7 +24,9 @@
     },
     {
       "id": "crt_check_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_check",
       "flipCustomText": true,
       "small": true,
@@ -111,7 +35,9 @@
     },
     {
       "id": "crt_check_with_text_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_check_gray",
       "flipCustomText": false,
       "small": true,
@@ -121,7 +47,9 @@
     },
     {
       "id": "crt_check_with_text_flipped_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_check_gray",
       "flipCustomText": true,
       "small": true,
@@ -130,14 +58,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_escalator",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_escalator",
-      "small": true
-    },
-    {
       "id": "crt_escalator_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_escalator",
       "flipCustomText": false,
       "small": true,
@@ -146,7 +70,9 @@
     },
     {
       "id": "crt_escalator_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_escalator",
       "flipCustomText": true,
       "small": true,
@@ -155,7 +81,9 @@
     },
     {
       "id": "crt_escalator_with_text_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_escalator_gray",
       "flipCustomText": false,
       "small": true,
@@ -165,7 +93,9 @@
     },
     {
       "id": "crt_escalator_with_text_flipped_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_escalator_gray",
       "flipCustomText": true,
       "small": true,
@@ -174,14 +104,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_stair",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_stair",
-      "small": true
-    },
-    {
       "id": "crt_stair_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_stair",
       "flipCustomText": false,
       "small": true,
@@ -190,7 +116,9 @@
     },
     {
       "id": "crt_stair_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_stair",
       "flipCustomText": true,
       "small": true,
@@ -199,7 +127,9 @@
     },
     {
       "id": "crt_stair_with_text_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_stair_gray",
       "flipCustomText": false,
       "small": true,
@@ -209,7 +139,9 @@
     },
     {
       "id": "crt_stair_with_text_flipped_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_stair_gray",
       "flipCustomText": true,
       "small": true,
@@ -218,14 +150,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_ticket_sell",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_ticket_sell",
-      "small": true
-    },
-    {
       "id": "crt_ticket_sell_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_ticket_sell",
       "flipCustomText": false,
       "small": true,
@@ -234,7 +162,9 @@
     },
     {
       "id": "crt_ticket_sell_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_ticket_sell",
       "flipCustomText": true,
       "small": true,
@@ -243,7 +173,9 @@
     },
     {
       "id": "crt_ticket_sell_with_text_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_ticket_sell_gray",
       "flipCustomText": false,
       "small": true,
@@ -253,7 +185,9 @@
     },
     {
       "id": "crt_ticket_sell_with_text_flipped_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_ticket_sell_gray",
       "flipCustomText": true,
       "small": true,
@@ -262,14 +196,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_server",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_server",
-      "small": true
-    },
-    {
       "id": "crt_server_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_server",
       "flipCustomText": false,
       "small": true,
@@ -278,7 +208,9 @@
     },
     {
       "id": "crt_server_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_server",
       "flipCustomText": true,
       "small": true,
@@ -287,7 +219,9 @@
     },
     {
       "id": "crt_server_with_text_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_server_gray",
       "flipCustomText": false,
       "small": true,
@@ -297,7 +231,9 @@
     },
     {
       "id": "crt_server_with_text_flipped_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_server_gray",
       "flipCustomText": true,
       "small": true,
@@ -306,14 +242,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_accessible_lift",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_accessible_lift",
-      "small": true
-    },
-    {
       "id": "crt_accessible_lift_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_accessible_lift",
       "flipCustomText": false,
       "small": true,
@@ -322,7 +254,9 @@
     },
     {
       "id": "crt_accessible_lift_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_accessible_lift",
       "flipCustomText": true,
       "small": true,
@@ -331,7 +265,9 @@
     },
     {
       "id": "crt_accessible_lift_with_text_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_accessible_lift_gray",
       "flipCustomText": false,
       "small": true,
@@ -341,7 +277,9 @@
     },
     {
       "id": "crt_accessible_lift_with_text_flipped_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_accessible_lift_gray",
       "flipCustomText": true,
       "small": true,
@@ -350,14 +288,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_waiting_room",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_waiting_room",
-      "small": true
-    },
-    {
       "id": "crt_waiting_room_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_waiting_room",
       "flipCustomText": false,
       "small": true,
@@ -366,7 +300,9 @@
     },
     {
       "id": "crt_waiting_room_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_waiting_room",
       "flipCustomText": true,
       "small": true,
@@ -375,7 +311,9 @@
     },
     {
       "id": "crt_waiting_room_with_text_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_waiting_room_gray",
       "flipCustomText": false,
       "small": true,
@@ -385,7 +323,9 @@
     },
     {
       "id": "crt_waiting_room_with_text_flipped_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_waiting_room_gray",
       "flipCustomText": true,
       "small": true,
@@ -394,14 +334,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_restroom",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_restroom",
-      "small": true
-    },
-    {
       "id": "crt_restroom_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_restroom",
       "flipCustomText": false,
       "small": true,
@@ -410,7 +346,9 @@
     },
     {
       "id": "crt_restroom_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_restroom",
       "flipCustomText": true,
       "small": true,
@@ -419,7 +357,9 @@
     },
     {
       "id": "crt_restroom_with_text_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_restroom_gray",
       "flipCustomText": false,
       "small": true,
@@ -429,7 +369,9 @@
     },
     {
       "id": "crt_restroom_with_text_flipped_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_restroom_gray",
       "flipCustomText": true,
       "small": true,
@@ -438,14 +380,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_female_toilot",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_female_toilot",
-      "small": true
-    },
-    {
       "id": "crt_female_toilot_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_female_toilot",
       "flipCustomText": false,
       "small": true,
@@ -454,7 +392,9 @@
     },
     {
       "id": "crt_female_toilot_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_female_toilot",
       "flipCustomText": true,
       "small": true,
@@ -463,7 +403,9 @@
     },
     {
       "id": "crt_female_toilot_with_text_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_female_toilot_gray",
       "flipCustomText": false,
       "small": true,
@@ -473,7 +415,9 @@
     },
     {
       "id": "crt_female_toilot_with_text_flipped_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_female_toilot_gray",
       "flipCustomText": true,
       "small": true,
@@ -482,14 +426,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_male_toilot",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_male_toilot",
-      "small": true
-    },
-    {
       "id": "crt_male_toilot_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_male_toilot",
       "flipCustomText": false,
       "small": true,
@@ -498,7 +438,9 @@
     },
     {
       "id": "crt_male_toilot_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_male_toilot",
       "flipCustomText": true,
       "small": true,
@@ -507,7 +449,9 @@
     },
     {
       "id": "crt_male_toilot_with_text_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_male_toilot_gray",
       "flipCustomText": false,
       "small": true,
@@ -517,7 +461,9 @@
     },
     {
       "id": "crt_male_toilot_with_text_flipped_gray",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_male_toilot_gray",
       "flipCustomText": true,
       "small": true,
@@ -526,15 +472,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_exit_up",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_exit_up",
-      "small": true,
-      "backgroundColor": "#FCED22"
-    },
-    {
       "id": "crt_exit_up_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_exit_up",
       "flipCustomText": false,
       "small": true,
@@ -544,7 +485,9 @@
     },
     {
       "id": "crt_exit_up_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_exit_up",
       "flipCustomText": true,
       "small": true,
@@ -553,15 +496,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_exit_down",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_exit_down",
-      "small": true,
-      "backgroundColor": "#FCED22"
-    },
-    {
       "id": "crt_exit_down_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_exit_down",
       "flipCustomText": false,
       "small": true,
@@ -571,7 +509,9 @@
     },
     {
       "id": "crt_exit_down_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_exit_down",
       "flipCustomText": true,
       "small": true,
@@ -580,15 +520,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_exit_right",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_exit_right",
-      "small": true,
-      "backgroundColor": "#FCED22"
-    },
-    {
       "id": "crt_exit_right_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_exit_right",
       "flipCustomText": false,
       "small": true,
@@ -598,7 +533,9 @@
     },
     {
       "id": "crt_exit_right_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_exit_right",
       "flipCustomText": true,
       "small": true,
@@ -607,16 +544,10 @@
       "textSize": 0.8
     },
     {
-      "id": "crt_exit_left",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_exit_right",
-      "small": true,
-      "flipTexture": true,
-      "backgroundColor": "#FCED22"
-    },
-    {
       "id": "crt_exit_left_with_text",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_exit_right",
       "flipTexture": true,
       "flipCustomText": false,
@@ -627,7 +558,9 @@
     },
     {
       "id": "crt_exit_left_with_text_flipped",
-      "whitelist": ["crt"],
+      "whitelist": [
+        "crt"
+      ],
       "textureResource": "nanbin:textures/block/sign/crt_exit_right",
       "flipTexture": true,
       "flipCustomText": true,
@@ -635,90 +568,6 @@
       "backgroundColor": "#FCED22",
       "customText": "出口|Exit",
       "textSize": 0.8
-    },
-    {
-      "id": "crt_railway",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_railway",
-      "small": true
-    },
-    {
-      "id": "crt_monorail",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_monorail",
-      "small": true
-    },
-    {
-      "id": "crt_route_name_flipped",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_route_name",
-      "flipCustomText": true,
-      "backgroundColor": "#FFFFFF",
-      "small": false,
-      "customText": "...",
-      "textColor": "#000000",
-      "textSize": 0.8,
-      "textBold": false
-    },
-    {
-      "id": "crt_route_name",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_route_name",
-      "flipCustomText": false,
-      "backgroundColor": "#FFFFFF",
-      "small": false,
-      "customText": "...",
-      "textColor": "#000000",
-      "textSize": 0.8,
-      "textBold": false
-    },
-    {
-      "id": "crt_route_number",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_route_number",
-      "flipCustomText": false,
-      "backgroundColor": "#FFFFFF",
-      "small": false,
-      "customText": "...",
-      "textColor": "#000000",
-      "textSize": 1.0,
-      "textBold": false
-    },
-    {
-      "id": "crt_station_name1",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/crt_station_name",
-      "flipCustomText": false,
-      "backgroundColor": "#FFFFFF",
-      "small": false,
-      "customText": "废案",
-      "textColor": "#000000",
-      "textSize": 0.8,
-      "textBold": true
-    },
-    {
-      "id": "nanbin_custom_text1",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/personality_text",
-      "flipCustomText": false,
-      "backgroundColor": "#FFFFFF",
-      "small": false,
-      "customText": "废案",
-      "textColor": "#000000",
-      "textSize": 0.8,
-      "textBold": false
-    },
-    {
-      "id": "nanbin_custom_text_flipped1",
-      "whitelist": ["crt"],
-      "textureResource": "nanbin:textures/block/sign/personality_text",
-      "flipCustomText": true,
-      "backgroundColor": "#FFFFFF",
-      "small": false,
-      "customText": "废案",
-      "textColor": "#000000",
-      "textSize": 0.8,
-      "textBold": false
     }
   ]
 }

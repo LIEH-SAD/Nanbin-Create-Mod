@@ -34,6 +34,33 @@
 
 > 剩余为打磨项：预设整行缩略图与「添加为新行」、工具条内对齐下拉/上下步进、Toast 白底样式、窄分辨率三栏挤压、platform.html（站台吊板/线路图）未移植（需要产品确认是否要）。
 
+## Lead 修复记录（第三批：实机 UI 问题）
+
+| 问题（来自实机截图） | 修复 |
+|---|---|
+| 选中的页签/顶栏切换按钮显示为**实心蓝块且文字不可见** | 根因是 MC 自绘矩形对半透明颜色不可靠：把 `ACCENT_SOFT` / `SELECTION_SOFT` 等半透明色全部改为预混合的不透明色；TOOL 未选中按钮改实心白底；按下遮罩/阴影/棋盘格等全部改不透明浅色 |
+| 顶栏有两个无文字蓝色药丸按钮 | 侧栏折叠按钮从顶栏移到左右面板标题栏（`‹`/`›`），顶栏只保留「撤销/重做/保存/关闭」+保存状态 |
+| 中栏工具条右侧提示文字压到右栏 | 状态提示仅在剩余宽度 ≥140 时绘制 |
+| 底栏「＋添加行 / − / + / 100%」挤在一起 | 「添加行」左对齐（96×18），缩放按钮组右对齐，按钮加高 |
+| 画布中的牌面几乎看不见（白牌+浅灰底无边界） | 画布底色加深为 `#E7EAEF`；牌面补 1px 描边 + 右下浅色投影（`drawPlateChrome`）；行 hover 改为上下边线（不再半透明填充盖住内容）；选中框只画描边 |
+| 行控件（↑↓色✕）盖住牌面内容 | 画布右侧预留 74px 固定 gutter，行控件与行拖拽手柄固定放在 gutter 内，牌面在剩余区域居中 |
+| 右栏标题重复「标识牌设置」两次 | 正文分组标题改为「基本设置」（`gui.nanbin.crt_editor.settings.title`），面板头保持「标识牌设置」 |
+| 面板头折叠按钮与标题重叠 | 标题最大宽度让出 26~36px；顶栏状态定位只统计顶栏内按钮 |
+| 各栏高度偏挤/按钮偏小 | 顶栏 22→26、面板头 24→26、中栏工具条 24→26、底栏 22→24、页签 20→22，按钮高度 14/16→18 |
+
+> 第三批只做编译验证与静态走查，仍需实机截图确认观感；建议按 docs/EDITOR_TEST_CHECKLIST.md 再看一轮。
+
+## Lead 修复记录（第四批：旧格子能力迁移）
+
+| 需求 | 实现 |
+|---|---|
+| 清理铁路牌旧格子编辑器残留 | 旧格子编辑屏（CRTSignScreen / CRTSignClipboard / CRTSignPreview / 旧墙挂牌保存包）已在上一轮删除；本轮确认剩余 `client.crt.legacy` 全部仍被旧存档渲染/车站信息牌使用（fallback 按约定保留），未再删；旧数据打开编辑器时仍走 `CRTSignLegacyImporter` 自动转布局 |
+| signs.json 合并进新编辑器 | 新增 `CRTPresetCatalog`：27 个与现有网页图标/元素等价的标志不再重复出现；剩余 49 个「图标+文字」文字牌（检查/禁止、9 种设施×4 变体、4 个出口×2 变体）进入左栏「CRT 预设（文字牌）」分类，真实烘焙缩略图，点选生成 `ICON` 元素（`icon = 标志 id`）。**重复项已合并进代码**：27 个基础图标移入 `CRTBuiltInSignIcons`（由 `CRTSignRegistry` 先注册），`crt_signs.json` 只保留 49 个文字牌预设；旧存档渲染与网页图标映射（`WEB_ICON_TO_SIGN`）仍完整可用 |
+| 整牌级四按钮 | 底栏改为两行：第一行「复制整牌 / 粘贴整牌 / 清空整牌 / 撤销」，第二行「添加行 + 缩放」。整牌剪贴板为进程内静态数据，可跨指示牌粘贴；粘贴整牌走 `pushHistory` 可 Ctrl+Z 撤销并立即保存；清空沿用两段点击确认 |
+| JS 样式支持移植 | `CRTSignLayout` 新增 `jsStyleId` + `jsSelectedIds`（JSON `jsStyle` / `jsIds`）；新增 `CRTJsLayoutBake`（脚本 → 整牌贴图，1 格 = rowHeight 设计像素，线路编号由 `CRTSignDataContext.getRouteNumber` 解析）；铁路牌/墙挂牌世界渲染在布局分支按 JS 样式切换烘焙；编辑器右栏「标识牌设置 → JS 样式（整牌脚本渲染）」下拉 + 「JS 数据…」（复用 `JSSignDataScreen`，保存回 `jsSelectedIds`）；JS 模式下画布只画脚本烘焙结果、元素编辑锁定（提示切换为「无」）；`CRTSignLegacyImporter` 会把旧 `crt_js_style_*` 标志自动转成 JS 样式布局 |
+
+> 第四批编译验证：fabric 1.16.5/1.20.1/1.20.4 + forge 1.20.1 全部通过；JS 渲染与数据界面仍需实机验证（尤其脚本烘焙首帧、JS 数据保存后的刷新）。
+
 ---
 
 ## 0. 证据缩写与审计方法
@@ -42,13 +69,13 @@
 
 | 缩写 | 文件 |
 |---|---|
-| `ED` | `fabric/src/main/java/com/Nanbin/client/Screen/CRTSignEditorScreen.java` |
-| `W` | `fabric/src/main/java/com/Nanbin/client/Screen/CRTEditorWidgets.java` |
-| `TH` | `fabric/src/main/java/com/Nanbin/client/Screen/CRTEditorTheme.java` |
-| `PV` | `fabric/src/main/java/com/Nanbin/client/Drawing/CRTSignLayoutPreview.java` |
-| `PT` | `fabric/src/main/java/com/Nanbin/client/Drawing/CRTSignLayoutPainter.java` |
-| `FR` | `fabric/src/main/java/com/Nanbin/client/Drawing/CRTSignLayoutFrame.java` |
-| `TM` | `fabric/src/main/java/com/Nanbin/client/Drawing/CRTSignTextMetrics.java` |
+| `ED` | `fabric/src/main/java/com/Nanbin/client/crt/editor/CRTSignEditorScreen.java` |
+| `W` | `fabric/src/main/java/com/Nanbin/client/crt/editor/CRTEditorWidgets.java` |
+| `TH` | `fabric/src/main/java/com/Nanbin/client/crt/editor/CRTEditorTheme.java` |
+| `PV` | `fabric/src/main/java/com/Nanbin/client/crt/render/CRTSignLayoutPreview.java` |
+| `PT` | `fabric/src/main/java/com/Nanbin/client/crt/render/CRTSignLayoutPainter.java` |
+| `FR` | `fabric/src/main/java/com/Nanbin/client/crt/render/CRTSignLayoutFrame.java` |
+| `TM` | `fabric/src/main/java/com/Nanbin/client/crt/render/CRTSignTextMetrics.java` |
 | `BAKER` | `fabric/src/main/java/com/Nanbin/client/JavaScriptSupport/JSSignTextureBaker.java` |
 | `FTR` | `fabric/src/main/java/com/Nanbin/client/Drawing/FittedTextRenderer.java` |
 | `LAYOUT` | `fabric/src/main/java/com/Nanbin/signage/crt/CRTSignLayout.java` |
@@ -56,9 +83,9 @@
 | `CLIP` | `fabric/src/main/java/com/Nanbin/signage/crt/CRTSignClipboardData.java` |
 | `HIST` | `fabric/src/main/java/com/Nanbin/signage/crt/CRTSignHistory.java` |
 | `CTX` | `fabric/src/main/java/com/Nanbin/signage/crt/CRTSignDataContext.java` |
-| `HOST` | `fabric/src/main/java/com/Nanbin/client/Screen/CRTSignEditorHostImpl.java` |
-| `IMPORTER` | `fabric/src/main/java/com/Nanbin/client/signage/CRTSignLegacyImporter.java` |
-| `RESOLVER` | `fabric/src/main/java/com/Nanbin/client/signage/CRTSignDataResolver.java` |
+| `HOST` | `fabric/src/main/java/com/Nanbin/client/crt/editor/CRTSignEditorHostImpl.java` |
+| `IMPORTER` | `fabric/src/main/java/com/Nanbin/client/crt/legacy/CRTSignLegacyImporter.java` |
+| `RESOLVER` | `fabric/src/main/java/com/Nanbin/client/crt/render/CRTSignDataResolver.java` |
 | `CPH` | `fabric/src/main/java/com/Nanbin/packet/ClientPacketHelper.java` |
 | `PKT` | `fabric/src/main/java/com/Nanbin/packet/PacketUpdateCRTSignLayout.java` |
 | `RRS` | `fabric/src/main/java/com/Nanbin/client/Render/RenderCRTRailwaySign.java` |

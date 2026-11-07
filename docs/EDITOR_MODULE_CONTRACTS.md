@@ -64,7 +64,7 @@
 
 ## 模块 B：编辑界面（editor-ui）
 
-新文件（不碰 A 的文件、不碰已有 `CRTSignScreen`/`CRTSignDoubleScreen`）：
+新文件（不碰 A 的文件、不碰已有 `CRTSignEditorScreen`/`CRTSignDoubleScreen`）：
 - `com.Nanbin.client.Screen.CRTSignEditorScreen`
 - `com.Nanbin.client.Screen.CRTEditorWidgets`（自绘控件：按钮/图标按钮/输入框/滑条/颜色选择/下拉/复选/滚动区/tooltip，浅色主题）
 - `<lang>` 仅追加 `gui.nanbin.crt_editor.*` 键

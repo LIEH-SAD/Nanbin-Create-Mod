@@ -1,6 +1,6 @@
 package com.Nanbin.mixin;
 
-import com.Nanbin.client.ClientData.CRTSignRegistry;
+import com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTSignRegistry;
 import com.Nanbin.client.JavaScriptSupport.CRTJsSignLoader;
 import org.mtr.mod.client.CustomResourceLoader;
 import org.spongepowered.asm.mixin.Mixin;

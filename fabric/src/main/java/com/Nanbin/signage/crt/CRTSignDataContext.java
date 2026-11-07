@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * 布局渲染/编辑时使用的 MTR 数据访问接口（由客户端实现，见
- * {@code com.Nanbin.client.signage.CRTSignDataResolver}）。
+ * {@code com.Nanbin.client.crt.render.CRTSignDataResolver}）。
  *
  * <p>把"取数据"从"画牌面"里拆出来，渲染器与编辑界面都只依赖这个接口：
  * 世界渲染、编辑界面预览、属性面板显示当前值都走同一份数据，
@@ -31,6 +31,21 @@ public interface CRTSignDataContext {
 	/** 出口编号/字母（如 A、B2）；未知返回 null。 */
 	@Nullable
 	String getExitCode(long exitId);
+
+	/**
+	 * 出口名称（MTR 4.0 {@code StationExit.getName()}，如 1、A、2A）。
+	 *
+	 * <p>与 {@link #getExitCode(long)} 同源（都来自 {@code EditStationScreen.deserializeExit}），
+	 * 单独提供是因为出口信息条（EXIT_INFO）需要按名称去匹配目的地列表。</p>
+	 */
+	@Nullable
+	String getExitName(long exitId);
+
+	/**
+	 * 出口目的地列表（MTR 4.0 {@code StationExit.getDestinations()}，中英混排，
+	 * 中文条目在前、英文条目在后）；取不到数据时返回空列表（不返回 null）。
+	 */
+	List<String> getExitDestinations(long exitId);
 
 	/** 站台名/编号（如 1 站台）；未知返回 null。 */
 	@Nullable
@@ -73,6 +88,17 @@ public interface CRTSignDataContext {
 		@Override
 		public String getExitCode(long exitId) {
 			return null;
+		}
+
+		@Nullable
+		@Override
+		public String getExitName(long exitId) {
+			return null;
+		}
+
+		@Override
+		public List<String> getExitDestinations(long exitId) {
+			return java.util.Collections.emptyList();
 		}
 
 		@Nullable

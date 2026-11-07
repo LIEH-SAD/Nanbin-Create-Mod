@@ -1,4 +1,4 @@
-include(Resources.id("nanbin:pids/scripts/crt_pids_1.js"));
+include(Resources.id("nanbin:pids/script/crt_pids_1.js"));
 include(Resources.id("jsblock:scripts/pids_util.js")); 
 
 function create(ctx, state, pids) {

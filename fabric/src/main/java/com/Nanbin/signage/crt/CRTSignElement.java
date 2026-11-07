@@ -180,6 +180,14 @@ public final class CRTSignElement {
 
 	public String code = "1";
 
+	// ─── 出口信息（EXIT_INFO，本 mod 扩展） ─────────────────────────
+
+	/**
+	 * 是否显示箭头（EXIT_INFO）：方向复用 {@link #arrowDirection}、粗细复用
+	 * {@link #thicknessRatio}，关闭后编号/标签/目的地整体左移。
+	 */
+	public boolean showArrow = true;
+
 	// ─── 空白 ────────────────────────────────────────────────────────
 
 	/** 空白占位宽度 = 行高 × 该比例。 */
@@ -235,6 +243,7 @@ public final class CRTSignElement {
 		widthRatio = 0.5F;
 		icon = "elevator";
 		rotation = 0;
+		showArrow = true;
 		binding = DataBinding.NONE;
 		bindingIds.clear();
 		switch (type) {
@@ -264,6 +273,38 @@ public final class CRTSignElement {
 				// 出口底色固定为网页 EXIT_COLOR（#F7D917），不允许改色
 				backgroundColor = 0xFFF7D917;
 				break;
+			case EXIT_INFO:
+				// 出口信息条：箭头默认向上（参考图），标签默认「出口 / Exit」，
+				// 编号/目的地由 MTR 出口数据解析（未绑定时回退 EXIT 样式）
+				code = "1";
+				align = TextAlign.LEFT;
+				arrowDirection = ArrowDirection.UP;
+				textZh = "出口";
+				textEn = "Exit";
+				backgroundColor = 0xFFF7D917;
+				// 信息条上下留白比常规元素小，箭头/编号能占满行高（参考图比例）
+				paddingTop = 0.05F;
+				paddingBottom = 0.05F;
+				paddingLeft = 0.1F;
+				paddingRight = 0.1F;
+				binding = DataBinding.EXIT;
+				break;
+			case ROUTE_INFO:
+				// 线路信息条：多条线路并排（颜色竖条 + 编号），右侧「号线 / Line」标签
+				textZh = "号线";
+				textEn = "Line";
+				color = 0xFF221F1F;
+				align = TextAlign.LEFT;
+				binding = DataBinding.ROUTE_LINES;
+				lines.clear();
+				lines.add(new LineItem("1", 0xFFEE3C3E));
+				lines.add(new LineItem("3", 0xFF0066B1));
+				paddingTop = 0.1F;
+				paddingBottom = 0.1F;
+				paddingLeft = 0.05F;
+				paddingRight = 0.05F;
+				break;
+
 			default:
 				break;
 		}
@@ -336,6 +377,24 @@ public final class CRTSignElement {
 				if (type == CRTSignElementType.EXIT) {
 					props.addProperty("align", align == TextAlign.RIGHT ? "right" : "left");
 				}
+				break;
+			case EXIT_INFO:
+				// 标签文本（textZh/textEn）+ 编号回退值 + 箭头设置（本 mod 扩展字段）
+				props.addProperty("textZh", textZh);
+				props.addProperty("textEn", textEn);
+				props.addProperty("code", code);
+				props.addProperty("direction", arrowDirection.id);
+				props.addProperty("thicknessRatio", round4(thicknessRatio));
+				props.addProperty("showArrow", showArrow);
+				break;
+			case ROUTE_INFO:
+				props.addProperty("textZh", textZh);
+				props.addProperty("textEn", textEn);
+				final JsonArray routeInfoLines = new JsonArray();
+				for (final LineItem item : lines) {
+					routeInfoLines.add(item.toJson());
+				}
+				props.add("lines", routeInfoLines);
 				break;
 			case SPACE:
 				props.addProperty("widthRatio", round4(widthRatio));
@@ -447,6 +506,34 @@ public final class CRTSignElement {
 				result.align = TextAlign.fromId(getString(props, "align", "left"), TextAlign.LEFT);
 				// 出口底色固定出口黄（网页 sanitizeElement 强制）
 				result.backgroundColor = 0xFFF7D917;
+				break;
+			case EXIT_INFO:
+				// 标签文本可编辑（默认「出口 / Exit」）；编号只在未绑定出口时作为回退显示
+				result.textZh = getString(props, "textZh", "出口");
+				result.textEn = getString(props, "textEn", "Exit");
+				result.code = getString(props, "code", "1");
+				result.arrowDirection = ArrowDirection.fromId(getString(props, "direction", "up"));
+				result.thicknessRatio = clamp(getFloat(props, "thicknessRatio", 0.25F), 0.05F, 0.95F);
+				result.showArrow = getBoolean(props, "showArrow", true);
+				result.align = TextAlign.LEFT;
+				break;
+			case ROUTE_INFO:
+				result.textZh = getString(props, "textZh", "号线");
+				result.textEn = getString(props, "textEn", "Line");
+				result.lines.clear();
+				if (props.has("lines") && props.get("lines").isJsonArray()) {
+					for (final JsonElement item : props.getAsJsonArray("lines")) {
+						final LineItem line = LineItem.fromJson(item);
+						if (line != null) {
+							result.lines.add(line);
+						}
+					}
+				}
+				if (result.lines.isEmpty()) {
+					result.lines.add(new LineItem("1", 0xFFEE3C3E));
+					result.lines.add(new LineItem("3", 0xFF0066B1));
+				}
+				result.align = TextAlign.LEFT;
 				break;
 			case SPACE:
 				result.widthRatio = clamp(getFloat(props, "widthRatio", 0.5F), 0.0F, 8.0F);

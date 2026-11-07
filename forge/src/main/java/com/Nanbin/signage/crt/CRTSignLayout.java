@@ -73,6 +73,14 @@ public final class CRTSignLayout {
 	public int frameColor = DEFAULT_FRAME_COLOR;
 	public final List<Row> rows = new ArrayList<>();
 
+	// ─── JS 整牌样式（旧格子编辑器的 JS 支持移植） ─────────────────
+
+	/** JS 样式脚本 id（crt_js_signs_config.json 里的 id）；null = 使用自由布局。 */
+	@Nullable
+	public String jsStyleId;
+	/** JS 样式使用的 MTR 数据选择（线路颜色 / 车站 / 出口 id 等，等价旧 signIds 的 selectedIds）。 */
+	public final List<Long> jsSelectedIds = new ArrayList<>();
+
 	// ─── 构造 ────────────────────────────────────────────────────────
 
 	public CRTSignLayout() {
@@ -103,6 +111,26 @@ public final class CRTSignLayout {
 			count += row.elements.size();
 		}
 		return count;
+	}
+
+	/** 是否启用了整牌 JS 样式（旧格子编辑器的 JS 支持）。 */
+	public boolean hasJsStyle() {
+		return jsStyleId != null && !jsStyleId.isEmpty();
+	}
+
+	/** 收集所有元素绑定里出现过的 MTR id（JS 数据屏幕的初始选择：没有 jsSelectedIds 时使用）。 */
+	public List<Long> collectBindingIds() {
+		final List<Long> ids = new ArrayList<>();
+		for (final Row row : rows) {
+			for (final CRTSignElement element : row.elements) {
+				for (final Long id : element.bindingIds) {
+					if (!ids.contains(id)) {
+						ids.add(id);
+					}
+				}
+			}
+		}
+		return ids;
 	}
 
 	/** 布局总高（px）。 */
@@ -258,6 +286,16 @@ public final class CRTSignLayout {
 		sign.addProperty("backgroundColor", CRTSignElement.toHex(backgroundColor));
 		sign.addProperty("frameWidth", frameWidth);
 		sign.addProperty("frameColor", CRTSignElement.toHex(frameColor));
+		if (jsStyleId != null && !jsStyleId.isEmpty()) {
+			sign.addProperty("jsStyle", jsStyleId);
+		}
+		if (!jsSelectedIds.isEmpty()) {
+			final JsonArray jsIds = new JsonArray();
+			for (final Long jsId : jsSelectedIds) {
+				jsIds.add(jsId);
+			}
+			sign.add("jsIds", jsIds);
+		}
 		final JsonArray rowsJson = new JsonArray();
 		for (final Row row : rows) {
 			rowsJson.add(row.toJson());
@@ -287,6 +325,19 @@ public final class CRTSignLayout {
 			layout.backgroundColor = CRTSignElement.parseColor(CRTSignElement.getString(sign, "backgroundColor", "#FFFFFF"), DEFAULT_BACKGROUND);
 			layout.frameWidth = clamp(CRTSignElement.getInt(sign, "frameWidth", 0), 0, 512);
 			layout.frameColor = CRTSignElement.parseColor(CRTSignElement.getString(sign, "frameColor", "#808080"), LEGACY_FRAME_COLOR);
+			layout.jsStyleId = sign.has("jsStyle") && sign.get("jsStyle").isJsonPrimitive()
+					? sign.get("jsStyle").getAsString().trim() : null;
+			if (layout.jsStyleId != null && layout.jsStyleId.isEmpty()) {
+				layout.jsStyleId = null;
+			}
+			layout.jsSelectedIds.clear();
+			if (sign.has("jsIds") && sign.get("jsIds").isJsonArray()) {
+				for (final JsonElement jsId : sign.getAsJsonArray("jsIds")) {
+					if (jsId.isJsonPrimitive() && jsId.getAsJsonPrimitive().isNumber()) {
+						layout.jsSelectedIds.add(jsId.getAsLong());
+					}
+				}
+			}
 
 			if (sign.has("rows") && sign.get("rows").isJsonArray()) {
 				for (final JsonElement rowElement : sign.getAsJsonArray("rows")) {

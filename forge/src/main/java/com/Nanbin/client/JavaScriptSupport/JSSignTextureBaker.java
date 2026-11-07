@@ -31,7 +31,7 @@ public final class JSSignTextureBaker {
 	private static final long REFRESH_MS = 1000L;
 	// 取不到某些元素像素时暂停烘焙的时间，期间上层回退到逐元素渲染。
 	private static final long FAILURE_BACKOFF_MS = 5000L;
-	private static final int MAX_ENTRIES = 64;
+	private static final int MAX_ENTRIES = 192;
 	private static final long TEXTURE_DESTROY_DELAY_MS = 3000L;
 	private static final Identifier WHITE_TEXTURE = new Identifier("mtr", "textures/block/white.png");
 
