@@ -210,4 +210,19 @@ public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 
 > ⚠️ 版本号注意：本工程用**日期式** `mod_version`（如 `3.1.261107`），来源工程用 `version=3.1.0`。曾出现一次被误改成 `3.1.0`（会改变产物名）。改版本前先确认 `gradle.properties` 的 `mod_version` 与 `build/release/` 命名约定一致。
 
+## 15. Enchantment Glint（附魔光效）对齐
+
+来源用 `org.mtr.mod.item.ItemBlockEnchanted` 标注「站台配色类」方块物品，使物品栏中带附魔流光，便于与普通方块区分。目标沿用 MTR3 的同名类 **`mtr.item.ItemBlockEnchanted`**（`javap` 确认：`extends BlockItem`、覆写 `hasGlint(ItemStack)=true`、构造 `(Block, Item.Settings)`）。
+
+| 物品 id | 来源 | 目标（本轮前 → 后） |
+|---|---|---|
+| `crt_old_wall_1` | `ItemBlockEnchanted` | `BlockItem`(EPIC) → **`ItemBlockEnchanted`**(EPIC) |
+| `crt_old_wall_2` | `ItemBlockEnchanted` | `BlockItem`(EPIC) → **`ItemBlockEnchanted`**(EPIC) |
+| `station_color_ceiling` | `ItemBlockEnchanted` | `BlockItem`(UNCOMMON) → **`ItemBlockEnchanted`**(UNCOMMON) |
+| `station_color_ceiling_2` | `ItemBlockEnchanted` | `BlockItem`(UNCOMMON) → **`ItemBlockEnchanted`(UNCOMMON) |
+
+- 仅这 4 个（已全量 grep 来源 `fabric/src/main/java` 与资源，无其它 `Enchant`/`hasGlint` 标注）。
+- 保留目标原有的 `Rarity` 设置（EPIC/UNCOMMON），只替换物品实现类；创造页签归属不变。
+- 不需要额外贴图/模型：光效由 `Item.hasGlint` 在运行时叠加。
+
 > 来源 HEAD 说明：任务开始时为 `ed04f13`，后被来源作者 amend 为 `e34adcb`；差异仅「删除 6 个误提交的 `.hprof.p*` + `NanbinConfigScreen` +2 行 + `fabric.mod.template.json` −1 行」，不影响已移植内容。
