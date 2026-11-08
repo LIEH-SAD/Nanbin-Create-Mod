@@ -1,5 +1,4 @@
-include(Resources.id("nanbin:pids/script/crt_pids_2.js"));
-include(Resources.id("jsblock:scripts/pids_util.js")); 
+include(Resources.id("jsblock:scripts/pids_util.js"));
 
 function create(ctx, state, pids) {
     print("Hello World ^^");
