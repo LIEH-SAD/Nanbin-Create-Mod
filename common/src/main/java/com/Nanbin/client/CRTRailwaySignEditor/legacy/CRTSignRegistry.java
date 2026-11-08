@@ -81,25 +81,11 @@ public final class CRTSignRegistry {
 		BUILT_IN_IDS.clear();
 		JSON_IDS.clear();
 
-		// 1) 与编辑器网页图标一一对应的内置图标：定义已从 crt_signs.json 合并进代码（永远可用）
-		try {
-			loadSigns(JsonParser.parseString(CRTBuiltInSignIcons.JSON), true, false);
-		} catch (Exception e) {
-			Init.LOGGER.error("Failed to load built-in CRT sign icons", e);
-		}
-
 		final ResourceManager resourceManager = MinecraftClient.getInstance().getResourceManager();
 
-		// 2) 旧格式单文件：资源包可覆盖/追加（assets/nanbin/crt_signs.json，多包会合并）
-		try {
-			for (final Resource resource : resourceManager.getAllResources(SIGNS_ID)) {
-				loadResource(resource, SIGNS_ID, false);
-			}
-		} catch (Exception e) {
-			Init.LOGGER.error("Failed to load custom railway signs from {}", SIGNS_ID, e);
-		}
-
-		// 2b) 旧文件名兼容：assets/nanbin/signs.json（重命名前的追加包）
+		// 1) 先加载旧文件名兼容资源（assets/nanbin/signs.json）。
+		//    它包含部分旧存档仍在使用的 signId，也与代码内置的 27 个图标有重名。
+		//    必须先加载：后续内置表会覆盖重复定义并恢复 whitelist=["crt"]，避免旧 JSON 清空内置图标白名单。
 		try {
 			for (final Resource resource : resourceManager.getAllResources(LEGACY_SIGNS_ID)) {
 				loadResource(resource, LEGACY_SIGNS_ID, false);
@@ -108,7 +94,23 @@ public final class CRTSignRegistry {
 			Init.LOGGER.error("Failed to load legacy railway signs from {}", LEGACY_SIGNS_ID, e);
 		}
 
-		// 3) 追加包目录：任意命名空间的 assets/<namespace>/crt_signs/*.json
+		// 2) 与编辑器网页图标一一对应的内置图标：覆盖旧文件中的同名定义，始终可用
+		try {
+			loadSigns(JsonParser.parseString(CRTBuiltInSignIcons.JSON), true, false);
+		} catch (Exception e) {
+			Init.LOGGER.error("Failed to load built-in CRT sign icons", e);
+		}
+
+		// 3) CRT 专属文字牌预设：CRTPresetCatalog 中的 49 个 ID 由此提供贴图、文字和底色定义
+		try {
+			for (final Resource resource : resourceManager.getAllResources(SIGNS_ID)) {
+				loadResource(resource, SIGNS_ID, false);
+			}
+		} catch (Exception e) {
+			Init.LOGGER.error("Failed to load custom railway signs from {}", SIGNS_ID, e);
+		}
+
+		// 4) 追加包目录：任意命名空间的 assets/<namespace>/crt_signs/*.json
 		//    （不声明 whitelist 时默认启用 crt，方便第三方追加包直接使用）
 		try {
 			for (final Map.Entry<Identifier, Resource> entry : resourceManager.findResources("crt_signs", path -> path.getPath().endsWith(".json")).entrySet()) {
