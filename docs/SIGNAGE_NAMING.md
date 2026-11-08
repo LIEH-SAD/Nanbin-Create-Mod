@@ -15,9 +15,13 @@
 每套系统一份自己的定义文件，文件名带前缀：
 
 - `crt_signs.json` —— CRT 导视标志定义（**只保留 49 个「图标+文字」文字牌预设**；27 个与编辑器网页图标重复的基础图标
-  已合并进代码内置表 `com.Nanbin.client.crt.legacy.CRTBuiltInSignIcons`，由 `CRTSignRegistry` 先注册；
+  已合并进代码内置表 `com.Nanbin.client.CRTRailwaySignEditor.legacy.CRTBuiltInSignIcons`，由 `CRTSignRegistry` 先注册；
   `whitelist` 语义见文件内 `_comment`）
 - `crt_js_signs_config.json` —— CRT 导视的 JS 样式脚本清单
+
+追加包（资源包）可以往 `assets/<任意命名空间>/crt_signs/*.json` 放自己的标志定义，加载后会出现在
+编辑器「追加包标志」分类；旧的 `assets/nanbin/signs.json` 也继续兼容。完整格式与合并顺序见
+[ADDON_SIGNS.md](ADDON_SIGNS.md)。
 
 以后新增城市时使用 `sht_signs.json`、`sht_js_signs_config.json` 等，**不要复用** `crt_*` 文件。
 

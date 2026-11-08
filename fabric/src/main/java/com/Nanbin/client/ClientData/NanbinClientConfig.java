@@ -69,10 +69,10 @@ public final class NanbinClientConfig {
 		}
 		try {
 			//? if >=1.18.2 {
-			/*final JsonObject json = JsonParser.parseString(new String(Files.readAllBytes(file), StandardCharsets.UTF_8)).getAsJsonObject();
-			*///?} else {
-			final JsonObject json = new JsonParser().parse(new String(Files.readAllBytes(file), StandardCharsets.UTF_8)).getAsJsonObject();
-			//?}
+			final JsonObject json = JsonParser.parseString(new String(Files.readAllBytes(file), StandardCharsets.UTF_8)).getAsJsonObject();
+			//?} else {
+			/*final JsonObject json = new JsonParser().parse(new String(Files.readAllBytes(file), StandardCharsets.UTF_8)).getAsJsonObject();
+			*///?}
 			if (json.has(KEY_ROUTE_MAP_URL)) {
 				routeMapUrl = json.get(KEY_ROUTE_MAP_URL).getAsString().trim();
 			}

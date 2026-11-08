@@ -155,8 +155,10 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 							if (baked != null) {
 								final float plateWidth = 0.5F * (float) signIds.length;
 								final float plateHeight = 0.5F;
-								final float designWidth = Math.max(1.0F, baked.width);
-								final float designHeight = Math.max(1.0F, baked.height);
+								// 不能用 Math.max(1.0F, ...) 夹取：JS 样式的烘焙尺寸是世界单位（高只有 0.5），
+								// 被抬到 1.0 会让 fitScale 变成 0.5，表现为「内容缩小居中、四周留白」。
+								final float designWidth = Math.max(1.0E-4F, baked.width);
+								final float designHeight = Math.max(1.0E-4F, baked.height);
 								final float fitScale = Math.min(plateWidth / designWidth, plateHeight / designHeight);
 								final float drawWidth = designWidth * fitScale;
 								final float drawHeight = designHeight * fitScale;
@@ -766,6 +768,11 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 
 	// widthOverride > 0 时覆盖 ctx.getWidth()：格宽与格高不由同一常量推导时由渲染器直接给总宽。
 	public static void renderJSStyleLine(String scriptId, StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String[] lineIds, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, float cellSize, float startX, float startY, boolean transparentBlack, Map<Long, String> routeNumberMap, float widthOverride) {
+		renderJSStyleLine(scriptId, storedMatrixTransformations, pos, lineIds, selectedIds, routeNumbers, facing, backgroundColor, cellSize, startX, startY, transparentBlack, routeNumberMap, widthOverride, GraphicsHolder.getDefaultLight());
+	}
+
+	// light 为牌面内容使用的光照，墙挂牌2 传世界光照即可不再自发光。
+	public static void renderJSStyleLine(String scriptId, StoredMatrixTransformations storedMatrixTransformations, BlockPos pos, String[] lineIds, LongAVLTreeSet selectedIds, String[] routeNumbers, Direction facing, int backgroundColor, float cellSize, float startX, float startY, boolean transparentBlack, Map<Long, String> routeNumberMap, float widthOverride, int light) {
 		refreshJSCache();
 		final String signKey = scriptId + "_" + pos.getX() + "_" + pos.getY() + "_" + pos.getZ() + "_" + startX + "_" + startY + "_" + facing;
 		final float width = widthOverride > 0.0F ? widthOverride : lineIds.length * cellSize;
@@ -777,7 +784,7 @@ public class RenderCRTRailwaySign extends RenderRailwaySign<BlockCRTRailwaySign.
 		if (baked != null) {
 			MainRenderer.scheduleRender(baked.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
-				IDrawing.drawTexture(graphicsHolderNew, startX, startY, width, cellSize, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
+				IDrawing.drawTexture(graphicsHolderNew, startX, startY, width, cellSize, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, light);
 				graphicsHolderNew.pop();
 			});
 			return;

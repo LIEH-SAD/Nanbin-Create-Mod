@@ -8,7 +8,8 @@
   "contributors": [
     "LIEH-SAD",
     "jh233",
-    "2伍溜柒"
+    "2伍溜柒",
+    "厦航在拍车的无名机长"
   ],
   "contact": {
     "homepage": "https://lieh-sad.github.io/nanbin/",
@@ -33,7 +34,6 @@
   ],
   "depends": {
     "fabricloader": "*",
-    "fabric-api": "*",
     "minecraft": "@minecraftVersion@",
     "mtr": ">=4.0.0 <4.1.0",
     "filters": ">=1.0.0"

@@ -62,7 +62,7 @@ public final class LineMapDataResolver {
             }
             final List<LineMapData.Station> stations = buildStations(mainRoute, clientData);
 
-            return new LineMapData(mainRoute.getColor(), resolveLineNumber(mainRoute, clientData), currentIndex, stations,
+            return new LineMapData(mainRoute.getColor(), resolvePlatformLineNumber(platform, mainRoute, clientData), currentIndex, stations,
                     resolveBranches(mainRoute, mainStationIds, candidates, clientData),
                     mainRoute.getCircularState() != Route.CircularState.NONE);
         } catch (Exception e) {
@@ -202,17 +202,59 @@ public final class LineMapDataResolver {
 
     /** 线路编号：优先完整 Route 的真实编号，其次按 MTR 名称规则从线路名推导（与站名牌同源）。 */
     private static String resolveLineNumber(SimplifiedRoute simplifiedRoute, MinecraftClientData clientData) {
-        Route fullRoute = clientData.routeIdMap.get(simplifiedRoute.getId());
-        if (fullRoute == null) {
-            for (final Route candidate : clientData.routes) {
-                if (candidate.getId() == simplifiedRoute.getId()) {
-                    fullRoute = candidate;
-                    break;
-                }
-            }
-        }
+        final Route fullRoute = findFullRoute(simplifiedRoute, clientData);
         if (fullRoute != null && fullRoute.getRouteNumber() != null && !fullRoute.getRouteNumber().isEmpty()) {
             return fullRoute.getRouteNumber();
+        }
+        return RouteMapGenerator.deriveRouteNumberFromName(simplifiedRoute.getName());
+    }
+
+    /** routeIdMap 由 Data.sync 重建，可能短暂缺项，未命中时再遍历 data.routes 兜底。 */
+    private static Route findFullRoute(SimplifiedRoute simplifiedRoute, MinecraftClientData clientData) {
+        final Route fromIdMap = clientData.routeIdMap.get(simplifiedRoute.getId());
+        if (fromIdMap != null) {
+            return fromIdMap;
+        }
+        for (final Route candidate : clientData.routes) {
+            if (candidate.getId() == simplifiedRoute.getId()) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 主线线路编号：与站名牌 RenderCRTStationName1 用的 {@code RouteMapGenerator.resolveRouteData}
+     * 保持同一优先级 —— 完整 Route 的真实编号 → platform.routes 里（优先同色线路）的真实编号 →
+     * 按 MTR 名称规则从线路名推导。
+     *
+     * <p>MTR 客户端的 Route 编号要等服务端 sync 之后才有（routeIdMap 重建期间还会短暂为空），
+     * 只查 routeIdMap／data.routes 会让线路图圆徽在这一刻没有编号；站名牌正是靠 platform.routes
+     * 兜底才稳定出编号，这里照搬同一套顺序（名称推导放到最后，否则会盖掉 platform.routes 的真实编号）。</p>
+     */
+    private static String resolvePlatformLineNumber(Platform platform, SimplifiedRoute simplifiedRoute, MinecraftClientData clientData) {
+        final Route fullRoute = findFullRoute(simplifiedRoute, clientData);
+        if (fullRoute != null) {
+            final String number = fullRoute.getRouteNumber();
+            if (number != null && !number.isEmpty()) {
+                return number;
+            }
+        }
+        if (platform != null) {
+            for (final Route route : platform.routes) {
+                if (route.getColor() == simplifiedRoute.getColor()) {
+                    final String number = route.getRouteNumber();
+                    if (number != null && !number.isEmpty()) {
+                        return number;
+                    }
+                }
+            }
+            for (final Route route : platform.routes) {
+                final String number = route.getRouteNumber();
+                if (number != null && !number.isEmpty()) {
+                    return number;
+                }
+            }
         }
         return RouteMapGenerator.deriveRouteNumberFromName(simplifiedRoute.getName());
     }

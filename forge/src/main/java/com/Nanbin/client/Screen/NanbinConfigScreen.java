@@ -66,6 +66,8 @@ public class NanbinConfigScreen extends NanbinUIScreen {
                 .setIcon(new Identifier("nanbin:contributors/jb.png"));
         addConfig(TextHelper.literal("2伍溜柒"), () -> openUrl("https://space.bilibili.com/3546582999894124"))
                 .setIcon(new Identifier("nanbin:contributors/2wu.png"));
+        addConfig(TextHelper.literal("厦航在拍车的无名机长"), () -> openUrl("https://space.bilibili.com/3546725140663173"))
+                .setIcon(new Identifier("nanbin:contributors/hz.png"));
     }
 
     @Override

@@ -30,6 +30,7 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_FENCE9.get().data.asItem())
                 .addItems(Blocks.CRT_FENCE10.get().data.asItem())
                 .addItems(Blocks.CRT_FENCE_TICKET.get().data.asItem())
+                .addItems(Blocks.CRT_FENCE_TICKET_FLIPPED.get().data.asItem())
                 .addItems(Blocks.CRT_FENCE_LIFT_TIPS_1.get().data.asItem())
                 .addItems(Blocks.CRT_TEMP_FENCE_1.get().data.asItem());
 
@@ -64,7 +65,8 @@ public final class FiltersGroup {
                 .addItems(Blocks.CRT_RAILWAY_SIGN_POLE.get().data.asItem())
                 .addItems(Blocks.CRT_STATION_INFO_1.get().data.asItem())
                 .addItems(Blocks.CRT_STATION_INFO_1_DOUBLE.get().data.asItem())
-                .addItems(Blocks.CRT_RAILWAY_SIGN_WALL_1.get().data.asItem());
+                .addItems(Blocks.CRT_RAILWAY_SIGN_WALL_1.get().data.asItem())
+                .addItems(Blocks.CRT_RAILWAY_SIGN_WALL_2.get().data.asItem());
 
 
         CRT_TICKETS = FilterBuilder.registerFilter(ItemsGroup.CRT, TextHelper.translatable("FiltersGroup.nanbin.crt_tickets"), () -> new ItemStack(new ItemConvertible(Blocks.CRT_TICKET_1_EXIT.get().data)))

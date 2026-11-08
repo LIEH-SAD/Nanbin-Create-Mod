@@ -66,6 +66,8 @@ public class NanbinConfigScreen extends NanbinUIScreen {
                 .setIcon(new Identifier("nanbin:contributors/jb.png"));
         addConfig(TextHelper.literal("2伍溜柒"), () -> openUrl("https://space.bilibili.com/3546582999894124"))
                 .setIcon(new Identifier("nanbin:contributors/2wu.png"));
+        addConfig(TextHelper.literal("厦航在拍车的无名机长"), () -> openUrl("https://space.bilibili.com/3546725140663173"))
+                .setIcon(new Identifier("nanbin:contributors/hz.png"));
     }
 
     @Override
@@ -185,10 +187,10 @@ public class NanbinConfigScreen extends NanbinUIScreen {
     private static void drawTexture(GraphicsHolder graphicsHolder, Identifier texture, float x, float y, float width, float height) {
         // 参考实现会先把着色器颜色重置为白色，避免贴图被上一步的着色器颜色染色
         //? if <1.17 {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        //?} else {
-        /*RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        *///?}
+        /*RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        *///?} else {
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        //?}
         final GuiDrawing guiDrawing = new GuiDrawing(graphicsHolder);
         guiDrawing.beginDrawingTexture(texture);
         guiDrawing.drawTexture(x, y, x + width, y + height, 0.0F, 0.0F, 1.0F, 1.0F);

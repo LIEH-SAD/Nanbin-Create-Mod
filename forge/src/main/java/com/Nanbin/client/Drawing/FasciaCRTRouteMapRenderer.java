@@ -111,8 +111,7 @@ public final class FasciaCRTRouteMapRenderer {
 			final Color textAwt = new Color(textColor, true);
 			final Color greyAwt = new Color(GREY_COLOR, true);
 
-			g.setColor(Color.WHITE);
-			g.fillRect(0, 0, w, h);
+			// 不铺底色：吊板（CRT_PSD_TOP）自带面板贴图，线路图直接透明叠在上面。
 
 			// 环线画成两端半圆的胶囊：上下两条线带，站名分别在胶囊外侧
 			if (data.loop() && stationCount >= MIN_LOOP_STATIONS) {

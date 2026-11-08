@@ -20,7 +20,7 @@
 | P2 静态牌每秒重烘 / 每帧 toJson | ✅ 已优化 | `JSSignTextureBaker` 新增可指定 refreshMs 的重载；布局改用 30s 内容不变复用；世界渲染把 NBT JSON 的 `hashCode()` 传给 `CRTSignLayoutPainter.bake` 避免每帧 `toJson` |
 | P2 服务端无布局校验 | ✅ 已加 | `PacketUpdateCRTSignLayout` 服务端拒绝 >30000 字符的布局并打日志 |
 
-> 仍待处理（第二批已补齐，见下）：P1-9（决定不实现：本 mod 图标是彩色 signs.json 贴图，不做单色替换）。
+> 仍待处理（第二批已补齐，见下）：P1-9 已实现（ICON 元素新增 iconColor，按亮度把贴图矢量部分重着色，白底/透明边缘保留；见 CRTSignIconTint）。
 
 ## Lead 修复记录（第二批：功能补齐，已编译验证）
 

@@ -190,7 +190,12 @@ public class BlockCRTRailwaySignWall1 extends BlockExtension implements IBlock, 
         private String signLayout = "";
 
         public BlockEntity(BlockPos pos, BlockState state) {
-            super(BlockEntityTypes.CRT_RAILWAY_SIGN_WALL_1.get(), pos, state);
+            this(BlockEntityTypes.CRT_RAILWAY_SIGN_WALL_1.get(), pos, state);
+        }
+
+        // 供墙挂牌2继承：用同一个实体实现，但注册到自己的方块实体类型。
+        protected BlockEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
+            super(blockEntityType, pos, state);
         }
 
         // 本方块第 cell 格（0 = 左半，1 = 右半）的内容 id。

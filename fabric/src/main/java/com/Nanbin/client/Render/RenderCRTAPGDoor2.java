@@ -294,13 +294,13 @@ public class RenderCRTAPGDoor2<T extends BlockCRTAPGDoor2.BlockEntityBase> exten
             }
         }
 
-    /** Flat 1x1 ground light for the 2nd-gen APG door (no flash); texture reserved at nanbin:textures/block/crt_apg_ground_light.png. */
+    /** Flat 1x1 ground light for the 2nd-gen APG door (no flash); uses the shared crt_ground_light_* textures. */
     private static class ModelAPGDoorGround extends EntityModelExtension<EntityAbstractMapping> {
         private final ModelPartExtension bone = this.createModelPart();
 
         private ModelAPGDoorGround() {
             super(16, 16);
-            this.bone.setTextureUVOffset(0, 0).addCuboid(-8.0F, 0.0F, -8.0F, 16, 9, 16, 0.0F, false);
+            this.bone.setTextureUVOffset(0, 0).addCuboid(-8.0F, 0.0F, -8.0F, 16, 0, 16, 0.0F, false);
             this.buildModel();
         }
 

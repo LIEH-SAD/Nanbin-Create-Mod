@@ -25,18 +25,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailwaySignWall1.BlockEntity> {
+// 墙挂铁路指示牌渲染基类：内容几何与光照做成可覆盖字段，2 继承后单独调自己的模型。
+public class RenderCRTRailwaySignWall1<T extends BlockCRTRailwaySignWall1.BlockEntity> extends BlockEntityRenderer<T> {
 
 	private static final Identifier WHITE_TEXTURE = new Identifier("mtr", "textures/block/white.png");
 	// 每个方块放两格内容（格宽 0.5），内容区高度 0.5 块，单格即 0.5 × 0.5。
 	private static final int CELLS_PER_BLOCK = BlockCRTRailwaySignWall1.CELLS_PER_BLOCK;
-	private static final float CELL_WIDTH = 1.0F / CELLS_PER_BLOCK;
-	private static final float CONTENT_HEIGHT = 0.5F;
-	private static final double BASE_Y = 0.75D;
+	protected float cellWidth = 1.0F / CELLS_PER_BLOCK;
+	protected float contentHeight = 0.5F;
+	protected double baseY = 0.75D;
 	// 内容相对方块中心的偏移：x -0.5 让局部 x=0 落在左端方块的西缘，z 让内容贴在模型黑色面板（+Z 面 z=2px）前方。
 	// 每块两格（各 0.5 宽），整条牌的内容宽度 = 方块数 × 1.0。
-	private static final float CONTENT_OFFSET_X = -0.5F;
-	private static final float CONTENT_OFFSET_Z = 0.36875F;
+	protected float contentOffsetX = -0.5F;
+	protected float contentOffsetZ = 0.36875F;
 	private static final long REFRESH_INTERVAL_MS = 1000L;
 	private long lastRefreshTime = 0L;
 
@@ -44,13 +45,18 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 		super(dispatcher);
 	}
 
+	// 牌面内容的光照：默认全亮（自发光），子类可改为跟随世界光照。
+	protected int contentLight(int worldLight) {
+		return GraphicsHolder.getDefaultLight();
+	}
+
 	@Override
-	public boolean rendersOutsideBoundingBox2(BlockCRTRailwaySignWall1.BlockEntity entity) {
+	public boolean rendersOutsideBoundingBox2(T entity) {
 		return true;
 	}
 
 	@Override
-	public void render(BlockCRTRailwaySignWall1.BlockEntity entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
+	public void render(T entity, float tickDelta, GraphicsHolder graphicsHolder, int light, int overlay) {
 		final long now = System.currentTimeMillis();
 		if (now - lastRefreshTime >= REFRESH_INTERVAL_MS) {
 			lastRefreshTime = now;
@@ -115,19 +121,20 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 		final int backgroundColor = (firstBackground != 0 ? firstBackground : (isJSStyle ? 0 : 0xFFFFFF)) | 0xFF000000;
 		final LongAVLTreeSet selectedIds = entity.getSelectedIds();
 		final String[] routeNumbers = entity.getRouteNumbers();
+		final int contentLight = contentLight(light);
 
-		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(pos.getX() + 0.5D, pos.getY() + BASE_Y, pos.getZ() + 0.5D);
+		final StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations(pos.getX() + 0.5D, pos.getY() + baseY, pos.getZ() + 0.5D);
 		storedMatrixTransformations.add(graphicsHolderNew -> {
 			graphicsHolderNew.rotateYDegrees(-facing.asRotation());
 			graphicsHolderNew.rotateZDegrees(180.0F);
-			graphicsHolderNew.translate(CONTENT_OFFSET_X, 0.0D, CONTENT_OFFSET_Z);
+			graphicsHolderNew.translate(contentOffsetX, 0.0D, contentOffsetZ);
 		});
 
 		graphicsHolder.push();
-		graphicsHolder.translate(pos.getX() + 0.5D, pos.getY() + BASE_Y, pos.getZ() + 0.5D);
+		graphicsHolder.translate(pos.getX() + 0.5D, pos.getY() + baseY, pos.getZ() + 0.5D);
 		graphicsHolder.rotateYDegrees(-facing.asRotation());
 		graphicsHolder.rotateZDegrees(180.0F);
-		graphicsHolder.translate(CONTENT_OFFSET_X, 0.0D, CONTENT_OFFSET_Z);
+		graphicsHolder.translate(contentOffsetX, 0.0D, contentOffsetZ);
 		try {
 			// 自由布局（网页编辑器模型）：有布局数据时整条牌由布局绘制类烘焙成一张贴图来画
 			if (layout != null) {
@@ -141,10 +148,12 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 							? CRTJsLayoutBake.bake(layout, wallLayoutData, "crt_layout_wall:" + pos.toShortString(), signLayoutJson.hashCode(), facing, cellCount)
 							: CRTSignLayoutPainter.bake(layout, wallLayoutData, "crt_layout_wall:" + pos.toShortString(), signLayoutJson.hashCode());
 					if (baked != null) {
-						final float plateWidth = (float) cellCount * CELL_WIDTH;
-						final float plateHeight = CONTENT_HEIGHT;
-						final float designWidth = Math.max(1.0F, baked.width);
-						final float designHeight = Math.max(1.0F, baked.height);
+						final float plateWidth = (float) cellCount * cellWidth;
+						final float plateHeight = contentHeight;
+						// 不能用 Math.max(1.0F, ...) 夹取：JS 样式的烘焙尺寸是世界单位（高只有 0.5），
+						// 被抬到 1.0 会让 fitScale 变成 0.5，表现为「内容缩小居中、四周留白」。
+						final float designWidth = Math.max(1.0E-4F, baked.width);
+						final float designHeight = Math.max(1.0E-4F, baked.height);
 						final float fitScale = Math.min(plateWidth / designWidth, plateHeight / designHeight);
 						final float drawWidth = designWidth * fitScale;
 						final float drawHeight = designHeight * fitScale;
@@ -153,12 +162,12 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 						final int layoutBackground = layout.backgroundColor | 0xFF000000;
 						MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformations.transform(graphicsHolderNew, offset);
-							IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, plateWidth, plateHeight, 0.003125F, facing, layoutBackground, GraphicsHolder.getDefaultLight());
+							IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, plateWidth, plateHeight, 0.003125F, facing, layoutBackground, contentLight);
 							graphicsHolderNew.pop();
 						});
 						MainRenderer.scheduleRender(baked.identifier, true, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformations.transform(graphicsHolderNew, offset);
-							IDrawing.drawTexture(graphicsHolderNew, drawX, drawY, drawWidth, drawHeight, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, GraphicsHolder.getDefaultLight());
+							IDrawing.drawTexture(graphicsHolderNew, drawX, drawY, drawWidth, drawHeight, 0.0F, 0.0F, 1.0F, 1.0F, facing, -1, contentLight);
 							graphicsHolderNew.pop();
 						});
 						return;
@@ -166,12 +175,12 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 
 					if (jsStyle) {
 						// JS 样式烘焙失败：只画牌面底色，不回退旧格子渲染（与编辑器预览一致）
-						final float jsPlateWidth = (float) cellCount * CELL_WIDTH;
-						final float jsPlateHeight = CONTENT_HEIGHT;
+						final float jsPlateWidth = (float) cellCount * cellWidth;
+						final float jsPlateHeight = contentHeight;
 						final int layoutBackground = layout.backgroundColor | 0xFF000000;
 						MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 							storedMatrixTransformations.transform(graphicsHolderNew, offset);
-							IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, jsPlateWidth, jsPlateHeight, 0.003125F, facing, layoutBackground, GraphicsHolder.getDefaultLight());
+							IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, jsPlateWidth, jsPlateHeight, 0.003125F, facing, layoutBackground, contentLight);
 							graphicsHolderNew.pop();
 						});
 						return;
@@ -185,7 +194,7 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 			// 牌面底板：与旧牌一致放在不写深度的 LIGHT_TRANSLUCENT，并先于内容绘制。
 			MainRenderer.scheduleRender(WHITE_TEXTURE, false, QueuedRenderLayer.LIGHT_TRANSLUCENT, (graphicsHolderNew, offset) -> {
 				storedMatrixTransformations.transform(graphicsHolderNew, offset);
-				IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, (float) cellCount * CELL_WIDTH, CONTENT_HEIGHT, 0.003125F, facing, backgroundColor, GraphicsHolder.getDefaultLight());
+				IDrawing.drawTexture(graphicsHolderNew, 0.0F, 0.0F, 0.003125F, (float) cellCount * cellWidth, contentHeight, 0.003125F, facing, backgroundColor, contentLight);
 				graphicsHolderNew.pop();
 			});
 
@@ -199,11 +208,11 @@ public class RenderCRTRailwaySignWall1 extends BlockEntityRenderer<BlockCRTRailw
 					}
 				});
 				final int jsBackgroundColor = cellBackgroundColors[0] != 0 ? cellBackgroundColors[0] : 0;
-				RenderCRTRailwaySign.renderJSStyleLine(styleScriptId, storedMatrixTransformations, pos, signIds, selectedIds, routeNumbers, facing, jsBackgroundColor, CONTENT_HEIGHT, 0.0F, 0.0F, false, routeNumberMap, (float) cellCount * CELL_WIDTH);
+				RenderCRTRailwaySign.renderJSStyleLine(styleScriptId, storedMatrixTransformations, pos, signIds, selectedIds, routeNumbers, facing, jsBackgroundColor, contentHeight, 0.0F, 0.0F, false, routeNumberMap, (float) cellCount * cellWidth, contentLight);
 			} else {
 				// 与铁路指示牌共用同一套绘制类；墙挂牌每格 1.0 宽、内容高 0.5
 				final CRTLegacySignView wallView = new CRTLegacySignView(signIds, selectedIds, routeNumbers, entity::getRouteNumber, null)
-						.geometry(CONTENT_HEIGHT, CELL_WIDTH, facing)
+						.geometry(contentHeight, cellWidth, facing)
 						.cellOverrides(null, cellBackgroundColors);
 				CRTLegacySignDrawing.draw(wallView, graphicsHolder, storedMatrixTransformations, false);
 			}
