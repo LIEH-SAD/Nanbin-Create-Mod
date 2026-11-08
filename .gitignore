@@ -35,7 +35,10 @@ fabric.mod.json
 forge/src/main/resources/assets
 forge/src/main/resources/META-INF
 # local artifacts
-*.hprof
+# JVM heap dumps: also catch split dumps like java_pid1234.hprof.p0
+*.hprof*
+hs_err_pid*.log
+replay_pid*.log
 libs/
 Temp/
 gradle_build_log.txt
