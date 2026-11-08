@@ -99,10 +99,7 @@ public class RenderCRTAPGDoor1 implements BlockEntityRenderer<BlockCRTAPGDoor1.B
 					lightTexture = "off";
 					translucent = false;
 				}
-				drawModel(matrices, vertexConsumers, baseMatrix, blockTexture("crt_apg_door_light_" + lightTexture + "_old.png"), CRT_APG_LIGHT_1, translucent, light, overlay, graphics -> {
-					graphics.translate(-0.5F, 0.0F, 0.0F);
-					graphics.scale(0.5F, 1.0F, 1.0F);
-				});
+				drawModel(matrices, vertexConsumers, baseMatrix, blockTexture("crt_door_light_" + lightTexture + ".png"), CRT_APG_LIGHT_1, translucent, light, overlay, graphics -> graphics.translate(-0.5F, 0.0F, 0.0F));
 			}
 		}
 
@@ -223,12 +220,7 @@ public class RenderCRTAPGDoor1 implements BlockEntityRenderer<BlockCRTAPGDoor1.B
 			super(RenderLayer::getEntityCutout);
 			final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, 8, 8);
 			bone = new ModelMapper(modelDataWrapper);
-			bone.texOffs(0, 4).addBox(-8.0F, -1.5F, -5.2F, 4, 1, 1, 0.05F, false);
-			final ModelMapper cube = new ModelMapper(modelDataWrapper);
-			cube.setPos(0.0F, -9.05F, -4.95F);
-			bone.addChild(cube);
-			cube.setRotationAngle(0.3927F, 0.0F, 0.0F);
-			cube.texOffs(0, 0).addBox(-0.5F, 0.05F, -3.05F, 1, 1, 3, 0.05F, false);
+			bone.texOffs(0, 4).addBox(-8.0F, -1.5F, -5.2F, 3, 1, 1, 0.05F, false);
 			modelDataWrapper.setModelPart(8, 8);
 			bone.setModelPart();
 		}

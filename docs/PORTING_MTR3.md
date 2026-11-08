@@ -7,7 +7,7 @@
 | | 来源（只读） | 目标（写入） |
 |---|---|---|
 | 路径 | `D:\NCM+mtr4.0\Nanbin` | `D:\NCMOD1.20.1\ymtr\Nanbin` |
-| 分支 / 提交 | `mtr4.0` @ `ed04f13`（3.1最终功能性提交） | `feature/mtr4-parity`（自 `1.20.1+mtr3` @ `27e355c`） |
+| 分支 / 提交 | `mtr4.0` @ `e34adcb`（3.1最终功能性提交） | `1.20.1+ymtr`（自 `1.20.1+mtr3` @ `27e355c`） |
 | MTR | 4.0.5，`org.mtr.mapping.* / org.mtr.core.* / org.mtr.mod.*` | YMTR 3.6.3，`mtr.*` + 原生 `net.minecraft.*` |
 | MC / 映射 | 1.20.1 + Yarn（Stonecutter active=1.20.1） | 1.20.1 + Yarn（Architectury） |
 | 构建 | `.\gradlew.bat :fabric:1.20.1:build` | `.\gradlew.bat :common:compileJava` / `build` |
@@ -253,5 +253,20 @@ public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 
 **验证方式（实机）**：启动后日志应出现 `Loaded JS sign script: ...`（4 条旧配置 + 2 条 CRT 配置，同名 id 后者覆盖）；编辑器右栏「JS 样式」应列出 `crt_station_entrance`、`example_clock`、`example_station_info`、`example_multi_screen` 四项。
 - 来源（mtr4 分支）无此问题：它的 `CRTJsSignLoader.reload()` 由 `CRTSignLoaderMixin` 钩 MTR 资源重载，时机正确，**不需要改**。
+
+## 18. RenderCRTAPGDoor1/2 渲染位置对齐
+
+对照来源 `fabric/src/main/java/com/Nanbin/client/Render/RenderCRTAPGDoor1.java` / `RenderCRTAPGDoor2.java`，本轮把目标侧的**几何/位置**差异对齐：
+
+| 项 | 目标（改前） | 目标（改后，与来源一致） |
+|---|---|---|
+| Door1 门顶指示灯模型 | 灯条 `addBox(-8,-1.5,-5.2, 4,1,1,0.05)` **+** 一个旋转小方块（遮光片，pivot (0,-9.05,-4.95)、rot 0.3927、`addBox(-0.5,0.05,-3.05,1,1,3,0.05)`） | 只保留 `addBox(-8,-1.5,-5.2, 3,1,1,0.05)`（去掉多余遮光片，灯条宽度 4→3） |
+| Door1 指示灯贴图 | `crt_apg_door_light_<x>_old.png` | `crt_door_light_<x>.png`（来源 eb24848 改名后的共享灯贴图） |
+| Door1 指示灯变换 | `translate(-0.5,0,0)` **+ `scale(0.5,1,1)`** | 只 `translate(-0.5,0,0)`（来源该 scale 已注释，不缩放） |
+| Door2 站台面地灯模型 | 厚 1px（`16×1×16`） | 厚 0（`16×0×16`，贴地）—— 来源 3.1 最终提交把 `16×9` 改为 `16×0`，目标从 1px 对齐到 0 |
+
+已逐项核对一致、未改：Door1/Door2 其余模型（门页 bottom/top、地灯、锁定牌、`ModelSingleCube`）、所有 pivot/rotation、门开合平移、指示灯状态机（含列车接近闪烁）、贴图命名（Door2 的 `crt_apg_door_light_*` / `crt_apg_door_2_*`）、门号铭牌（来源两处 `renderDoorNumberPlate` 的绘制代码**均被注释**，目标同样不绘制）。
+
+保留差异（行为、非位置）：来源 Door2 的站台面地灯固定使用 `crt_ground_light_off(_flipped)` 且不随状态变化；目标 Door2 仍按 Door1 的状态机显示绿/黄。如需完全对齐来源可再调。
 
 > 来源 HEAD 说明：任务开始时为 `ed04f13`，后被来源作者 amend 为 `e34adcb`；差异仅「删除 6 个误提交的 `.hprof.p*` + `NanbinConfigScreen` +2 行 + `fabric.mod.template.json` −1 行」，不影响已移植内容。

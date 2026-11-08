@@ -237,7 +237,7 @@ public class RenderCRTAPGDoor2 implements BlockEntityRenderer<BlockCRTAPGDoor2.B
 			super(RenderLayer::getEntityCutout);
 			final ModelDataWrapper modelDataWrapper = new ModelDataWrapper(this, 16, 16);
 			bone = new ModelMapper(modelDataWrapper);
-			bone.texOffs(0, 0).addBox(-8.0F, 0.0F, -8.0F, 16, 1, 16, 0.0F, false);
+			bone.texOffs(0, 0).addBox(-8.0F, 0.0F, -8.0F, 16, 0, 16, 0.0F, false);
 			modelDataWrapper.setModelPart(16, 16);
 			bone.setModelPart();
 		}
